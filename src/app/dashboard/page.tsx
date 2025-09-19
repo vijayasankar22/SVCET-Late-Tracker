@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { EntryForm } from './_components/entry-form';
 import { RecordsTable } from './_components/records-table';
@@ -21,7 +21,13 @@ export default function DashboardPage() {
         const fetchedRecords: LateRecord[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          fetchedRecords.push({ id: doc.id, ...data } as LateRecord);
+          // Make sure timestamp is a JS Date object for consistency
+          const record = { 
+            id: doc.id, 
+            ...data,
+            timestamp: data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp)
+          } as LateRecord;
+          fetchedRecords.push(record);
         });
         setRecords(fetchedRecords);
       } catch (error) {
@@ -29,7 +35,7 @@ export default function DashboardPage() {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Could not fetch records from the database.",
+          description: "Could not fetch records from the database. Please ensure Firestore is set up correctly.",
         });
       } finally {
         setLoading(false);
@@ -41,11 +47,12 @@ export default function DashboardPage() {
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
+      const timestamp = new Date();
       const docRef = await addDoc(collection(db, 'lateRecords'), {
         ...newRecord,
-        timestamp: new Date(),
+        timestamp: timestamp,
       });
-      setRecords((prevRecords) => [{ id: docRef.id, ...newRecord, timestamp: new Date() } as LateRecord, ...prevRecords]);
+      setRecords((prevRecords) => [{ id: docRef.id, ...newRecord, timestamp: timestamp } as LateRecord, ...prevRecords]);
       return true;
     } catch (error) {
       console.error("Error adding document: ", error);

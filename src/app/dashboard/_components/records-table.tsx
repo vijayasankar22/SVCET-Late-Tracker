@@ -38,20 +38,16 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter]);
 
-  const lateCounts = useMemo(() => {
-    const counts: { [studentName: string]: number } = {};
-    for (const record of records) {
-      counts[record.studentName] = (counts[record.studentName] || 0) + 1;
-    }
-    return counts;
-  }, [records]);
-
   const filteredRecords = useMemo(() => {
     let dateFilteredRecords = records.filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
         const recordDate = new Date(record.date);
         if (dateRange.from && recordDate < dateRange.from) return false;
-        if (dateRange.to && recordDate > dateRange.to) return false;
+        if (dateRange.to) {
+            const toDate = new Date(dateRange.to);
+            toDate.setHours(23, 59, 59, 999);
+            if (recordDate > toDate) return false;
+        }
         return true;
       });
 
@@ -59,7 +55,6 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
       acc[record.studentName] = (acc[record.studentName] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
-
 
     return records
       .filter((record) =>
@@ -91,10 +86,9 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
           ...record,
           timesLate: studentLateCounts[record.studentName] || 0
       }))
-      // Sort by date and time descending
-      .sort((a,b) => {
-        const dateA = new Date(`${a.date} ${a.time}`).getTime();
-        const dateB = new Date(`${b.date} ${b.time}`).getTime();
+      .sort((a, b) => {
+        const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+        const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
   }, [records, searchTerm, departmentFilter, classFilter, dateRange]);
@@ -107,7 +101,7 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
       date: record.date,
       time: record.time,
       markedBy: record.markedBy,
-      timesLate: lateCounts[record.studentName],
+      timesLate: record.timesLate,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -227,7 +221,7 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
                     <TableCell>{record.date}</TableCell>
                     <TableCell>{record.time}</TableCell>
                     <TableCell>{record.markedBy}</TableCell>
-                    <TableCell className="text-center font-medium">{lateCounts[record.studentName]}</TableCell>
+                    <TableCell className="text-center font-medium">{record.timesLate}</TableCell>
                   </TableRow>
                 ))
               ) : (
