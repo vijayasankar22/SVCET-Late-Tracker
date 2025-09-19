@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
 
 export const metadata: Metadata = {
-  title: 'TardyMark',
+  title: 'SVCET - Late Tracker',
   description: 'Late Student Tracker',
 };
 

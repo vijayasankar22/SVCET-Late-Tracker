@@ -87,5 +87,5 @@ export const students: Student[] = [
 export const mockStaff: Staff = {
   id: 'staff1',
   name: 'Admin Staff',
-  email: 'admin@tardymark.com',
+  email: 'admin@svcet.com',
 };

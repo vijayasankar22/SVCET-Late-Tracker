@@ -22,13 +22,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('tardymark_user');
+      const storedUser = localStorage.getItem('svcet_late_tracker_user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
-      localStorage.removeItem('tardymark_user');
+      localStorage.removeItem('svcet_late_tracker_user');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Mock login logic
     if (email.toLowerCase() === mockStaff.email.toLowerCase()) {
       setUser(mockStaff);
-      localStorage.setItem('tardymark_user', JSON.stringify(mockStaff));
+      localStorage.setItem('svcet_late_tracker_user', JSON.stringify(mockStaff));
       return true;
     }
     return false;
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('tardymark_user');
+    localStorage.removeItem('svcet_late_tracker_user');
     router.push('/login');
   };
 

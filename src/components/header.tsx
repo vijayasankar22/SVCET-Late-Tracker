@@ -20,7 +20,7 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
       <div className="flex items-center gap-2">
         <ClipboardCheck className="h-6 w-6" />
-        <h1 className="text-xl font-bold font-headline tracking-tight">TardyMark</h1>
+        <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </div>
       <div className="ml-auto flex items-center gap-4">
         {user && (

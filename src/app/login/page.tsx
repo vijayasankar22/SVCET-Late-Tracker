@@ -46,7 +46,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
             <ClipboardCheck className="h-8 w-8" />
           </div>
-          <CardTitle className="text-3xl font-headline">TardyMark</CardTitle>
+          <CardTitle className="text-3xl font-headline">SVCET - Late Tracker</CardTitle>
           <CardDescription>Staff Login</CardDescription>
         </CardHeader>
         <CardContent>
@@ -56,7 +56,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@tardymark.com"
+                placeholder="admin@svcet.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
