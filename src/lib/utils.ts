@@ -1,12 +1,11 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { LateRecord } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function exportToCsv(filename: string, rows: LateRecord[]) {
+export function exportToCsv(filename: string, rows: any[]) {
   if (!rows || rows.length === 0) {
     return;
   }
@@ -18,7 +17,7 @@ export function exportToCsv(filename: string, rows: LateRecord[]) {
     '\n' +
     rows.map(row => {
       return keys.map(k => {
-        let cell = row[k as keyof LateRecord] === null || row[k as keyof LateRecord] === undefined ? '' : row[k as keyof LateRecord];
+        let cell = row[k] === null || row[k] === undefined ? '' : row[k];
         cell = cell instanceof Date
           ? cell.toLocaleString()
           : cell.toString().replace(/"/g, '""');

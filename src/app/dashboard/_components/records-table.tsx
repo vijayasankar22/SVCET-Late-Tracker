@@ -33,8 +33,16 @@ export function RecordsTable({ records }: RecordsTableProps) {
     }
     const dept = departments.find(d => d.name === departmentFilter);
     if (!dept) return [];
-    return classes.filter(c => c.departmentId === dept.id);
+    return classes.filter(c => c.classId === dept.id);
   }, [departmentFilter]);
+
+  const lateCounts = useMemo(() => {
+    const counts: { [studentName: string]: number } = {};
+    for (const record of records) {
+      counts[record.studentName] = (counts[record.studentName] || 0) + 1;
+    }
+    return counts;
+  }, [records]);
 
   const filteredRecords = useMemo(() => {
     return records
@@ -58,7 +66,11 @@ export function RecordsTable({ records }: RecordsTableProps) {
   }, [records, searchTerm, departmentFilter, classFilter, dateRange]);
 
   const handleExport = () => {
-    exportToCsv("late-records.csv", filteredRecords);
+    const recordsWithCount = filteredRecords.map(record => ({
+      ...record,
+      timesLate: lateCounts[record.studentName],
+    }))
+    exportToCsv("late-records.csv", recordsWithCount);
   };
   
   const handleDepartmentChange = (value: string) => {
@@ -157,6 +169,7 @@ export function RecordsTable({ records }: RecordsTableProps) {
                 <TableHead className="font-bold text-primary">Date</TableHead>
                 <TableHead className="font-bold text-primary">Time</TableHead>
                 <TableHead className="font-bold text-primary">Marked By</TableHead>
+                <TableHead className="font-bold text-primary text-center">Times Late</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -169,11 +182,12 @@ export function RecordsTable({ records }: RecordsTableProps) {
                     <TableCell>{record.date}</TableCell>
                     <TableCell>{record.time}</TableCell>
                     <TableCell>{record.markedBy}</TableCell>
+                    <TableCell className="text-center font-medium">{lateCounts[record.studentName]}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                     No records found.
                   </TableCell>
                 </TableRow>
