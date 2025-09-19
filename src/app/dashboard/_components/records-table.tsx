@@ -16,12 +16,14 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type RecordsTableProps = {
   records: LateRecord[];
+  loading: boolean;
 };
 
-export function RecordsTable({ records }: RecordsTableProps) {
+export function RecordsTable({ records, loading }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -33,7 +35,7 @@ export function RecordsTable({ records }: RecordsTableProps) {
     }
     const dept = departments.find(d => d.name === departmentFilter);
     if (!dept) return [];
-    return classes.filter(c => c.classId === dept.id);
+    return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter]);
 
   const lateCounts = useMemo(() => {
@@ -45,6 +47,20 @@ export function RecordsTable({ records }: RecordsTableProps) {
   }, [records]);
 
   const filteredRecords = useMemo(() => {
+    let dateFilteredRecords = records.filter((record) => {
+        if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
+        const recordDate = new Date(record.date);
+        if (dateRange.from && recordDate < dateRange.from) return false;
+        if (dateRange.to && recordDate > dateRange.to) return false;
+        return true;
+      });
+
+    const studentLateCounts = dateFilteredRecords.reduce((acc, record) => {
+      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+
     return records
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,20 +73,43 @@ export function RecordsTable({ records }: RecordsTableProps) {
       )
       .filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
-        const recordDate = new Date(record.date);
-        if (dateRange.from && recordDate < dateRange.from) return false;
-        if (dateRange.to && recordDate > dateRange.to) return false;
-        return true;
+        try {
+            const recordDate = new Date(record.date);
+            if (dateRange.from && recordDate < dateRange.from) return false;
+            // Set time to end of day for 'to' date
+            if (dateRange.to) {
+                const toDate = new Date(dateRange.to);
+                toDate.setHours(23, 59, 59, 999);
+                if (recordDate > toDate) return false;
+            }
+            return true;
+        } catch (e) {
+            return true;
+        }
       })
-      .sort((a,b) => new Date(`${b.date} ${b.time}`).getTime() - new Date(`${a.date} ${a.time}`).getTime());
+      .map(record => ({
+          ...record,
+          timesLate: studentLateCounts[record.studentName] || 0
+      }))
+      // Sort by date and time descending
+      .sort((a,b) => {
+        const dateA = new Date(`${a.date} ${a.time}`).getTime();
+        const dateB = new Date(`${b.date} ${b.time}`).getTime();
+        return dateB - dateA;
+      });
   }, [records, searchTerm, departmentFilter, classFilter, dateRange]);
 
   const handleExport = () => {
-    const recordsWithCount = filteredRecords.map(record => ({
-      ...record,
+    const recordsToExport = filteredRecords.map(record => ({
+      studentName: record.studentName,
+      departmentName: record.departmentName,
+      className: record.className,
+      date: record.date,
+      time: record.time,
+      markedBy: record.markedBy,
       timesLate: lateCounts[record.studentName],
-    }))
-    exportToCsv("late-records.csv", recordsWithCount);
+    }));
+    exportToCsv("late-records.csv", recordsToExport);
   };
   
   const handleDepartmentChange = (value: string) => {
@@ -173,7 +212,13 @@ export function RecordsTable({ records }: RecordsTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRecords.length > 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <Skeleton className="h-8 w-full" />
+                  </TableCell>
+                </TableRow>
+              ) : filteredRecords.length > 0 ? (
                 filteredRecords.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell className="font-medium">{record.studentName}</TableCell>

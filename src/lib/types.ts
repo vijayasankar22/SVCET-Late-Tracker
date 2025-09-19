@@ -30,4 +30,5 @@ export interface LateRecord {
   date: string;
   time: string;
   markedBy: string;
+  timestamp: any;
 }

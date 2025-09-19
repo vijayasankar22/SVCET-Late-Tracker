@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,12 +21,13 @@ const formSchema = z.object({
 });
 
 type EntryFormProps = {
-  onAddRecord: (record: LateRecord) => void;
+  onAddRecord: (record: Omit<LateRecord, 'id'>) => Promise<boolean>;
 };
 
 export function EntryForm({ onAddRecord }: EntryFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,15 +52,15 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
   }, [selectedClassId]);
 
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     const student = students.find((s) => s.id === values.studentId);
     const department = departments.find((d) => d.id === values.departmentId);
     const cls = classes.find((c) => c.id === values.classId);
 
     if (student && department && cls && user) {
+      setIsSubmitting(true);
       const now = new Date();
-      const newRecord: LateRecord = {
-        id: `rec_${Date.now()}`,
+      const newRecord = {
         studentName: student.name,
         departmentName: department.name,
         className: cls.name,
@@ -67,12 +68,17 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
         time: now.toLocaleTimeString(),
         markedBy: user.name,
       };
-      onAddRecord(newRecord);
-      toast({
-        title: 'Success!',
-        description: `${student.name} has been marked as late.`,
-      });
-      form.reset();
+      
+      const success = await onAddRecord(newRecord);
+
+      if (success) {
+        toast({
+          title: 'Success!',
+          description: `${student.name} has been marked as late.`,
+        });
+        form.reset();
+      }
+      setIsSubmitting(false);
     }
   }
   
@@ -105,7 +111,7 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={handleDepartmentChange} defaultValue={field.value}>
+                    <Select onValueChange={handleDepartmentChange} defaultValue={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -125,7 +131,7 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Class</FormLabel>
-                    <Select onValueChange={handleClassChange} value={field.value} disabled={!selectedDepartmentId}>
+                    <Select onValueChange={handleClassChange} value={field.value} disabled={!selectedDepartmentId || isSubmitting}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
                       </FormControl>
@@ -147,7 +153,7 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
                     <div className="flex justify-between items-center">
                       <FormLabel>Student Name</FormLabel>
                     </div>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId || isSubmitting}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
                       </FormControl>
@@ -163,8 +169,8 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" className="bg-accent hover:bg-accent/90 w-full md:w-auto">
-                Mark Late
+              <Button type="submit" className="bg-accent hover:bg-accent/90 w-full md:w-auto" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Mark Late'}
               </Button>
             </div>
           </form>
