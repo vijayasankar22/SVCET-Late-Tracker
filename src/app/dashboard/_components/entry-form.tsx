@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useTransition } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
@@ -11,8 +11,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { departments, classes, students } from '@/lib/data';
-import { suggestStudentsAction } from '@/lib/actions';
-import { Bot, Loader2 } from 'lucide-react';
 import type { LateRecord } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 
@@ -29,7 +27,6 @@ type EntryFormProps = {
 export function EntryForm({ onAddRecord }: EntryFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isAiLoading, startAiTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,38 +50,6 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
     return students.filter((s) => s.classId === selectedClassId);
   }, [selectedClassId]);
 
-  const [suggestedStudents, setSuggestedStudents] = useState<string[]>([]);
-
-  const handleSuggestStudents = () => {
-    const department = departments.find(d => d.id === selectedDepartmentId);
-    const
-      _class = classes.find(c => c.id === selectedClassId);
-    if (!department || !_class) {
-      toast({
-        variant: 'destructive',
-        title: 'Selection Required',
-        description: 'Please select a department and class first.',
-      });
-      return;
-    }
-
-    startAiTransition(async () => {
-      const result = await suggestStudentsAction({ department: department.name, className: _class.name });
-      if (result.success && result.data) {
-        setSuggestedStudents(result.data);
-        toast({
-          title: 'AI Suggestions Ready',
-          description: 'Suggested students have been loaded.',
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'AI Suggestion Failed',
-          description: result.error,
-        });
-      }
-    });
-  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const student = students.find((s) => s.id === values.studentId);
@@ -108,7 +73,6 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
         description: `${student.name} has been marked as late.`,
       });
       form.reset();
-      setSuggestedStudents([]);
     }
   }
   
@@ -117,14 +81,12 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
     form.setValue('departmentId', value);
     form.setValue('classId', '');
     form.setValue('studentId', '');
-    setSuggestedStudents([]);
   };
   
   // Reset student when class changes
   const handleClassChange = (value: string) => {
     form.setValue('classId', value);
     form.setValue('studentId', '');
-    setSuggestedStudents([]);
   };
 
   return (
@@ -184,26 +146,12 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
                   <FormItem>
                     <div className="flex justify-between items-center">
                       <FormLabel>Student Name</FormLabel>
-                      <Button type="button" variant="ghost" size="sm" onClick={handleSuggestStudents} disabled={!selectedClassId || isAiLoading}>
-                        {isAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4 mr-2" />}
-                        Suggest
-                      </Button>
                     </div>
                     <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {suggestedStudents.length > 0 && (
-                          <>
-                           <FormLabel className="px-2 text-xs text-muted-foreground">AI Suggestions</FormLabel>
-                            {suggestedStudents.map((name) => {
-                                const student = availableStudents.find(s => s.name === name);
-                                return student ? <SelectItem key={student.id} value={student.id}>{student.name}</SelectItem> : null;
-                            })}
-                           <FormLabel className="px-2 text-xs text-muted-foreground">All Students</FormLabel>
-                          </>
-                        )}
                         {availableStudents.map((student) => (
                           <SelectItem key={student.id} value={student.id}>{student.name}</SelectItem>
                         ))}
