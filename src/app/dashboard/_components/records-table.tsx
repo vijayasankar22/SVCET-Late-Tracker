@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { collegeLogoBase64 } from "@/lib/college-logo";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -112,14 +111,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
-    
-    // Add image header
-    const imgWidth = 180;
-    const imgHeight = 20; 
-    const x = (doc.internal.pageSize.getWidth() - imgWidth) / 2;
-    doc.addImage(collegeLogoBase64, 'PNG', x, 10, imgWidth, imgHeight);
-
-
     const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Marked By', 'Times Late']];
     const tableBody = filteredRecords.map(record => [
       record.studentName,
@@ -134,7 +125,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     autoTable(doc, {
       head: tableHead,
       body: tableBody,
-      startY: 40, // Adjust startY to leave space for the image
+      startY: 20,
     });
 
     doc.save("late-records.pdf");
