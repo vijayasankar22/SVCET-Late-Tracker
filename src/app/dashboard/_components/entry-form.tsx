@@ -20,7 +20,7 @@ const formSchema = z.object({
 });
 
 type EntryFormProps = {
-  onAddRecord: (record: Omit<LateRecord, 'id'>) => Promise<boolean>;
+  onAddRecord: (record: Omit<LateRecord, 'id' | 'timestamp'>) => Promise<boolean>;
   departments: Department[];
   classes: Class[];
   students: Student[];

@@ -44,7 +44,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const filteredRecords = useMemo(() => {
     let dateFilteredRecords = records.filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
-        const recordDate = new Date(record.date);
+        const recordDate = new Date(record.timestamp);
         if (dateRange.from && recordDate < dateRange.from) return false;
         if (dateRange.to) {
             const toDate = new Date(dateRange.to);
@@ -72,7 +72,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       .filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
         try {
-            const recordDate = new Date(record.date);
+            const recordDate = new Date(record.timestamp);
             if (dateRange.from && recordDate < dateRange.from) return false;
             // Set time to end of day for 'to' date
             if (dateRange.to) {

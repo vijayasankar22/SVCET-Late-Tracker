@@ -5,6 +5,7 @@ import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase
 import { db } from '@/lib/firebase';
 import { EntryForm } from './_components/entry-form';
 import { RecordsTable } from './_components/records-table';
+import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -35,10 +36,12 @@ export default function DashboardPage() {
         
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
+          const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
           return { 
             id: doc.id, 
             ...data,
-            timestamp: data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp)
+            timestamp: timestamp,
+            date: timestamp.toLocaleDateString(),
           } as LateRecord;
         });
 
@@ -74,11 +77,14 @@ export default function DashboardPage() {
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
       const timestamp = new Date();
-      const docRef = await addDoc(collection(db, 'lateRecords'), {
+      const recordWithTimestamp = {
         ...newRecord,
         timestamp: timestamp,
-      });
-      setRecords((prevRecords) => [{ id: docRef.id, ...newRecord, timestamp: timestamp } as LateRecord, ...prevRecords]);
+        date: timestamp.toLocaleDateString(),
+      };
+      const docRef = await addDoc(collection(db, 'lateRecords'), recordWithTimestamp);
+
+      setRecords((prevRecords) => [{ id: docRef.id, ...recordWithTimestamp } as LateRecord, ...prevRecords]);
       return true;
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -108,6 +114,7 @@ export default function DashboardPage() {
         classes={classes}
         students={students}
        />
+       <Stats records={records} />
       <RecordsTable 
         records={records} 
         loading={loading}
