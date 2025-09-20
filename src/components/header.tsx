@@ -17,8 +17,8 @@ export function Header() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card/80 px-4 text-primary-foreground shadow-md backdrop-blur-lg sm:px-6">
+      <div className="flex items-center gap-2 text-primary">
         <ClipboardCheck className="h-6 w-6" />
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </div>
@@ -32,7 +32,7 @@ export function Header() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-56 glass-effect" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none text-foreground">{user.name}</p>

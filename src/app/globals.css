@@ -5,11 +5,11 @@
 @layer base {
   :root {
     --background: 225 43% 90%;
-    --foreground: 227 45% 20%;
-    --card: 0 0% 100%;
-    --card-foreground: 227 45% 20%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 227 45% 20%;
+    --foreground: 227 45% 10%;
+    --card: 0 0% 100% / 0.4;
+    --card-foreground: 227 45% 15%;
+    --popover: 0 0% 100% / 0.6;
+    --popover-foreground: 227 45% 15%;
     --primary: 227 65% 32%;
     --primary-foreground: 0 0% 98%;
     --secondary: 225 30% 80%;
@@ -20,8 +20,8 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 225 20% 80%;
-    --input: 225 20% 85%;
+    --border: 225 20% 80% / 0.5;
+    --input: 225 20% 85% / 0.5;
     --ring: 174 62% 39%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -33,9 +33,9 @@
   .dark {
     --background: 227 45% 15%;
     --foreground: 0 0% 98%;
-    --card: 227 45% 20%;
+    --card: 227 45% 20% / 0.4;
     --card-foreground: 0 0% 98%;
-    --popover: 227 45% 15%;
+    --popover: 227 45% 15% / 0.6;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 227 65% 32%;
@@ -47,8 +47,8 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 225 30% 30%;
-    --input: 225 30% 30%;
+    --border: 225 30% 30% / 0.5;
+    --input: 225 30% 30% / 0.5;
     --ring: 174 62% 39%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -64,11 +64,21 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+  }
+  .dark body {
+    background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
   }
   .table-alternating-rows tbody tr:nth-child(even) {
     @apply bg-accent/10;
   }
   .table-alternating-rows tbody tr:hover {
     @apply bg-accent/20;
+  }
+}
+
+@layer components {
+  .glass-effect {
+    @apply bg-card/80 backdrop-blur-lg;
   }
 }
