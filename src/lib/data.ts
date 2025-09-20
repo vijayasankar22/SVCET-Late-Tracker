@@ -436,5 +436,19 @@ export const students: Student[] = [
   { id: 'eee-2-7', name: 'SARATHI P', departmentId: 'eee', classId: 'eee-2' },
   { id: 'eee-2-8', name: 'JAISON JOSE M', departmentId: 'eee', classId: 'eee-2' },
   { id: 'eee-2-9', name: 'SURIYA M', departmentId: 'eee', classId: 'eee-2' },
+
+  // EEE III
+  { id: 'eee-3-1', name: 'ABDUL ALIM R', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-2', name: 'BHUVANESH P', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-3', name: 'DHEEPAK DAYAL RAJ A', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-4', name: 'GOBINATH R', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-5', name: 'PAVISWARAN R', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-6', name: 'PRAVEEN M', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-7', name: 'SABITHA S', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-8', name: 'SANJAI V', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-9', name: 'SWETHA P', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-10', name: 'TAMIZHVANAN V', departmentId: 'eee', classId: 'eee-3' },
+  { id: 'eee-3-11', name: 'THARUN K', departmentId: 'eee', classId: 'eee-3' },
 ];
+
 
