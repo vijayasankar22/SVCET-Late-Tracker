@@ -10,8 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { departments, classes, students } from '@/lib/data';
-import type { LateRecord } from '@/lib/types';
+import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
@@ -22,9 +21,12 @@ const formSchema = z.object({
 
 type EntryFormProps = {
   onAddRecord: (record: Omit<LateRecord, 'id'>) => Promise<boolean>;
+  departments: Department[];
+  classes: Class[];
+  students: Student[];
 };
 
-export function EntryForm({ onAddRecord }: EntryFormProps) {
+export function EntryForm({ onAddRecord, departments, classes, students }: EntryFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,12 +46,12 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
   const availableClasses = useMemo(() => {
     if (!selectedDepartmentId) return [];
     return classes.filter((c) => c.departmentId === selectedDepartmentId);
-  }, [selectedDepartmentId]);
+  }, [selectedDepartmentId, classes]);
 
   const availableStudents = useMemo(() => {
     if (!selectedClassId) return [];
     return students.filter((s) => s.classId === selectedClassId);
-  }, [selectedClassId]);
+  }, [selectedClassId, students]);
 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -111,7 +113,7 @@ export function EntryForm({ onAddRecord }: EntryFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={handleDepartmentChange} defaultValue={field.value} disabled={isSubmitting}>
+                    <Select onValueChange={handleDepartmentChange} defaultValue={field.value} disabled={isSubmitting || departments.length === 0}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>

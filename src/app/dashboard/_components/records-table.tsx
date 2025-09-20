@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Download, Search } from "lucide-react";
-import type { LateRecord } from "@/lib/types";
+import type { LateRecord, Department, Class } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
-import { departments, classes } from "@/lib/data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -21,9 +20,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 type RecordsTableProps = {
   records: LateRecord[];
   loading: boolean;
+  departments: Department[];
+  classes: Class[];
 };
 
-export function RecordsTable({ records, loading }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -36,7 +37,7 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
     const dept = departments.find(d => d.name === departmentFilter);
     if (!dept) return [];
     return classes.filter(c => c.departmentId === dept.id);
-  }, [departmentFilter]);
+  }, [departmentFilter, departments, classes]);
 
   const filteredRecords = useMemo(() => {
     let dateFilteredRecords = records.filter((record) => {
@@ -136,7 +137,7 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={departmentFilter} onValueChange={handleDepartmentChange}>
+          <Select value={departmentFilter} onValueChange={handleDepartmentChange} disabled={departments.length === 0}>
             <SelectTrigger><SelectValue placeholder="Filter by Department" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
@@ -208,8 +209,10 @@ export function RecordsTable({ records, loading }: RecordsTableProps) {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
-                    <Skeleton className="h-8 w-full" />
+                  <TableCell colSpan={7}>
+                    <Skeleton className="h-8 w-full my-2" />
+                    <Skeleton className="h-8 w-full my-2" />
+                    <Skeleton className="h-8 w-full my-2" />
                   </TableCell>
                 </TableRow>
               ) : filteredRecords.length > 0 ? (
