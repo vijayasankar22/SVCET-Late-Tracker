@@ -25,7 +25,7 @@ export default function LoginPage() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const success = login(email);
+    const success = login(email, password);
 
     if (success) {
       router.push('/dashboard');
@@ -75,17 +75,16 @@ export default function LoginPage() {
                 placeholder="••••••••"
               />
             </div>
+             <Button
+                type="submit"
+                className="w-full bg-accent hover:bg-accent/90"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Logging in...' : 'Login'}
+              </Button>
           </form>
         </CardContent>
         <CardFooter>
-          <Button
-            type="submit"
-            className="w-full bg-accent hover:bg-accent/90"
-            onClick={handleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Logging in...' : 'Login'}
-          </Button>
         </CardFooter>
       </Card>
     </div>

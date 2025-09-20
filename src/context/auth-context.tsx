@@ -3,17 +3,22 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Staff } from '@/lib/types';
-import { mockStaff } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface AuthContextType {
   user: Staff | null;
-  login: (email: string) => boolean;
+  login: (email: string, password: string) => boolean;
   logout: () => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const validUsers = [
+    { email: 'admin@svcet.com', password: 'Admin@789', name: 'Admin Staff', id: 'admin' },
+    { email: 'dean@svcet.com', password: 'Dean@789', name: 'Dean', id: 'dean' }
+];
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Staff | null>(null);
@@ -34,11 +39,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (email: string): boolean => {
-    // Mock login logic
-    if (email.toLowerCase() === mockStaff.email.toLowerCase()) {
-      setUser(mockStaff);
-      localStorage.setItem('svcet_late_tracker_user', JSON.stringify(mockStaff));
+  const login = (email: string, password: string): boolean => {
+    const foundUser = validUsers.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+
+    if (foundUser) {
+      const staffUser: Staff = {
+        id: foundUser.id,
+        name: foundUser.name,
+        email: foundUser.email,
+      };
+      setUser(staffUser);
+      localStorage.setItem('svcet_late_tracker_user', JSON.stringify(staffUser));
       return true;
     }
     return false;

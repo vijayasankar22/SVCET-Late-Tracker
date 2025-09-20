@@ -228,7 +228,7 @@ export const students: Student[] = [
   { id: 'cse-2b-40', name: 'SANJAY S', departmentId: 'cse', classId: 'cse-2b' },
   { id: 'cse-2b-41', name: 'SHADHANA NEERTHIKA K', departmentId: 'cse', classId: 'cse-2b' },
   { id: 'cse-2b-42', name: 'SHAFANA S', departmentId: 'cse', classId: 'cse-2b' },
-  { id: 'cse-2b-43', name: 'SHARMY B', departmentId: 'cse', classId: 'cse-2b' },
+  { id: 'cse-2b-43', name: 'SHARMY B', departmentId: 'cse', classid: 'cse-2b' },
   { id: 'cse-2b-44', name: 'SOMAYA RAMYA M', departmentId: 'cse', classId: 'cse-2b' },
   { id: 'cse-2b-45', name: 'SREE KRISHNAN I', departmentId: 'cse', classId: 'cse-2b' },
   { id: 'cse-2b-46', name: 'SRIVIDHYA THIRUSANGU', departmentId: 'cse', classId: 'cse-2b' },
@@ -411,9 +411,3 @@ export const students: Student[] = [
   { id: 'bme-3-44', name: 'VISHNUPRIYA S', departmentId: 'bme', classId: 'bme-3' },
   { id: 'bme-3-45', name: 'YOKESH C', departmentId: 'bme', classId: 'bme-3' },
 ];
-
-export const mockStaff: Staff = {
-  id: 'staff1',
-  name: 'Admin Staff',
-  email: 'admin@svcet.com',
-};
