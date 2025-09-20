@@ -84,7 +84,7 @@ export default function DashboardPage() {
       };
       const docRef = await addDoc(collection(db, 'lateRecords'), recordWithTimestamp);
 
-      setRecords((prevRecords) => [{ id: docRef.id, ...recordWithTimestamp } as LateRecord, ...prevRecords]);
+      setRecords((prevRecords) => [{ id: docRef.id, ...recordWithTimestamp, timestamp: timestamp } as LateRecord, ...prevRecords]);
       return true;
     } catch (error) {
       console.error("Error adding document: ", error);
