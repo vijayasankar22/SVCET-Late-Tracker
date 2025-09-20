@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search } from "lucide-react";
+import { Download, Search, FileDown } from "lucide-react";
 import type { LateRecord, Department, Class } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,6 +16,8 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -94,7 +96,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       });
   }, [records, searchTerm, departmentFilter, classFilter, dateRange]);
 
-  const handleExport = () => {
+  const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map(record => ({
       studentName: record.studentName,
       departmentName: record.departmentName,
@@ -105,6 +107,31 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       timesLate: record.timesLate,
     }));
     exportToCsv("late-records.csv", recordsToExport);
+  };
+
+  const handleExportPdf = () => {
+    const doc = new jsPDF();
+    const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Marked By', 'Times Late']];
+    const tableBody = filteredRecords.map(record => [
+      record.studentName,
+      record.departmentName,
+      record.className,
+      record.date,
+      record.time,
+      record.markedBy,
+      record.timesLate,
+    ]);
+
+    autoTable(doc, {
+      head: tableHead,
+      body: tableBody,
+      didDrawPage: (data) => {
+        doc.setFontSize(20);
+        doc.text("Late Records", data.settings.margin.left, 15);
+      },
+    });
+
+    doc.save("late-records.pdf");
   };
   
   const handleDepartmentChange = (value: string) => {
@@ -120,10 +147,16 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 <CardTitle className="font-headline text-2xl">Late Records</CardTitle>
                 <CardDescription>View, filter, and export all recorded late entries.</CardDescription>
             </div>
-          <Button onClick={handleExport} disabled={filteredRecords.length === 0}>
-            <Download className="mr-2 h-4 w-4" />
-            Export to CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleExportPdf} disabled={filteredRecords.length === 0}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Export to PDF
+            </Button>
+            <Button onClick={handleExportCsv} disabled={filteredRecords.length === 0}>
+                <Download className="mr-2 h-4 w-4" />
+                Export to CSV
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
