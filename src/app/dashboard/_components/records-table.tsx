@@ -125,10 +125,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     autoTable(doc, {
       head: tableHead,
       body: tableBody,
-      didDrawPage: (data) => {
-        doc.setFontSize(20);
-        doc.text("Late Records", data.settings.margin.left, 15);
-      },
     });
 
     doc.save("late-records.pdf");
