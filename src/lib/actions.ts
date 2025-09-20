@@ -1,6 +1,6 @@
 'use server';
 
-import { collection, writeBatch, getDocs, query } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, query, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { departments, classes, students } from '@/lib/data';
 
@@ -8,35 +8,38 @@ export async function seedDatabase() {
   try {
     const batch = writeBatch(db);
     
-    // Check if collections are already populated to avoid duplicates
-    const deptCheck = await getDocs(query(collection(db, 'departments')));
+    const departmentsCollection = collection(db, 'departments');
+    const classesCollection = collection(db, 'classes');
+    const studentsCollection = collection(db, 'students');
+
+    const deptCheck = await getDocs(query(departmentsCollection));
     if (deptCheck.empty) {
       console.log('Seeding departments...');
       departments.forEach((dept) => {
-        const docRef = collection(db, 'departments');
-        batch.set(docRef.doc(dept.id), dept);
+        const docRef = doc(departmentsCollection, dept.id);
+        batch.set(docRef, dept);
       });
     } else {
       console.log('Departments collection already has data. Skipping.');
     }
 
-    const classCheck = await getDocs(query(collection(db, 'classes')));
+    const classCheck = await getDocs(query(classesCollection));
     if (classCheck.empty) {
       console.log('Seeding classes...');
       classes.forEach((cls) => {
-        const docRef = collection(db, 'classes');
-        batch.set(docRef.doc(cls.id), cls);
+        const docRef = doc(classesCollection, cls.id);
+        batch.set(docRef, cls);
       });
     } else {
       console.log('Classes collection already has data. Skipping.');
     }
 
-    const studentCheck = await getDocs(query(collection(db, 'students')));
+    const studentCheck = await getDocs(query(studentsCollection));
     if (studentCheck.empty) {
       console.log('Seeding students...');
       students.forEach((student) => {
-        const docRef = collection(db, 'students');
-        batch.set(docRef.doc(student.id), student);
+        const docRef = doc(studentsCollection, student.id);
+        batch.set(docRef, student);
       });
     } else {
       console.log('Students collection already has data. Skipping.');
@@ -44,7 +47,6 @@ export async function seedDatabase() {
 
     await batch.commit();
     
-    // Check if anything was actually seeded
     if (deptCheck.empty || classCheck.empty || studentCheck.empty) {
         return { success: true, message: 'Database seeded successfully!' };
     } else {
