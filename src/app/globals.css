@@ -64,10 +64,16 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%);
+    background-image: url('https://images.unsplash.com/photo-1554147090-e1221a04a025?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
   .dark body {
-    background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
+    background-image: url('https://images.unsplash.com/photo-1533130061792-6c6b450c7689?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
   .table-alternating-rows tbody tr:nth-child(even) {
     @apply bg-accent/10;
