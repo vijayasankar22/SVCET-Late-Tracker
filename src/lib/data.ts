@@ -484,4 +484,14 @@ export const students: Student[] = [
   { id: 'mech-3-12', name: 'JAGADEESWAR. R', departmentId: 'mech', classId: 'mech-3' },
   { id: 'mech-3-13', name: 'VIJAYAKUMAR . V', departmentId: 'mech', classId: 'mech-3' },
   { id: 'mech-3-14', name: 'MODESHWARAN.R', departmentId: 'mech', classId: 'mech-3' },
+
+  // MECH IV
+  { id: 'mech-4-1', name: 'CHANDRU. B', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-2', name: 'MADHUBALAN. M', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-3', name: 'RAMKUMAR. A', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-4', name: 'SAURESH REDDY. S', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-5', name: 'DUBASH. M', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-6', name: 'ABDUL BASITH. A', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-7', name: 'MOHAMAD AHAMAED. J', departmentId: 'mech', classId: 'mech-4' },
+  { id: 'mech-4-8', name: 'JAGAN. K', departmentId: 'mech', classId: 'mech-4' },
 ];
