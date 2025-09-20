@@ -56,7 +56,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@svcet.com"
+                placeholder="staff@svcet.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                placeholder="••••••••"
+                placeholder="Password"
               />
             </div>
              <Button
