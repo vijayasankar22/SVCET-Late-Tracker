@@ -449,6 +449,39 @@ export const students: Student[] = [
   { id: 'eee-3-9', name: 'SWETHA P', departmentId: 'eee', classId: 'eee-3' },
   { id: 'eee-3-10', name: 'TAMIZHVANAN V', departmentId: 'eee', classId: 'eee-3' },
   { id: 'eee-3-11', name: 'THARUN K', departmentId: 'eee', classId: 'eee-3' },
+
+  // EEE IV
+  { id: 'eee-4-1', name: 'ADHITHIYAN A', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-2', name: 'AMAL PETER A', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-3', name: 'ANITHA J', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-4', name: 'ELAMARAN R', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-5', name: 'HARIHARAN S', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-6', name: 'PAVITHRA D', departmentId: 'eee', classId: 'eee-4' },
+  { id: 'eee-4-7', name: 'SYEDSHAUTH M', departmentId: 'eee', classId: 'eee-4' },
+
+  // MECH II
+  { id: 'mech-2-1', name: 'GOKUL KRISHNAN. B', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-2', name: 'VINSENT ARNOLD. V', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-3', name: 'RAMANA. T', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-4', name: 'ABINESH. A', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-5', name: 'HARISH. I', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-6', name: 'MEEMNATCHI. K', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-7', name: 'DHARANIDHARAN. J', departmentId: 'mech', classId: 'mech-2' },
+  { id: 'mech-2-8', name: 'SATHIAMURTHI. S', departmentId: 'mech', classId: 'mech-2' },
+  
+  // MECH III
+  { id: 'mech-3-1', name: 'AJITH KUMAR .G', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-2', name: 'GOKULAN . G', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-3', name: 'GUGANESH .B', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-4', name: 'HEMARAJU S', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-5', name: 'JAYAVEERAN . V', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-6', name: 'MOHAMED ISMAYIL .S', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-7', name: 'NITHISHKUMAR .S', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-8', name: 'PRAVEEN . S', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-9', name: 'PUGAZHENDHI . S', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-10', name: 'SANTHOSH . G', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-11', name: 'YUVANARAJA . M', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-12', name: 'JAGADEESWAR. R', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-13', name: 'VIJAYAKUMAR . V', departmentId: 'mech', classId: 'mech-3' },
+  { id: 'mech-3-14', name: 'MODESHWARAN.R', departmentId: 'mech', classId: 'mech-3' },
 ];
-
-
