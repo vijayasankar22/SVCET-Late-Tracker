@@ -12,11 +12,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const formSchema = z.object({
   departmentId: z.string().min(1, 'Please select a department.'),
   classId: z.string().min(1, 'Please select a class.'),
   studentId: z.string().min(1, 'Please select a student.'),
+  status: z.enum(['Informed', 'Not Informed'], {
+    required_error: 'You need to select a notification status.',
+  }),
 });
 
 type EntryFormProps = {
@@ -37,6 +41,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       departmentId: '',
       classId: '',
       studentId: '',
+      status: 'Not Informed',
     },
   });
 
@@ -69,6 +74,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
         date: now.toLocaleDateString(),
         time: now.toLocaleTimeString(),
         markedBy: user.name,
+        status: values.status,
       };
       
       const success = await onAddRecord(newRecord);
@@ -170,6 +176,39 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Status</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                      disabled={isSubmitting}
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Not Informed" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Not Informed</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Informed" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Informed</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="flex justify-end">
               <Button type="submit" className="bg-accent hover:bg-accent/90 w-full md:w-auto" disabled={isSubmitting}>
                 {isSubmitting ? 'Submitting...' : 'Mark Late'}

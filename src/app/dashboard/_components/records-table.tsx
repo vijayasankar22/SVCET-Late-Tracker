@@ -103,6 +103,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       className: record.className,
       date: record.date,
       time: record.time,
+      status: record.status,
       markedBy: record.markedBy,
       timesLate: record.timesLate,
     }));
@@ -111,13 +112,14 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
-    const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Marked By', 'Times Late']];
+    const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']];
     const tableBody = filteredRecords.map(record => [
       record.studentName,
       record.departmentName,
       record.className,
       record.date,
       record.time,
+      record.status,
       record.markedBy,
       record.timesLate,
     ]);
@@ -232,6 +234,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 <TableHead className="font-bold text-primary">Class</TableHead>
                 <TableHead className="font-bold text-primary">Date</TableHead>
                 <TableHead className="font-bold text-primary">Time</TableHead>
+                <TableHead className="font-bold text-primary">Status</TableHead>
                 <TableHead className="font-bold text-primary">Marked By</TableHead>
                 <TableHead className="font-bold text-primary text-center">Times Late</TableHead>
               </TableRow>
@@ -239,7 +242,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7}>
+                  <TableCell colSpan={8}>
                     <Skeleton className="h-8 w-full my-2" />
                     <Skeleton className="h-8 w-full my-2" />
                     <Skeleton className="h-8 w-full my-2" />
@@ -253,13 +256,14 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     <TableCell>{record.className}</TableCell>
                     <TableCell>{record.date}</TableCell>
                     <TableCell>{record.time}</TableCell>
+                    <TableCell>{record.status}</TableCell>
                     <TableCell>{record.markedBy}</TableCell>
                     <TableCell className="text-center font-medium">{record.timesLate}</TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                     No records found.
                   </TableCell>
                 </TableRow>

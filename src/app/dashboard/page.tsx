@@ -42,6 +42,7 @@ export default function DashboardPage() {
             ...data,
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
+            status: data.status || 'Not Informed', // backward compatibility
           } as LateRecord;
         });
 
