@@ -112,10 +112,11 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg">
         <Image 
-          src="https://svcett.ac.in/wp-content/uploads/2023/11/SVCET-BANNER-2023-scaled.jpg" 
-          alt="SVCET College Banner"
+          src="https://picsum.photos/seed/college/1200/400" 
+          alt="College Banner"
           fill
           style={{ objectFit: 'cover' }}
+          data-ai-hint="college campus"
         />
       </div>
       <EntryForm 
