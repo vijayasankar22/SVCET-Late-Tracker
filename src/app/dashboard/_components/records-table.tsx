@@ -30,7 +30,10 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -45,7 +48,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     let dateFilteredRecords = records.filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
         const recordDate = new Date(record.timestamp);
-        if (dateRange.from && recordDate < dateRange.from) return false;
+        if (dateRange.from) {
+          const fromDate = new Date(dateRange.from);
+          fromDate.setHours(0, 0, 0, 0);
+          if (recordDate < fromDate) return false;
+        }
         if (dateRange.to) {
             const toDate = new Date(dateRange.to);
             toDate.setHours(23, 59, 59, 999);
@@ -73,8 +80,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
         try {
             const recordDate = new Date(record.timestamp);
-            if (dateRange.from && recordDate < dateRange.from) return false;
-            // Set time to end of day for 'to' date
+            if (dateRange.from) {
+                const fromDate = new Date(dateRange.from);
+                fromDate.setHours(0, 0, 0, 0);
+                if (recordDate < fromDate) return false;
+            }
             if (dateRange.to) {
                 const toDate = new Date(dateRange.to);
                 toDate.setHours(23, 59, 59, 999);
@@ -264,7 +274,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
               ) : (
                 <TableRow>
                   <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                    No records found.
+                    No records found for the selected criteria.
                   </TableCell>
                 </TableRow>
               )}
