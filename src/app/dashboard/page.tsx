@@ -110,15 +110,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg">
-        <Image 
-          src="https://picsum.photos/seed/college/1200/400" 
-          alt="College Banner"
-          fill
-          style={{ objectFit: 'cover' }}
-          data-ai-hint="college campus"
-        />
-      </div>
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}
