@@ -123,53 +123,48 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = async () => {
     const doc = new jsPDF();
-    const generatePdfContent = (base64data: string | null) => {
-      if (base64data) {
-        doc.addImage(base64data, 'PNG', 15, 10, 30, 30);
-      }
-      doc.setFontSize(20);
-      doc.text('SVCET Late Entry Records', base64data ? 55 : 15, 25);
-      doc.setFontSize(12);
-      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-      doc.text(dateRangeText, base64data ? 55 : 15, 35);
-
-      autoTable(doc, {
-        startY: 45,
-        head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-        body: filteredRecords.map((record, index) => [
-          index + 1,
-          record.studentName,
-          record.departmentName,
-          record.className,
-          record.date,
-          record.time,
-          record.status,
-          record.markedBy,
-          record.timesLate.toString(),
-        ]),
-        headStyles: { fillColor: [30, 58, 138] },
-        styles: { cellPadding: 2, fontSize: 8 },
-      });
-
-      doc.save("late-records.pdf");
-    };
-
+    let base64data: string | null = null;
     try {
       const response = await fetch('https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6');
       const blob = await response.blob();
       const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-        generatePdfContent(reader.result as string);
-      };
-      reader.onerror = (error) => {
-        console.error("Error reading image for PDF:", error);
-        generatePdfContent(null);
-      };
+      base64data = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
     } catch (error) {
-      console.error("Error fetching image for PDF:", error);
-      generatePdfContent(null);
+      console.error("Error fetching or reading image for PDF:", error);
     }
+    
+    if (base64data) {
+      doc.addImage(base64data, 'PNG', 15, 10, 30, 30);
+    }
+    doc.setFontSize(20);
+    doc.text('SVCET Late Entry Records', base64data ? 55 : 15, 25);
+    doc.setFontSize(12);
+    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+    doc.text(dateRangeText, base64data ? 55 : 15, 35);
+
+    autoTable(doc, {
+      startY: 45,
+      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+      body: filteredRecords.map((record, index) => [
+        index + 1,
+        record.studentName,
+        record.departmentName,
+        record.className,
+        record.date,
+        record.time,
+        record.status,
+        record.markedBy,
+        record.timesLate.toString(),
+      ]),
+      headStyles: { fillColor: [30, 58, 138] },
+      styles: { cellPadding: 2, fontSize: 8 },
+    });
+
+    doc.save("late-records.pdf");
   };
 
 
@@ -323,5 +318,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
