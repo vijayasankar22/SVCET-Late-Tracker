@@ -142,7 +142,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       tableStartY += 10;
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-      doc.text(dateRangeText, 15, tableStartY);
+      doc.text(dateRangeText, pageWidth / 2, tableStartY, { align: 'center' });
       tableStartY += 10;
 
       autoTable(doc, {
