@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { EntryForm } from './_components/entry-form';
@@ -110,15 +109,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-       <div className="w-full h-48 relative rounded-lg overflow-hidden shadow-lg">
-          <Image 
-            src="https://picsum.photos/seed/1/1200/400"
-            alt="College Campus"
-            fill
-            style={{ objectFit: 'cover' }}
-            data-ai-hint="college campus"
-          />
-        </div>
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}
