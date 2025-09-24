@@ -9,6 +9,7 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
 
 export default function DashboardPage() {
   const [records, setRecords] = useState<LateRecord[]>([]);
@@ -109,6 +110,15 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+       <div className="w-full h-48 relative rounded-lg overflow-hidden shadow-lg">
+          <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6"
+            alt="College Campus"
+            fill
+            style={{ objectFit: 'cover' }}
+            data-ai-hint="college campus"
+          />
+        </div>
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}
