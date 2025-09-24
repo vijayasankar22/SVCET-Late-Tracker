@@ -123,20 +123,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = async () => {
     const doc = new jsPDF();
-    
+
     doc.setFontSize(20);
-    const imgUrl =
-    "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6";
-
-  const img = new Image();
-  img.crossOrigin = "anonymous"; // For CORS
-  img.src = imgUrl;
-
-  img.onload = () => {
-    doc.addImage(img, "PNG", 10, 20, 80, 80);
-    // PDF is ready in memory, do not save yet
-    console.log("Image added to PDF, PDF object ready:", doc);
-  };
     doc.text('SVCET Late Entry Records', 15, 25);
     doc.setFontSize(12);
     const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
@@ -157,7 +145,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         record.timesLate.toString(),
       ]),
       headStyles: { fillColor: [30, 58, 138] },
-      styles: { cellPadding: 2, fontSize: 8 },
+      styles: { cellPadding: 2, fontSize: 8, lineWidth: 0.1, lineColor: [44, 62, 80] },
+      didDrawPage: (data) => {
+          // Add borders to the table
+          doc.rect(data.table.finalY + 10, 20, doc.internal.pageSize.width - 40, data.table.height + 20);
+      }
     });
 
     doc.save("late-records.pdf");
