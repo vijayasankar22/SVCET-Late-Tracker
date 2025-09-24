@@ -121,33 +121,73 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     exportToCsv("late-records.csv", recordsToExport);
   };
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text('SVCET Late Entry Records', 15, 25);
     
-    doc.setFontSize(12);
-    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-    doc.text(dateRangeText, 15, 35);
+    try {
+        const response = await fetch('https://svcet.ac.in/wp-content/uploads/2023/09/svcet-logo-PNG-scaled.png');
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => {
+            const base64data = reader.result as string;
+            doc.addImage(base64data, 'PNG', 15, 10, 30, 30);
+            
+            doc.setFontSize(20);
+            doc.text('SVCET Late Entry Records', 55, 25);
+            
+            doc.setFontSize(12);
+            const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+            doc.text(dateRangeText, 55, 35);
+        
+            autoTable(doc, {
+              startY: 45,
+              head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+              body: filteredRecords.map((record, index) => [
+                index + 1,
+                record.studentName,
+                record.departmentName,
+                record.className,
+                record.date,
+                record.time,
+                record.status,
+                record.markedBy,
+                record.timesLate.toString(),
+              ]),
+              headStyles: { fillColor: [30, 58, 138] }, // Dark blue
+              styles: { cellPadding: 2, fontSize: 8 },
+            });
+            doc.save("late-records.pdf");
+        };
+    } catch (error) {
+        console.error("Error fetching image for PDF:", error);
+        // Fallback to text-only PDF if image fails
+        doc.setFontSize(20);
+        doc.text('SVCET Late Entry Records', 15, 25);
+        
+        doc.setFontSize(12);
+        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+        doc.text(dateRangeText, 15, 35);
 
-    autoTable(doc, {
-      startY: 40,
-      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-      body: filteredRecords.map((record, index) => [
-        index + 1,
-        record.studentName,
-        record.departmentName,
-        record.className,
-        record.date,
-        record.time,
-        record.status,
-        record.markedBy,
-        record.timesLate.toString(),
-      ]),
-      headStyles: { fillColor: [30, 58, 138] }, // Dark blue
-      styles: { cellPadding: 2, fontSize: 8 },
-    });
-    doc.save("late-records.pdf");
+        autoTable(doc, {
+          startY: 40,
+          head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+          body: filteredRecords.map((record, index) => [
+            index + 1,
+            record.studentName,
+            record.departmentName,
+            record.className,
+            record.date,
+            record.time,
+            record.status,
+            record.markedBy,
+            record.timesLate.toString(),
+          ]),
+          headStyles: { fillColor: [30, 58, 138] }, // Dark blue
+          styles: { cellPadding: 2, fontSize: 8 },
+        });
+        doc.save("late-records.pdf");
+    }
   };
 
 
