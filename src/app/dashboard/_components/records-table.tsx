@@ -123,70 +123,52 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = async () => {
     const doc = new jsPDF();
-    
-    try {
-        const response = await fetch('https://svcet.ac.in/wp-content/uploads/2023/09/svcet-logo-PNG-scaled.png');
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-            const base64data = reader.result as string;
-            doc.addImage(base64data, 'PNG', 15, 10, 30, 30);
-            
-            doc.setFontSize(20);
-            doc.text('SVCET Late Entry Records', 55, 25);
-            
-            doc.setFontSize(12);
-            const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-            doc.text(dateRangeText, 55, 35);
-        
-            autoTable(doc, {
-              startY: 45,
-              head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-              body: filteredRecords.map((record, index) => [
-                index + 1,
-                record.studentName,
-                record.departmentName,
-                record.className,
-                record.date,
-                record.time,
-                record.status,
-                record.markedBy,
-                record.timesLate.toString(),
-              ]),
-              headStyles: { fillColor: [30, 58, 138] }, // Dark blue
-              styles: { cellPadding: 2, fontSize: 8 },
-            });
-            doc.save("late-records.pdf");
-        };
-    } catch (error) {
-        console.error("Error fetching image for PDF:", error);
-        // Fallback to text-only PDF if image fails
-        doc.setFontSize(20);
-        doc.text('SVCET Late Entry Records', 15, 25);
-        
-        doc.setFontSize(12);
-        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-        doc.text(dateRangeText, 15, 35);
+    const generatePdfContent = (base64data: string | null) => {
+      if (base64data) {
+        doc.addImage(base64data, 'PNG', 15, 10, 30, 30);
+      }
+      doc.setFontSize(20);
+      doc.text('SVCET Late Entry Records', base64data ? 55 : 15, 25);
+      doc.setFontSize(12);
+      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+      doc.text(dateRangeText, base64data ? 55 : 15, 35);
 
-        autoTable(doc, {
-          startY: 40,
-          head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-          body: filteredRecords.map((record, index) => [
-            index + 1,
-            record.studentName,
-            record.departmentName,
-            record.className,
-            record.date,
-            record.time,
-            record.status,
-            record.markedBy,
-            record.timesLate.toString(),
-          ]),
-          headStyles: { fillColor: [30, 58, 138] }, // Dark blue
-          styles: { cellPadding: 2, fontSize: 8 },
-        });
-        doc.save("late-records.pdf");
+      autoTable(doc, {
+        startY: 45,
+        head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+        body: filteredRecords.map((record, index) => [
+          index + 1,
+          record.studentName,
+          record.departmentName,
+          record.className,
+          record.date,
+          record.time,
+          record.status,
+          record.markedBy,
+          record.timesLate.toString(),
+        ]),
+        headStyles: { fillColor: [30, 58, 138] },
+        styles: { cellPadding: 2, fontSize: 8 },
+      });
+
+      doc.save("late-records.pdf");
+    };
+
+    try {
+      const response = await fetch('https://svcet.ac.in/wp-content/uploads/2023/09/svcet-logo-PNG-scaled.png');
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        generatePdfContent(reader.result as string);
+      };
+      reader.onerror = (error) => {
+        console.error("Error reading image for PDF:", error);
+        generatePdfContent(null);
+      };
+    } catch (error) {
+      console.error("Error fetching image for PDF:", error);
+      generatePdfContent(null);
     }
   };
 
@@ -289,6 +271,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           <Table className="table-alternating-rows">
             <TableHeader>
               <TableRow>
+                <TableHead>S.No.</TableHead>
                 <TableHead>Student Name</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Class</TableHead>
@@ -303,12 +286,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 {loading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                         <TableRow key={i}>
-                            <TableCell colSpan={8}><Skeleton className="h-6" /></TableCell>
+                            <TableCell colSpan={9}><Skeleton className="h-6" /></TableCell>
                         </TableRow>
                     ))
                 ) : filteredRecords.length > 0 ? (
-                    filteredRecords.map((record) => (
+                    filteredRecords.map((record, index) => (
                         <TableRow key={record.id}>
+                            <TableCell>{index + 1}</TableCell>
                             <TableCell className="font-medium">{record.studentName}</TableCell>
                             <TableCell>{record.departmentName}</TableCell>
                             <TableCell>{record.className}</TableCell>
@@ -327,7 +311,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     ))
                 ) : (
                      <TableRow>
-                        <TableCell colSpan={8} className="text-center">
+                        <TableCell colSpan={9} className="text-center">
                             No records found for the selected filters.
                         </TableCell>
                     </TableRow>
