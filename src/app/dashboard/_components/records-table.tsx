@@ -122,6 +122,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
+    const collegeLogo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACgCAMAAACMs6KhAAAA/FBMVEX//////wAAmP8Am/8Akv8An/8Al/8AlP8Alv8AmP8Alv8Amv8AmP8Alv8Amf8An/8AnP8Al/8Al/8Alv8Alv8Al/8Am/8Amf8Akv8Alv8Amf8Aov8Aov8An/8Akv8Alv8AnP8Amf8Akv8Alv8Alv8Akv8Akv8Akv8Akv8Akv8Akv8Al/8Al/8Alv8Akv8Al/8Al/8Al/8Akv8Al/8Akv8Akv8Akv8Akv8Alv8Alv8Alv8Alv8Akv8Akv8Alv8Alv8Akv8Akv8Akv8Akv8Akv8Akv8Akv8Akv8Al/8Al/8Akv8Alv8Al/8Akv8Akv8Al/8Al/8Akv8Akv8Akv8Al/8Akv8Akv8Al/8Akv8Akv8Akv+LCg42AAAAVHRSTlMAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcZGhscHR4fICEiIyUnKCkqKywtLi8wMTIzNDU3ODk6Ozw9PkBBQkNERUZISUpMTk9QU1RUVllbXF5fYGFiY2VmZ2hpamtsbmMAAAQYSURBVHja7d3XctNAEAbgD5pM2iYt2naBtknbpG2bbpNu2nb/B0ISe5qPZLrJzPl7icnMl8kXyY/NByIgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIlJDeYhMJSJL05R7fS+5TiL3zZk/c+bPfNkWJ07yv0X//HRd1Z8L61Kk6lY+l+I1eK6tEw/n+m5/9q0DfxBv3cK/Qv377o5w4wTCTYwXp/wM/gH/D+D5bAb2fS5iGz2N3x/Btx/h5w/49S72eBf7+QP8+Q7+fAf/foj/fsO/f8T/PsM/H+HrXez3H/BzCP88gX8e4dcX8Os7+PUd/Pke/nwH/36E/36D/37E/z7D/x/h6w/4fYTv3+Lb3fC79fh39Pj2dnh3Njy7Fp4tC89u/qezx8+b4L7u+P3z/77983637Wc3+s32m5v99v25/X3n+t2u/36/+/0e//+d/s//CfF9lHwQk//sJ/n/b/n/A/k/A/k/k/L/a8j/HyP//478//vk/4+T//eX/I+Q//dX/L+R//f98n9L//uQ//8P+X9r+f+95P995f/d5X9X+f/l/B/G/T9H3k3j/77h3xfx7/3493b8exv+PYNvN8NvP8HvV+PXb/Hrvfh1Ljy7Fn43D1+bj6/th5f2g4v7g4X9cMG+OGf/L9n/S/b/8vy/tPwv7f9L+3/b/j/I/x8n//+c/D8u/o+S/scl/2cl/5eL/7eL/8OV//FK/L5c8n3R7f6c+33FfN/jP19wn/P48xx+PAcfzYMT+cBE/L8u35cJX5eGr43DV/vBxX1wYT+Y0g8m9EOD/J+h//2h/72B/uYE+psF6mcVqF/1b35z9+t+t/8u9HuD/f5g//vD//eR/1/B/leS/59f8v+q5P+15H9d8v9Gef/Xl/f/kP3/R/j/H+L/Hwjf/xfc9wX3cY98nCPf5wkPcIM7fIAH+IAv+IB/gXf/gff/gQ3/Bo/7g/38YL+eWH8nrJ+T28+F9XPhfF447xaeC8PzwnhemP8X5g/F+YNw/lCcPxDnD/z5g3n+wJx/sOYfLPiHc/zDOf5gTn6wIR9Yjw/W44P1/GC9PVhvT6y3J9bbw+vt4fV2cfW6uLpcXF0urm4XV3eLq7vF1d2C6u5wdffguvvQuevgdOfgcnn/vHR/Lp2fC+fnwnl9vL4+vL6tPb/v1p6fn6vP7f/L1d2i6u5wdffguntw3T04rp4cV6eKq8vF1eXi6m5x9a5w9bpcXh+vb+/fP4C7z5G9L7n3H/P//wC/f/87IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIlLt/AFiGBCK/0/cNAAAAABJRU5ErkJggg==';
+    doc.addImage(collegeLogo, 'PNG', 15, 10, 30, 30);
+    doc.setFontSize(20);
+    doc.text('SVCET Late Entry Records', 55, 25);
+    
     const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']];
     const tableBody = filteredRecords.map(record => [
       record.studentName,
@@ -137,7 +142,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     autoTable(doc, {
       head: tableHead,
       body: tableBody,
-      startY: 20,
+      startY: 50,
     });
 
     doc.save("late-records.pdf");
@@ -285,3 +290,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
