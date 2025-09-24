@@ -155,7 +155,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     };
 
     try {
-      const response = await fetch('https://svcet.ac.in/wp-content/uploads/2023/09/svcet-logo-PNG-scaled.png');
+      const response = await fetch('https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6');
       const blob = await response.blob();
       const reader = new FileReader();
       reader.readAsDataURL(blob);
@@ -323,3 +323,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
