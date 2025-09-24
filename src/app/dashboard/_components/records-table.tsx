@@ -107,7 +107,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
   const handleExportCsv = () => {
-    const recordsToExport = filteredRecords.map(record => ({
+    const recordsToExport = filteredRecords.map((record, index) => ({
+      "S.No.": index + 1,
       studentName: record.studentName,
       departmentName: record.departmentName,
       className: record.className,
@@ -131,8 +132,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
     autoTable(doc, {
       startY: 40,
-      head: [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-      body: filteredRecords.map(record => [
+      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+      body: filteredRecords.map((record, index) => [
+        index + 1,
         record.studentName,
         record.departmentName,
         record.className,
