@@ -36,7 +36,8 @@ export const classes: Class[] = [
   { id: 'mech-4', departmentId: 'mech', name: 'IV' },
   // MBA
   { id: 'mba-1', departmentId: 'mba', name: 'I' },
-  { id: 'mba-2', departmentId: 'mba', name: 'II' },
+  { id: 'mba-2-a', departmentId: 'mba', name: 'II-A' },
+  { id: 'mba-2-b', departmentId: 'mba', name: 'II-B' },
 ];
 
 export const students: Student[] = [
