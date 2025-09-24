@@ -110,16 +110,14 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="mx-auto max-w-7xl px-4 lg:px-[300px]">
-        <div className="w-full h-48 md:h-64 relative rounded-lg overflow-hidden shadow-lg">
-          <Image
-            src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6"
-            alt="College Campus"
-            fill
-            style={{ objectFit: 'cover' }}
-            data-ai-hint="college campus"
-          />
-        </div>
+      <div className="w-full h-48 md:h-64 relative rounded-lg overflow-hidden shadow-lg">
+        <Image
+          src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6"
+          alt="College Campus"
+          fill
+          style={{ objectFit: 'cover' }}
+          data-ai-hint="college campus"
+        />
       </div>
       <EntryForm 
         onAddRecord={handleAddRecord}
