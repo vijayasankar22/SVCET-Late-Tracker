@@ -125,22 +125,28 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    const generatePdf = (base64data?: string) => {
-      if (base64data) {
-        const imgWidth = 50;
-        const imgHeight = 20;
-        const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(base64data, 'PNG', imgX, 10, imgWidth, imgHeight);
+    const generatePdf = (img?: HTMLImageElement) => {
+      let tableStartY = 20;
+      if (img) {
+        const newImgWidth = 70; // A larger width for the image
+        const aspectRatio = img.naturalHeight / img.naturalWidth;
+        const newImgHeight = newImgWidth * aspectRatio;
+        const imgX = (pageWidth - newImgWidth) / 2;
+        const imgY = 10;
+        doc.addImage(img, 'PNG', imgX, imgY, newImgWidth, newImgHeight);
+        tableStartY = newImgHeight + imgY + 15; // Position content below the image
       }
 
       doc.setFontSize(20);
-      doc.text('SVCET Late Entry Records', pageWidth / 2, 35, { align: 'center' });
+      doc.text('SVCET Late Entry Records', pageWidth / 2, tableStartY, { align: 'center' });
+      tableStartY += 10;
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-      doc.text(dateRangeText, 15, 45);
+      doc.text(dateRangeText, 15, tableStartY);
+      tableStartY += 10;
 
       autoTable(doc, {
-        startY: 50,
+        startY: tableStartY,
         head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
         body: filteredRecords.map((record, index) => [
           index + 1,
@@ -168,7 +174,15 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
           const base64data = reader.result as string;
-          generatePdf(base64data);
+          const img = new Image();
+          img.src = base64data;
+          img.onload = () => {
+              generatePdf(img);
+          };
+          img.onerror = () => {
+              console.error("Could not load image for PDF.");
+              generatePdf();
+          };
       };
       reader.onerror = () => {
           console.error("Could not read image file.");
