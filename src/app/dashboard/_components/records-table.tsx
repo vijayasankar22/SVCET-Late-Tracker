@@ -125,6 +125,18 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const doc = new jsPDF();
     
     doc.setFontSize(20);
+    const imgUrl =
+    "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/ghgj.png?alt=media&token=a26783d2-f73c-4570-9d8d-d254a5a1efb6";
+
+  const img = new Image();
+  img.crossOrigin = "anonymous"; // For CORS
+  img.src = imgUrl;
+
+  img.onload = () => {
+    doc.addImage(img, "PNG", 10, 20, 80, 80);
+    // PDF is ready in memory, do not save yet
+    console.log("Image added to PDF, PDF object ready:", doc);
+  };
     doc.text('SVCET Late Entry Records', 15, 25);
     doc.setFontSize(12);
     const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
