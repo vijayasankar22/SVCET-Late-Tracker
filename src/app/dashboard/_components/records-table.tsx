@@ -39,7 +39,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     if (departmentFilter === 'all') {
       return classes;
     }
-    const dept = departments.find(d => d.name === departmentFilter);
+    const dept = departments.find(d => d.id === departmentFilter);
     if (!dept) return [];
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
@@ -71,10 +71,10 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .filter((record) =>
-        departmentFilter === "all" || record.departmentName === departmentFilter
+        departmentFilter === "all" || record.departmentName === departments.find(d => d.id === departmentFilter)?.name
       )
       .filter((record) =>
-        classFilter === "all" || record.className === classFilter
+        classFilter === "all" || record.className === classes.find(c => c.id === classFilter)?.name
       )
       .filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
@@ -104,7 +104,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
-  }, [records, searchTerm, departmentFilter, classFilter, dateRange]);
+  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map(record => ({
@@ -184,16 +184,16 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
               {departments.map((dept) => (
-                <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={classFilter} onValueChange={setClassFilter} disabled={departmentFilter === "all" && availableClasses.length === classes.length}>
+          <Select value={classFilter} onValueChange={setClassFilter} disabled={availableClasses.length === 0}>
             <SelectTrigger><SelectValue placeholder="Filter by Class" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Classes</SelectItem>
               {availableClasses.map((cls) => (
-                <SelectItem key={cls.id} value={cls.name}>{cls.name}</SelectItem>
+                <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
