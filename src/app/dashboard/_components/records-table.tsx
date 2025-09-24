@@ -123,32 +123,70 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = async () => {
     const doc = new jsPDF();
-    
-    doc.setFontSize(20);
-    doc.text('SVCET Late Entry Records', 15, 25);
-    doc.setFontSize(12);
-    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-    doc.text(dateRangeText, 15, 35);
 
-    autoTable(doc, {
-      startY: 45,
-      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-      body: filteredRecords.map((record, index) => [
-        index + 1,
-        record.studentName,
-        record.departmentName,
-        record.className,
-        record.date,
-        record.time,
-        record.status,
-        record.markedBy,
-        record.timesLate.toString(),
-      ]),
-      headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-      styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-    });
+    try {
+      const response = await fetch('/logo.png');
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+          const base64data = reader.result as string;
+          
+          doc.addImage(base64data, 'PNG', 15, 10, 30, 10);
+          
+          doc.setFontSize(20);
+          doc.text('SVCET Late Entry Records', 50, 18);
+          doc.setFontSize(12);
+          const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+          doc.text(dateRangeText, 15, 35);
 
-    doc.save("late-records.pdf");
+          autoTable(doc, {
+            startY: 45,
+            head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+            body: filteredRecords.map((record, index) => [
+              index + 1,
+              record.studentName,
+              record.departmentName,
+              record.className,
+              record.date,
+              record.time,
+              record.status,
+              record.markedBy,
+              record.timesLate.toString(),
+            ]),
+            headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+            styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+          });
+
+          doc.save("late-records.pdf");
+      };
+    } catch (error) {
+      console.error("Could not add image to PDF", error);
+      // Fallback to generating PDF without the image if fetching fails
+      doc.setFontSize(20);
+      doc.text('SVCET Late Entry Records', 15, 25);
+      doc.setFontSize(12);
+      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+      doc.text(dateRangeText, 15, 35);
+      autoTable(doc, {
+        startY: 45,
+        head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+        body: filteredRecords.map((record, index) => [
+          index + 1,
+          record.studentName,
+          record.departmentName,
+          record.className,
+          record.date,
+          record.time,
+          record.status,
+          record.markedBy,
+          record.timesLate.toString(),
+        ]),
+        headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+        styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+      });
+      doc.save("late-records.pdf");
+    }
   };
 
 
