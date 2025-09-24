@@ -123,53 +123,24 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = async () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    try {
-      const response = await fetch('/logo.png');
-      const blob = await response.blob();
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-          const base64data = reader.result as string;
-          
-          doc.addImage(base64data, 'PNG', 15, 10, 30, 10);
-          
-          doc.setFontSize(20);
-          doc.text('SVCET Late Entry Records', 50, 18);
-          doc.setFontSize(12);
-          const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-          doc.text(dateRangeText, 15, 35);
+    const generatePdf = (base64data?: string) => {
+      if (base64data) {
+        const imgWidth = 50;
+        const imgHeight = 20;
+        const imgX = (pageWidth - imgWidth) / 2;
+        doc.addImage(base64data, 'PNG', imgX, 10, imgWidth, imgHeight);
+      }
 
-          autoTable(doc, {
-            startY: 45,
-            head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-            body: filteredRecords.map((record, index) => [
-              index + 1,
-              record.studentName,
-              record.departmentName,
-              record.className,
-              record.date,
-              record.time,
-              record.status,
-              record.markedBy,
-              record.timesLate.toString(),
-            ]),
-            headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-            styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-          });
-
-          doc.save("late-records.pdf");
-      };
-    } catch (error) {
-      console.error("Could not add image to PDF", error);
-      // Fallback to generating PDF without the image if fetching fails
       doc.setFontSize(20);
-      doc.text('SVCET Late Entry Records', 15, 25);
+      doc.text('SVCET Late Entry Records', pageWidth / 2, 35, { align: 'center' });
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-      doc.text(dateRangeText, 15, 35);
+      doc.text(dateRangeText, 15, 45);
+
       autoTable(doc, {
-        startY: 45,
+        startY: 50,
         head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
         body: filteredRecords.map((record, index) => [
           index + 1,
@@ -185,7 +156,27 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
       });
+
       doc.save("late-records.pdf");
+    };
+
+    try {
+      const response = await fetch('/logo.png');
+      if (!response.ok) throw new Error('Image not found');
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+          const base64data = reader.result as string;
+          generatePdf(base64data);
+      };
+      reader.onerror = () => {
+          console.error("Could not read image file.");
+          generatePdf();
+      }
+    } catch (error) {
+      console.error("Could not fetch image for PDF, generating without it.", error);
+      generatePdf();
     }
   };
 
