@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { collegeLogo } from "@/lib/college-logo";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -122,167 +123,175 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
-    const collegeLogo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAMAAABlApw1AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURQAAAP///6XZn90AAAAJcEhZcwAADsMAAA7DAcdvqGQAAAI9SURBVHic7ZzbcuJADIRB2f//p48CgTA0T41J3ey9p2Z3O6pAIg2N8/0XAQCA+wM9AODf0AMAAAAA0AMAAAAAAAhB9QBkQ/b29vY4jklEaI0ZCTOzs2fGfvveP3/++ZfL5bbz518u34ePj497j4+P27tIAAAAAACA30L79+8HPSjKcp0AAD8uA4AAAAAAAADQAAAAAAAAAAAIQfVAdEO2v7+f4zhGYjIzNmPfvPefP//26/W2c//i9fL9tN+fX16+AAAAAACAvy3379+bW8s2mYjM/vP6+lreAAAAAAAAAAwAAAAAAACAEFQHRLt00+d0Oh0A/LgMAAAAAAAAAGgAAAAAAAAAAIQgAgAAAAAAwA0CAAAAAACADwEAAAAAAAAAQgjq/x4AAP5P1YcFAAAAAABAJwiEAAAAAAAAQAgIAAAAAAAAhCAEAAAAAAADIEQAAAAAAACAEIQAAAAAAMGCEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIAQEAAAAAAAAIQgBAAAAAAAgBAQAAAAAAAAhCAEAAAAAAACIEQAAAAAAADQIAQAAAAAAIARfL5Bv2H1xAAAAAElFTkSuQmCC';
     doc.addImage(collegeLogo, 'PNG', 15, 10, 30, 30);
     doc.setFontSize(20);
     doc.text('SVCET Late Entry Records', 55, 25);
     
-    const tableHead = [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']];
-    const tableBody = filteredRecords.map(record => [
-      record.studentName,
-      record.departmentName,
-      record.className,
-      record.date,
-      record.time,
-      record.status,
-      record.markedBy,
-      record.timesLate,
-    ]);
+    doc.setFontSize(12);
+    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+    doc.text(dateRangeText, 15, 45);
 
     autoTable(doc, {
-      head: tableHead,
-      body: tableBody,
       startY: 50,
+      head: [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+      body: filteredRecords.map(record => [
+        record.studentName,
+        record.departmentName,
+        record.className,
+        record.date,
+        record.time,
+        record.status,
+        record.markedBy,
+        record.timesLate.toString(),
+      ]),
+      headStyles: { fillColor: [30, 58, 138] }, // Dark blue
+      styles: { cellPadding: 2, fontSize: 8 },
     });
-
     doc.save("late-records.pdf");
   };
-  
-  const handleDepartmentChange = (value: string) => {
-    setDepartmentFilter(value);
-    setClassFilter("all");
-  }
+
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-xl">
       <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <CardTitle className="font-headline text-2xl">Late Records</CardTitle>
-                <CardDescription>View, filter, and export all recorded late entries.</CardDescription>
+                 <CardTitle className="font-headline text-2xl">Late Entry Records</CardTitle>
+                <CardDescription>View, filter, and export late student records.</CardDescription>
             </div>
-          <div className="flex gap-2">
-            <Button onClick={handleExportPdf} disabled={filteredRecords.length === 0}>
-                <FileDown className="mr-2 h-4 w-4" />
-                Export to PDF
-            </Button>
-            <Button onClick={handleExportCsv} disabled={filteredRecords.length === 0}>
-                <Download className="mr-2 h-4 w-4" />
-                Export to CSV
-            </Button>
-          </div>
+            <div className="flex gap-2">
+                <Button onClick={handleExportCsv} variant="outline" size="sm" className="gap-2">
+                    <FileDown />
+                    Export CSV
+                </Button>
+                 <Button onClick={handleExportPdf} variant="outline" size="sm" className="gap-2">
+                    <Download />
+                    Export PDF
+                </Button>
+            </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              type="search"
               placeholder="Search by student name..."
-              className="pl-9"
+              className="pl-8 sm:w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select value={departmentFilter} onValueChange={handleDepartmentChange} disabled={departments.length === 0}>
-            <SelectTrigger><SelectValue placeholder="Filter by Department" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={classFilter} onValueChange={setClassFilter} disabled={availableClasses.length === 0}>
-            <SelectTrigger><SelectValue placeholder="Filter by Class" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Classes</SelectItem>
-              {availableClasses.map((cls) => (
-                <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-           <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant={"outline"}
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !dateRange && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from}
-                selected={dateRange}
-                onSelect={setDateRange}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="flex gap-4">
+             <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[280px] justify-start text-left font-normal",
+                      !dateRange && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} -{" "}
+                          {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+          </div>
+           <div className="flex gap-4">
+            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Filter by Department" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Departments</SelectItem>
+                    {departments.map(dept => (
+                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Select value={classFilter} onValueChange={setClassFilter}>
+                 <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Filter by Class" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Classes</SelectItem>
+                    {availableClasses.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+           </div>
         </div>
-
         <div className="rounded-lg border">
           <Table className="table-alternating-rows">
-            <TableHeader className="bg-primary/5">
+            <TableHeader>
               <TableRow>
-                <TableHead className="font-bold text-primary">Student Name</TableHead>
-                <TableHead className="font-bold text-primary">Department</TableHead>
-                <TableHead className="font-bold text-primary">Class</TableHead>
-                <TableHead className="font-bold text-primary">Date</TableHead>
-                <TableHead className="font-bold text-primary">Time</TableHead>
-                <TableHead className="font-bold text-primary">Status</TableHead>
-                <TableHead className="font-bold text-primary">Marked By</TableHead>
-                <TableHead className="font-bold text-primary text-center">Times Late</TableHead>
+                <TableHead>Student Name</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Class</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Marked By</TableHead>
+                <TableHead>Times Late</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={8}>
-                    <Skeleton className="h-8 w-full my-2" />
-                    <Skeleton className="h-8 w-full my-2" />
-                    <Skeleton className="h-8 w-full my-2" />
-                  </TableCell>
-                </TableRow>
-              ) : filteredRecords.length > 0 ? (
-                filteredRecords.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.studentName}</TableCell>
-                    <TableCell>{record.departmentName}</TableCell>
-                    <TableCell>{record.className}</TableCell>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.time}</TableCell>
-                    <TableCell>{record.status}</TableCell>
-                    <TableCell>{record.markedBy}</TableCell>
-                    <TableCell className="text-center font-medium">{record.timesLate}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                    No records found for the selected criteria.
-                  </TableCell>
-                </TableRow>
-              )}
+                {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                        <TableRow key={i}>
+                            <TableCell colSpan={8}><Skeleton className="h-6" /></TableCell>
+                        </TableRow>
+                    ))
+                ) : filteredRecords.length > 0 ? (
+                    filteredRecords.map((record) => (
+                        <TableRow key={record.id}>
+                            <TableCell className="font-medium">{record.studentName}</TableCell>
+                            <TableCell>{record.departmentName}</TableCell>
+                            <TableCell>{record.className}</TableCell>
+                            <TableCell>{record.date}</TableCell>
+                            <TableCell>{record.time}</TableCell>
+                             <TableCell>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${record.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                    {record.status}
+                                </span>
+                            </TableCell>
+                            <TableCell>{record.markedBy}</TableCell>
+                            <TableCell>
+                                <span className={`font-bold ${record.timesLate >= 3 ? 'text-destructive' : 'text-primary'}`}>{record.timesLate}</span>
+                            </TableCell>
+                        </TableRow>
+                    ))
+                ) : (
+                     <TableRow>
+                        <TableCell colSpan={8} className="text-center">
+                            No records found for the selected filters.
+                        </TableCell>
+                    </TableRow>
+                )}
             </TableBody>
           </Table>
         </div>
@@ -290,5 +299,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
