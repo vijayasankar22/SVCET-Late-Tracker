@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { collegeLogo } from "@/lib/college-logo";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -123,16 +122,15 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
-    doc.addImage(collegeLogo, 'PNG', 15, 10, 30, 30);
     doc.setFontSize(20);
-    doc.text('SVCET Late Entry Records', 55, 25);
+    doc.text('SVCET Late Entry Records', 15, 25);
     
     doc.setFontSize(12);
     const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-    doc.text(dateRangeText, 15, 45);
+    doc.text(dateRangeText, 15, 35);
 
     autoTable(doc, {
-      startY: 50,
+      startY: 40,
       head: [['Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
       body: filteredRecords.map(record => [
         record.studentName,
