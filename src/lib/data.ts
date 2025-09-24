@@ -36,7 +36,8 @@ export const classes: Class[] = [
   { id: 'mech-4', departmentId: 'mech', name: 'IV' },
   // MBA
   { id: 'mba-1', departmentId: 'mba', name: 'I' },
-  { id: 'mba-2', departmentId: 'mba', name: 'II' },
+  { id: 'mba-2-a', departmentId: 'mba', name: 'II-A' },
+  { id: 'mba-2-b', departmentId: 'mba', name: 'II-B' },
 ];
 
 export const students: Student[] = [
@@ -500,4 +501,12 @@ export const students: Student[] = [
   { id: 'mech-4-6', name: 'ABDUL BASITH. A', departmentId: 'mech', classId: 'mech-4' },
   { id: 'mech-4-7', name: 'MOHAMAD AHAMAED. J', departmentId: 'mech', classId: 'mech-4' },
   { id: 'mech-4-8', name: 'JAGAN. K', departmentId: 'mech', classId: 'mech-4' },
+  // MBA II-A
+  { id: 'mba-2-a-1', name: 'Anjali Sharma', departmentId: 'mba', classId: 'mba-2-a' },
+  { id: 'mba-2-a-2', name: 'Rohan Gupta', departmentId: 'mba', classId: 'mba-2-a' },
+  { id: 'mba-2-a-3', name: 'Priya Patel', departmentId: 'mba', classId: 'mba-2-a' },
+  // MBA II-B
+  { id: 'mba-2-b-1', name: 'Vikram Singh', departmentId: 'mba', classId: 'mba-2-b' },
+  { id: 'mba-2-b-2', name: 'Sneha Reddy', departmentId: 'mba', classId: 'mba-2-b' },
+  { id: 'mba-2-b-3', name: 'Arjun Mehta', departmentId: 'mba', classId: 'mba-2-b' },
 ];
