@@ -128,7 +128,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (img?: HTMLImageElement) => {
       let tableStartY = 20;
       if (img) {
-        const newImgWidth = 70; // A larger width for the image
+        const newImgWidth = 140; // A larger width for the image
         const aspectRatio = img.naturalHeight / img.naturalWidth;
         const newImgHeight = newImgWidth * aspectRatio;
         const imgX = (pageWidth - newImgWidth) / 2;
