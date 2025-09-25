@@ -45,23 +45,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [departmentFilter, departments, classes]);
 
   const filteredRecords = useMemo(() => {
-    let dateFilteredRecords = records.filter((record) => {
-        if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
-        const recordDate = new Date(record.timestamp);
-        if (dateRange.from) {
-          const fromDate = new Date(dateRange.from);
-          fromDate.setHours(0, 0, 0, 0);
-          if (recordDate < fromDate) return false;
-        }
-        if (dateRange.to) {
-            const toDate = new Date(dateRange.to);
-            toDate.setHours(23, 59, 59, 999);
-            if (recordDate > toDate) return false;
-        }
-        return true;
-      });
-
-    const studentLateCounts = dateFilteredRecords.reduce((acc, record) => {
+    const studentLateCounts = records.reduce((acc, record) => {
       acc[record.studentName] = (acc[record.studentName] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
