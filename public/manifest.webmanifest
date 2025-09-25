@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#312e81",
+  "theme_color": "#1e3a8a",
   "icons": [
     {
       "src": "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08",
