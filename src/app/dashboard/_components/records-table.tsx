@@ -109,51 +109,76 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
-
+  
   const handleExportPdf = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let contentY = 15;
+    const generatePdf = (logoDataUrl: string | null = null) => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        let contentY = 15;
 
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-    contentY += 8;
-    
-    doc.setFontSize(16);
-    const mainTitle = "STUDENTS LATE REPORT";
-    doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
-    
-    const textWidth = doc.getTextWidth(mainTitle);
-    doc.setLineWidth(0.5);
-    doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
-    contentY += 8;
-    
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
-    doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
-    contentY += 10;
+        if (logoDataUrl) {
+          doc.addImage(logoDataUrl, 'PNG', pageWidth / 2 - 15, contentY, 30, 30);
+          contentY += 40; // Increase space for the logo
+        }
 
-    autoTable(doc, {
-      startY: contentY,
-      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-      body: filteredRecords.map((record, index) => [
-        index + 1,
-        record.studentName,
-        record.departmentName,
-        record.className,
-        record.date,
-        record.time,
-        record.status,
-        record.markedBy,
-        (studentLateCounts[record.studentName] || 0).toString(),
-      ]),
-      headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-      styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-    });
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+        contentY += 8;
+        
+        doc.setFontSize(16);
+        const mainTitle = "STUDENTS LATE REPORT";
+        doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
+        
+        const textWidth = doc.getTextWidth(mainTitle);
+        doc.setLineWidth(0.5);
+        doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+        contentY += 8;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+        doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+        contentY += 10;
 
-    doc.save("late-records.pdf");
+        autoTable(doc, {
+          startY: contentY,
+          head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+          body: filteredRecords.map((record, index) => [
+            index + 1,
+            record.studentName,
+            record.departmentName,
+            record.className,
+            record.date,
+            record.time,
+            record.status,
+            record.markedBy,
+            (studentLateCounts[record.studentName] || 0).toString(),
+          ]),
+          headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+          styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+        });
+
+        doc.save("late-records.pdf");
+    };
+
+    fetch('https://firebasestorage.googleapis.com/v0/b/svcetssp.appspot.com/o/logo.png?alt=media&token=8f8a2936-ac33-4f9e-b148-35ac4884f391')
+        .then(response => response.blob())
+        .then(blob => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                generatePdf(reader.result as string);
+            };
+            reader.onerror = () => {
+                console.error("Could not convert image blob to data URL.");
+                generatePdf();
+            }
+        })
+        .catch(error => {
+            console.error("Could not load image for PDF.", error);
+            generatePdf();
+        });
   };
 
 
