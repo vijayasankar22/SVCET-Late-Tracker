@@ -1,8 +1,8 @@
 
-
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
+import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const today = new Date();
     return { from: today, to: today };
   });
+  const logoImageRef = useRef<HTMLImageElement>(null);
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -94,8 +95,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of records) { // Count across all records, not just filtered ones
-        const key = record.studentId || record.studentName; // Fallback for older records
+    for (const record of records) {
+        const key = record.studentId || record.studentName;
         counts[key] = (counts[key] || 0) + 1;
     }
     return counts;
@@ -124,16 +125,20 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         let contentY = 15;
 
         if (logoDataUrl) {
-            const originalWidth = 150;
-            const originalHeight = 150;
-            const aspectRatio = originalHeight / originalWidth;
+            try {
+                const originalWidth = logoImageRef.current!.naturalWidth;
+                const originalHeight = logoImageRef.current!.naturalHeight;
+                const aspectRatio = originalHeight / originalWidth;
 
-            const imgWidth = pageWidth * (2 / 3);
-            const imgHeight = imgWidth * aspectRatio;
+                const imgWidth = pageWidth * (2 / 3);
+                const imgHeight = imgWidth * aspectRatio;
 
-            const x = (pageWidth - imgWidth) / 2;
-            doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 10;
+                const x = (pageWidth - imgWidth) / 2;
+                doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
+                contentY += imgHeight + 10;
+            } catch (e) {
+                console.error("Error adding image to PDF:", e);
+            }
         }
 
         doc.setFontSize(12);
@@ -176,29 +181,29 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
         doc.save("late-records.pdf");
     };
-
-    fetch('https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Logo not found');
+    
+    if (logoImageRef.current && logoImageRef.current.complete) {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = logoImageRef.current.naturalWidth;
+            canvas.height = logoImageRef.current.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(logoImageRef.current, 0, 0);
+                const dataUrl = canvas.toDataURL('image/png');
+                generatePdf(dataUrl);
+            } else {
+                 console.error("Could not get canvas context.");
+                 generatePdf(null);
             }
-            return response.blob();
-        })
-        .then(blob => {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = () => {
-                generatePdf(reader.result as string);
-            };
-            reader.onerror = () => {
-                console.error("Could not convert image blob to data URL.");
-                generatePdf(null);
-            };
-        })
-        .catch(error => {
-            console.error("Error loading image for PDF:", error.message);
+        } catch (e) {
+            console.error("Error creating data URL from image:", e);
             generatePdf(null);
-        });
+        }
+    } else {
+        console.error("Logo image not loaded or not found.");
+        generatePdf(null);
+    }
   };
 
 
@@ -211,6 +216,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 <CardDescription>View, filter, and export late student records.</CardDescription>
             </div>
             <div className="flex gap-2">
+                <img 
+                    ref={logoImageRef} 
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" 
+                    crossOrigin="anonymous" 
+                    className="hidden" 
+                    alt="logo" 
+                />
                 <Button onClick={handleExportCsv} variant="outline" size="sm" className="gap-2">
                     <FileDown />
                     Export CSV
@@ -354,7 +366,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
 
     
