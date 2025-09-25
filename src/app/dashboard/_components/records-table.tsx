@@ -124,11 +124,22 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       }
 
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.text('STUDENTS LATE REPORT', pageWidth / 2, tableStartY, { align: 'center' });
-      tableStartY += 10;
-      doc.setFont("helvetica", "normal");
+
+      // Academic year line above title
       doc.setFontSize(12);
+      doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, 48, { align: "center" });
+    
+      // Main title
+      doc.setFontSize(16);
+      const mainTitle = "STUDENTS LATE REPORT";
+      const titleY = 56;
+      doc.text(mainTitle, pageWidth / 2, titleY, { align: "center" });
+    
+      // Underline main title
+      const textWidth = doc.getTextWidth(mainTitle);
+      const underlineY = titleY + 1; // slightly below text
+      doc.setLineWidth(0.5);
+      doc.line((pageWidth - textWidth) / 2, underlineY, (pageWidth + textWidth) / 2, underlineY);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
       doc.text(dateRangeText, pageWidth / 2, tableStartY, { align: 'center' });
       tableStartY += 10;
