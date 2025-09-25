@@ -16,10 +16,7 @@ type StatsProps = {
 };
 
 export function Stats({ records }: StatsProps) {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   
   const dailyStats = useMemo(() => {
     
