@@ -122,7 +122,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (logoDataUrl: string | null = null) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
-        let contentY = 15;
+        let contentY = 10;
 
         const addTextAndTable = () => {
             doc.setFontSize(12);
@@ -184,7 +184,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
                 const x = (pageWidth - pdfImgWidth) / 2;
                 doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
-                contentY += pdfImgHeight + 10;
+                contentY += pdfImgHeight;
                 
                 addTextAndTable();
             };
