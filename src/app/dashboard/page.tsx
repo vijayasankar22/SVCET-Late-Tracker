@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { EntryForm } from './_components/entry-form';
@@ -9,8 +9,6 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DateRange } from 'react-day-picker';
-
 
 export default function DashboardPage() {
   const [records, setRecords] = useState<LateRecord[]>([]);
@@ -20,10 +18,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [initialDataLoading, setInitialDataLoading] = useState(true);
   const { toast } = useToast();
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -81,13 +75,6 @@ export default function DashboardPage() {
     fetchInitialData();
   }, [toast]);
 
-  const studentLateCounts = useMemo(() => {
-    return records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-  }, [records]);
-
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
@@ -129,15 +116,12 @@ export default function DashboardPage() {
         classes={classes}
         students={students}
        />
-       <Stats records={records} dateRange={dateRange} onDateRangeChange={setDateRange} />
+      <Stats records={records} />
       <RecordsTable 
         records={records} 
         loading={loading}
         departments={departments}
         classes={classes}
-        studentLateCounts={studentLateCounts}
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
       />
     </div>
   );

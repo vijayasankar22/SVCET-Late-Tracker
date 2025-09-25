@@ -24,15 +24,16 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
-  studentLateCounts: { [key: string]: number };
-  dateRange: DateRange | undefined;
-  onDateRangeChange: (dateRange: DateRange | undefined) => void;
 };
 
-export function RecordsTable({ records, loading, departments, classes, studentLateCounts, dateRange, onDateRangeChange }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -42,6 +43,13 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
     if (!dept) return [];
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
+
+  const studentLateCounts = useMemo(() => {
+    return records.reduce((acc, record) => {
+      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+  }, [records]);
 
   const filteredRecords = useMemo(() => {
     return records
@@ -75,7 +83,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
       })
       .map(record => ({
           ...record,
-          timesLate: studentLateCounts[record.studentId] || 0
+          timesLate: studentLateCounts[record.studentName] || 0
       }))
       .sort((a, b) => {
         const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
@@ -94,7 +102,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentId] || 0,
+      timesLate: studentLateCounts[record.studentName] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -137,7 +145,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
           record.time,
           record.status,
           record.markedBy,
-          (studentLateCounts[record.studentId] || 0).toString(),
+          (studentLateCounts[record.studentName] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -238,7 +246,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={onDateRangeChange}
+                    onSelect={setDateRange}
                     numberOfMonths={2}
                   />
                 </PopoverContent>

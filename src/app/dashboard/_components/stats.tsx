@@ -13,11 +13,13 @@ import { DateRange } from "react-day-picker";
 
 type StatsProps = {
   records: LateRecord[];
-  dateRange: DateRange | undefined;
-  onDateRangeChange: (dateRange: DateRange | undefined) => void;
 };
 
-export function Stats({ records, dateRange, onDateRangeChange }: StatsProps) {
+export function Stats({ records }: StatsProps) {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
   
   const dailyStats = useMemo(() => {
     
@@ -78,6 +80,44 @@ export function Stats({ records, dateRange, onDateRangeChange }: StatsProps) {
 
   return (
     <div className="space-y-4">
+        <div className="flex items-center justify-end">
+             <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-[300px] justify-start text-left font-normal",
+                      !dateRange && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIconStat className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "LLL dd, y")} -{" "}
+                          {format(dateRange.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
