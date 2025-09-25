@@ -124,10 +124,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       } else {
         contentY = 20; // fallback if image doesn't load
       }
-
-      doc.setFont("helvetica", "bold");
       
       doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
       doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
       contentY += 8;
       
@@ -142,7 +141,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
-      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
+      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
       doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
       contentY += 10;
 
