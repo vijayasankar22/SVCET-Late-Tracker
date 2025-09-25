@@ -92,13 +92,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of filteredRecords) {
+    for (const record of records) {
         // Fallback to studentName for older records that might not have studentId
         const key = record.studentId || record.studentName;
         counts[key] = (counts[key] || 0) + 1;
     }
     return counts;
-  }, [filteredRecords]);
+  }, [records]);
 
 
   const handleExportCsv = () => {
@@ -348,5 +348,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
