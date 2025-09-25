@@ -162,7 +162,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         doc.save("late-records.pdf");
     };
 
-    fetch('https://firebasestorage.googleapis.com/v0/b/svcetssp.appspot.com/o/logo.png?alt=media&token=8f8a2936-ac33-4f9e-b148-35ac4884f391')
+    fetch('https://placehold.co/150x150/243A73/FFFFFF/png?text=LOGO')
         .then(response => response.blob())
         .then(blob => {
             const reader = new FileReader();
