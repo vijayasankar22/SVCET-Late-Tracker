@@ -1,6 +1,6 @@
 'use server';
 
-import { collection, writeBatch, getDocs, query, doc, where, Timestamp } from 'firebase/firestore';
+import { collection, writeBatch, getDocs, query, doc, where, Timestamp, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { departments, classes, students } from '@/lib/data';
 
@@ -45,16 +45,14 @@ export async function seedDatabase() {
 
 export async function cleanupOldRecords() {
   try {
-    const cleanupDate = new Date('2024-09-22T00:00:00');
-    const cleanupTimestamp = Timestamp.fromDate(cleanupDate);
-
     const recordsCollection = collection(db, 'lateRecords');
-    const q = query(recordsCollection, where('timestamp', '<', cleanupTimestamp));
+    // Query for the last 4 records by ordering by timestamp descending and limiting to 4
+    const q = query(recordsCollection, orderBy('timestamp', 'desc'), limit(4));
 
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      return { success: true, message: 'No records found before September 22, 2024. Nothing to delete.' };
+      return { success: true, message: 'No records found to delete.' };
     }
 
     const batch = writeBatch(db);
@@ -64,10 +62,10 @@ export async function cleanupOldRecords() {
 
     await batch.commit();
     
-    return { success: true, message: `${querySnapshot.size} old record(s) have been deleted successfully.` };
+    return { success: true, message: `The ${querySnapshot.size} most recent record(s) have been deleted successfully.` };
 
   } catch (error) {
-    console.error('Error cleaning up old records:', error);
+    console.error('Error cleaning up recent records:', error);
     if (error instanceof Error) {
         return { success: false, message: `Error cleaning up records: ${error.message}` };
     }

@@ -35,15 +35,15 @@ export default function CleanupPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-primary p-4">
       <Card className="w-full max-w-lg shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Cleanup Old Records</CardTitle>
+          <CardTitle className="text-2xl font-headline">Cleanup Recent Records</CardTitle>
           <CardDescription>
-            Permanently delete all late entry records created before September 22, 2024.
+            Permanently delete the 4 most recently added late entry records.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
             <p className="font-bold">Warning: This action is irreversible.</p>
-            <p>Please be certain before you proceed. This will permanently delete old records from the database and they cannot be recovered.</p>
+            <p>Please be certain before you proceed. This will permanently delete the 4 most recent records from the database and they cannot be recovered.</p>
           </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -56,7 +56,7 @@ export default function CleanupPage() {
                 ) : (
                   <>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Records Before Sep 22
+                    Delete 4 Most Recent Records
                   </>
                 )}
               </Button>
@@ -65,7 +65,7 @@ export default function CleanupPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete all records from before September 22, 2024.
+                  This action cannot be undone. This will permanently delete the 4 most recent records from your database.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
