@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -122,11 +123,16 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         let contentY = 15; // Initial padding from top
 
         if (logoDataUrl) {
-            const imgWidth = 40;
-            const imgHeight = 40;
+            const originalWidth = 150; // Assuming original image width, adjust if known
+            const originalHeight = 150; // Assuming original image height, adjust if known
+            const aspectRatio = originalHeight / originalWidth;
+
+            const imgWidth = pageWidth * (2 / 3);
+            const imgHeight = imgWidth * aspectRatio;
+
             const x = (pageWidth - imgWidth) / 2;
             doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 5;
+            contentY += imgHeight + 10;
         }
 
         doc.setFontSize(12);
@@ -347,3 +353,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
