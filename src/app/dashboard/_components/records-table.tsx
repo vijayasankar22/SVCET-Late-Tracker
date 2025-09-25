@@ -112,15 +112,17 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const pageWidth = doc.internal.pageSize.getWidth();
 
     const generatePdf = (img?: HTMLImageElement) => {
-      let contentY = 20;
+      let contentY = 15;
 
       if (img) {
         const imgWidth = 180;
         const aspectRatio = img.naturalHeight / img.naturalWidth;
         const imgHeight = imgWidth * aspectRatio;
         const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(img, 'PNG', imgX, 15, imgWidth, imgHeight);
-        contentY = imgHeight + 25;
+        doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
+        contentY += imgHeight + 10;
+      } else {
+        contentY = 20; // fallback if image doesn't load
       }
 
       doc.setFont("helvetica", "bold");
@@ -138,6 +140,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
       contentY += 8;
 
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
       doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
