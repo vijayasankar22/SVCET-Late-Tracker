@@ -104,15 +104,6 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
 
     const generatePdf = (img?: HTMLImageElement) => {
       let contentY = 10;
-
-      if (img) {
-        const imgWidth = 20;
-        const aspectRatio = img.naturalHeight / img.naturalWidth;
-        const imgHeight = imgWidth * aspectRatio;
-        const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
-        contentY += imgHeight + 2; // Add some padding
-      }
       
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
