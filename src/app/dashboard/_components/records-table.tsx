@@ -112,7 +112,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const pageWidth = doc.internal.pageSize.getWidth();
 
     const generatePdf = (img?: HTMLImageElement) => {
-      let contentY = 15;
+      let contentY = 10;
 
       if (img) {
         const imgWidth = 180;
@@ -347,3 +347,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
