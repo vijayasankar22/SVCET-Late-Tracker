@@ -97,10 +97,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
   const studentLateCounts = useMemo(() => {
-    return filteredRecords.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
+    const counts: { [key: string]: number } = {};
+    for (const record of filteredRecords) {
+      counts[record.studentId] = (counts[record.studentId] || 0) + 1;
+    }
+    return counts;
   }, [filteredRecords]);
 
   const handleExportCsv = () => {
