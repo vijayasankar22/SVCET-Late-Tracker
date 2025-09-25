@@ -34,8 +34,6 @@ export default function DashboardPage() {
         const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
         const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
         
-        const cutoffDate = new Date('2025-09-22T00:00:00');
-
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
@@ -46,7 +44,7 @@ export default function DashboardPage() {
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed', // backward compatibility
           } as LateRecord;
-        }).filter(record => record.timestamp >= cutoffDate);
+        });
 
 
         setDepartments(deptsData);
@@ -104,7 +102,7 @@ export default function DashboardPage() {
   
   const studentLateCounts = useMemo(() => {
     return records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
   }, [records]);
@@ -112,7 +110,7 @@ export default function DashboardPage() {
 
   if (initialDataLoading) {
       return (
-        <div className="space-y-8 flex-1 flex flex-col">
+        <div className="space-y-8">
             <Skeleton className="h-64 w-full" />
             <Skeleton className="h-[50vh] w-full" />
         </div>
@@ -120,7 +118,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 flex-1 flex flex-col">
+    <div className="space-y-8">
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}
@@ -133,7 +131,6 @@ export default function DashboardPage() {
         loading={loading}
         departments={departments}
         classes={classes}
-        studentLateCounts={studentLateCounts}
       />
     </div>
   );

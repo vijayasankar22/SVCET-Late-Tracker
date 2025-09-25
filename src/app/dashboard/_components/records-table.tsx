@@ -24,10 +24,9 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
-  studentLateCounts: { [key: string]: number };
 };
 
-export function RecordsTable({ records, loading, departments, classes, studentLateCounts }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -83,6 +82,13 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
       
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
+  const studentLateCounts = useMemo(() => {
+    return filteredRecords.reduce((acc, record) => {
+      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+  }, [filteredRecords]);
+
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
       "S.No.": index + 1,
@@ -93,7 +99,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentId] || 0,
+      timesLate: studentLateCounts[record.studentName] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -137,7 +143,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
           record.time,
           record.status,
           record.markedBy,
-          (studentLateCounts[record.studentId] || 0).toString(),
+          (studentLateCounts[record.studentName] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -176,7 +182,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
 
 
   return (
-    <Card className="shadow-xl flex flex-col flex-1">
+    <Card>
       <CardHeader>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -195,7 +201,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
             </div>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col flex-1">
+      <CardContent>
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -271,7 +277,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
             </Select>
            </div>
         </div>
-        <div className="rounded-lg border flex-1 flex">
+        <div className="rounded-lg border">
           <Table className="table-alternating-rows">
             <TableHeader>
               <TableRow>
@@ -309,7 +315,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentName] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))

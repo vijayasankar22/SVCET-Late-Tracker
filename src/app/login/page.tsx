@@ -44,8 +44,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-primary p-4">
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4">
-             <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" alt="logo" width={64} height={64} className="rounded-full" />
+          <div className="mx-auto mb-4 bg-primary rounded-full p-2">
+             <ClipboardCheck className="text-primary-foreground h-12 w-12" />
           </div>
           <CardTitle className="text-3xl font-headline">SVCET - Late Tracker</CardTitle>
           <CardDescription>Staff Login</CardDescription>
