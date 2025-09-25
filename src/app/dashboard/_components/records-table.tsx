@@ -141,7 +141,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       contentY += 8;
 
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
+      doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
       doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
       contentY += 10;
