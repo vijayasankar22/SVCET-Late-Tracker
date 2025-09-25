@@ -53,8 +53,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         classFilter === "all" || record.className === classes.find(c => c.id === classFilter)?.name
       )
       .filter((record) => {
-        if (!dateRange?.from) {
-          return true; // Show all records if no start date is selected
+        if (!dateRange || !dateRange.from) {
+          return true; 
         }
         try {
             const recordDate = new Date(record.timestamp);
@@ -72,12 +72,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     return false;
                 }
             } else {
-                // If only 'from' is selected, filter from that day onwards
-                const fromDateEnd = new Date(dateRange.from);
-                fromDateEnd.setHours(23, 59, 59, 999);
-                if (recordDate > fromDateEnd && format(recordDate, 'yyyy-MM-dd') !== format(fromDate, 'yyyy-MM-dd')) {
-                  // this case is for single day selection
-                }
+                 const fromDateEnd = new Date(dateRange.from);
+                 fromDateEnd.setHours(23, 59, 59, 999);
+                 if (recordDate > fromDateEnd) {
+                   return false;
+                 }
             }
             return true;
         } catch (e) {
@@ -130,12 +129,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     const imgHeight = img.height;
                     const aspectRatio = imgWidth / imgHeight;
 
-                    let pdfImgWidth = 120; // Max width, increased from 30
+                    let pdfImgWidth = 120;
                     let pdfImgHeight = pdfImgWidth / aspectRatio;
                     
-                    // If height is too big, scale based on height instead
-                    if (pdfImgHeight > 120) { // Increased from 30
-                        pdfImgHeight = 120; // Increased from 30
+                    if (pdfImgHeight > 120) {
+                        pdfImgHeight = 120;
                         pdfImgWidth = pdfImgHeight * aspectRatio;
                     }
 
@@ -147,7 +145,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 };
                 img.onerror = () => {
                     console.error("Could not load image for PDF.");
-                    addTextAndTable(); // Proceed even if image fails
+                    addTextAndTable();
                 };
             } else {
                 addTextAndTable();
@@ -211,12 +209,12 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 };
                 reader.onerror = () => {
                     console.error("Could not convert image blob to data URL.");
-                    generatePdf(null); // Proceed without logo
+                    generatePdf(null);
                 }
             })
             .catch(error => {
                 console.error("Error loading image for PDF:", error.message);
-                generatePdf(null); // Proceed without logo
+                generatePdf(null);
             });
   };
 
@@ -311,7 +309,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 <SelectContent>
                     <SelectItem value="all">All Classes</SelectItem>
                     {availableClasses.map(c => (
-                        <SelectItem key={c.id} value={c.id}>{c.id}</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                     ))}
                 </SelectContent>
             </Select>
