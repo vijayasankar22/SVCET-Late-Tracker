@@ -109,6 +109,7 @@ export default function DashboardPage() {
     }, {} as { [key: string]: number });
   }, [records]);
 
+
   if (initialDataLoading) {
       return (
         <div className="space-y-8 flex-1 flex flex-col">
