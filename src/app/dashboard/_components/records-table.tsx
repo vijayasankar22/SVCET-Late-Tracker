@@ -116,38 +116,40 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const pageWidth = doc.internal.pageSize.getWidth();
         let contentY = 15;
 
-        if (logoDataUrl) {
-            const img = new Image();
-            img.src = logoDataUrl;
-            img.onload = () => {
-                const imgWidth = img.width;
-                const imgHeight = img.height;
-                const aspectRatio = imgWidth / imgHeight;
+        const addContentAndSave = () => {
+            if (logoDataUrl) {
+                const img = new Image();
+                img.src = logoDataUrl;
+                img.onload = () => {
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    const aspectRatio = imgWidth / imgHeight;
 
-                let pdfImgWidth = 30; // Max width
-                let pdfImgHeight = pdfImgWidth / aspectRatio;
-                
-                // If height is too big, scale based on height instead
-                if (pdfImgHeight > 30) {
-                    pdfImgHeight = 30;
-                    pdfImgWidth = pdfImgHeight * aspectRatio;
-                }
+                    let pdfImgWidth = 120; // Max width, increased from 30
+                    let pdfImgHeight = pdfImgWidth / aspectRatio;
+                    
+                    // If height is too big, scale based on height instead
+                    if (pdfImgHeight > 120) { // Increased from 30
+                        pdfImgHeight = 120; // Increased from 30
+                        pdfImgWidth = pdfImgHeight * aspectRatio;
+                    }
 
-                const x = (pageWidth - pdfImgWidth) / 2;
-                doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
-                contentY += pdfImgHeight + 10;
-                
-                addContentAndSave();
-            };
-            img.onerror = () => {
-                console.error("Could not load image for PDF.");
-                addContentAndSave();
-            };
-        } else {
-            addContentAndSave();
-        }
+                    const x = (pageWidth - pdfImgWidth) / 2;
+                    doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
+                    contentY += pdfImgHeight + 10;
+                    
+                    addTextAndTable();
+                };
+                img.onerror = () => {
+                    console.error("Could not load image for PDF.");
+                    addTextAndTable(); // Proceed even if image fails
+                };
+            } else {
+                addTextAndTable();
+            }
+        };
 
-        function addContentAndSave() {
+        const addTextAndTable = () => {
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
             doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
@@ -188,30 +190,29 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             
             doc.save("late-records.pdf");
         }
-    };
 
-    fetch('/logo.png')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Logo not found');
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = () => {
-                generatePdf(reader.result as string);
-            };
-            reader.onerror = () => {
-                console.error("Could not convert image blob to data URL.");
-                generatePdf(null);
-            }
-        })
-        .catch(error => {
-            console.error("Could not load image for PDF.", error);
-            generatePdf(null);
-        });
+        fetch('/logo.png')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Logo not found');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onloadend = () => {
+                    generatePdf(reader.result as string);
+                };
+                reader.onerror = () => {
+                    console.error("Could not convert image blob to data URL.");
+                    generatePdf(null); // Proceed without logo
+                }
+            })
+            .catch(error => {
+                console.error("Error loading image for PDF:", error.message);
+                generatePdf(null); // Proceed without logo
+            });
   };
 
 
@@ -367,3 +368,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
