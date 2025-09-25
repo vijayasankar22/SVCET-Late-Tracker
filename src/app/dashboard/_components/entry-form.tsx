@@ -159,9 +159,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 name="studentId"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex justify-between items-center">
-                      <FormLabel>Student Name</FormLabel>
-                    </div>
+                    <FormLabel>Student Name</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId || isSubmitting}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
