@@ -21,7 +21,7 @@ export function Stats({ records }: StatsProps) {
   const dailyStats = useMemo(() => {
     
     const filtered = records.filter(record => {
-      if (!dateRange || (!dateRange.from && !dateRange.to)) {
+      if (!dateRange?.from) {
         const today = new Date();
         const recordDate = new Date(record.timestamp);
         return recordDate.getDate() === today.getDate() &&
@@ -30,15 +30,19 @@ export function Stats({ records }: StatsProps) {
       }
       try {
         const recordDate = new Date(record.timestamp);
-        if (dateRange.from) {
-            const fromDate = new Date(dateRange.from);
-            fromDate.setHours(0, 0, 0, 0);
-            if (recordDate < fromDate) return false;
+        const fromDate = new Date(dateRange.from);
+        fromDate.setHours(0, 0, 0, 0);
+
+        if (recordDate < fromDate) {
+            return false;
         }
+
         if (dateRange.to) {
             const toDate = new Date(dateRange.to);
             toDate.setHours(23, 59, 59, 999);
-            if (recordDate > toDate) return false;
+            if (recordDate > toDate) {
+                return false;
+            }
         }
         return true;
       } catch (e) {
