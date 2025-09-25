@@ -34,6 +34,8 @@ export default function DashboardPage() {
         const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
         const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
         
+        const cutoffDate = new Date('2025-09-22T00:00:00');
+
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
@@ -44,7 +46,8 @@ export default function DashboardPage() {
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed', // backward compatibility
           } as LateRecord;
-        });
+        }).filter(record => record.timestamp >= cutoffDate);
+
 
         setDepartments(deptsData);
         setClasses(clssData);
