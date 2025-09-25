@@ -24,10 +24,9 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
-  studentLateCounts: { [key: string]: number };
 };
 
-export function RecordsTable({ records, loading, departments, classes, studentLateCounts }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -45,8 +44,13 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
-  const filteredRecords = useMemo(() => {
-    return records
+  const { filteredRecords, studentLateCounts } = useMemo(() => {
+    const studentLateCounts = records.reduce((acc, record) => {
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    const filteredRecords = records
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -80,6 +84,9 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
         const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
+      
+      return { filteredRecords, studentLateCounts };
+
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
   const handleExportCsv = () => {
