@@ -122,7 +122,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (logoDataUrl: string | null = null) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
-        let contentY = 10;
+        let contentY = 0;
 
         const addTextAndTable = () => {
             doc.setFontSize(12);
