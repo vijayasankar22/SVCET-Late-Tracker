@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -120,11 +121,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (logoDataUrl: string | null) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
-        let contentY = 15; // Initial padding from top
+        let contentY = 15;
 
         if (logoDataUrl) {
-            const originalWidth = 150; // Assuming original image width, adjust if known
-            const originalHeight = 150; // Assuming original image height, adjust if known
+            const originalWidth = 150;
+            const originalHeight = 150;
             const aspectRatio = originalHeight / originalWidth;
 
             const imgWidth = pageWidth * (2 / 3);
@@ -353,5 +354,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
 
     
