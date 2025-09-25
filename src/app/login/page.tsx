@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ClipboardCheck } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -44,8 +43,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-primary p-4">
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 bg-white rounded-full p-2 flex items-center justify-center h-20 w-20">
-             <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" alt="Logo" width={64} height={64} />
+          <div className="mx-auto mb-4 bg-white rounded-full p-2 flex items-center justify-center h-48 w-48">
+             <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" alt="Logo" width={150} height={150} />
           </div>
           <CardTitle className="text-3xl font-headline">SVCET - Late Tracker</CardTitle>
           <CardDescription>Staff Login</CardDescription>
