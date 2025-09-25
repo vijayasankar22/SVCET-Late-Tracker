@@ -174,11 +174,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 const imgHeight = img.height;
                 const aspectRatio = imgWidth / imgHeight;
 
-                let pdfImgWidth = 156;
+                let pdfImgWidth = 187;
                 let pdfImgHeight = pdfImgWidth / aspectRatio;
                 
-                if (pdfImgHeight > 156) {
-                    pdfImgHeight = 156;
+                if (pdfImgHeight > 187) {
+                    pdfImgHeight = 187;
                     pdfImgWidth = pdfImgHeight * aspectRatio;
                 }
 
