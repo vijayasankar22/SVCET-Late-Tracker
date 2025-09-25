@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: 'SVCET - Late Tracker',
   description: 'Late Student Tracker',
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: 'https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08',
+    apple: 'https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08',
+  }
 };
 
 export default function RootLayout({
