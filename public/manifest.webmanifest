@@ -1,10 +1,10 @@
 {
   "name": "SVCET - Late Tracker",
-  "short_name": "SVCET Tracker",
+  "short_name": "LateTracker",
   "description": "Late Student Tracker for SVCET",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#243A73",
+  "background_color": "#FFFFFF",
   "theme_color": "#243A73",
   "icons": [
     {
