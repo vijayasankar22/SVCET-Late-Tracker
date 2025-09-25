@@ -137,9 +137,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         tableStartY = newImgHeight + imgY + 5; // Position content below the image
       }
 
-      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
       doc.text('Students Late Report', pageWidth / 2, tableStartY, { align: 'center' });
       tableStartY += 10;
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
       doc.text(dateRangeText, pageWidth / 2, tableStartY, { align: 'center' });
