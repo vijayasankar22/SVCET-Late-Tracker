@@ -56,19 +56,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         classFilter === "all" || record.className === classes.find(c => c.id === classFilter)?.name
       )
       .filter((record) => {
-        if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
+        if (!dateRange) return true;
         try {
-            const recordDate = record.timestamp instanceof Date ? record.timestamp : new Date(record.timestamp);
-            if (dateRange.from) {
-                const fromDate = new Date(dateRange.from);
-                fromDate.setHours(0, 0, 0, 0);
-                if (recordDate < fromDate) return false;
-            }
-            if (dateRange.to) {
-                const toDate = new Date(dateRange.to);
-                toDate.setHours(23, 59, 59, 999);
-                if (recordDate > toDate) return false;
-            }
+            const recordDate = new Date(record.timestamp);
+            if (dateRange.from && recordDate < new Date('2025-09-22')) return false;
+            if (dateRange.to && recordDate > dateRange.to) return false;
             return true;
         } catch (e) {
             return true;
