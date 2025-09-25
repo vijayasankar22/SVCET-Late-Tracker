@@ -121,38 +121,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const pageWidth = doc.internal.pageSize.getWidth();
         let contentY = 15;
 
-        const addContentAndSave = () => {
-            if (logoDataUrl) {
-                const img = new Image();
-                img.src = logoDataUrl;
-                img.onload = () => {
-                    const imgWidth = img.width;
-                    const imgHeight = img.height;
-                    const aspectRatio = imgWidth / imgHeight;
-
-                    let pdfImgWidth = 120;
-                    let pdfImgHeight = pdfImgWidth / aspectRatio;
-                    
-                    if (pdfImgHeight > 120) {
-                        pdfImgHeight = 120;
-                        pdfImgWidth = pdfImgHeight * aspectRatio;
-                    }
-
-                    const x = (pageWidth - pdfImgWidth) / 2;
-                    doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
-                    contentY += pdfImgHeight + 10;
-                    
-                    addTextAndTable();
-                };
-                img.onerror = () => {
-                    console.error("Could not load image for PDF.");
-                    addTextAndTable();
-                };
-            } else {
-                addTextAndTable();
-            }
-        };
-
         const addTextAndTable = () => {
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
@@ -195,28 +163,59 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             doc.save("late-records.pdf");
         }
 
-        fetch('/logo.png')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Logo not found');
+        if (logoDataUrl) {
+            const img = new Image();
+            img.src = logoDataUrl;
+            img.onload = () => {
+                const imgWidth = img.width;
+                const imgHeight = img.height;
+                const aspectRatio = imgWidth / imgHeight;
+
+                let pdfImgWidth = 120;
+                let pdfImgHeight = pdfImgWidth / aspectRatio;
+                
+                if (pdfImgHeight > 120) {
+                    pdfImgHeight = 120;
+                    pdfImgWidth = pdfImgHeight * aspectRatio;
                 }
-                return response.blob();
-            })
-            .then(blob => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () => {
-                    generatePdf(reader.result as string);
-                };
-                reader.onerror = () => {
-                    console.error("Could not convert image blob to data URL.");
-                    generatePdf(null);
-                }
-            })
-            .catch(error => {
-                console.error("Error loading image for PDF:", error.message);
+
+                const x = (pageWidth - pdfImgWidth) / 2;
+                doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
+                contentY += pdfImgHeight + 10;
+                
+                addTextAndTable();
+            };
+            img.onerror = () => {
+                console.error("Could not load image for PDF.");
+                addTextAndTable();
+            };
+        } else {
+            addTextAndTable();
+        }
+    };
+
+    fetch('/logo.png')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Logo not found');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                generatePdf(reader.result as string);
+            };
+            reader.onerror = () => {
+                console.error("Could not convert image blob to data URL.");
                 generatePdf(null);
-            });
+            }
+        })
+        .catch(error => {
+            console.error("Error loading image for PDF:", error.message);
+            generatePdf(null);
+        });
   };
 
 

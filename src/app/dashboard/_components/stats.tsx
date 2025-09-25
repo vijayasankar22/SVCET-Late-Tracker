@@ -22,11 +22,7 @@ export function Stats({ records }: StatsProps) {
     
     const filtered = records.filter(record => {
       if (!dateRange?.from) {
-        const today = new Date();
-        const recordDate = new Date(record.timestamp);
-        return recordDate.getDate() === today.getDate() &&
-               recordDate.getMonth() === today.getMonth() &&
-               recordDate.getFullYear() === today.getFullYear();
+        return true;
       }
       try {
         const recordDate = new Date(record.timestamp);
@@ -42,6 +38,13 @@ export function Stats({ records }: StatsProps) {
             toDate.setHours(23, 59, 59, 999);
             if (recordDate > toDate) {
                 return false;
+            }
+        } else {
+            // If only 'from' is selected, filter for that single day
+            const fromDateEnd = new Date(dateRange.from);
+            fromDateEnd.setHours(23, 59, 59, 999);
+            if (recordDate > fromDateEnd) {
+              return false;
             }
         }
         return true;
@@ -75,7 +78,7 @@ export function Stats({ records }: StatsProps) {
       }
       return format(dateRange.from, "PPP");
     }
-    return 'Today';
+    return 'All Time';
   }, [dateRange]);
 
 
@@ -122,7 +125,7 @@ export function Stats({ records }: StatsProps) {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Students Late on {dateDisplay}</CardTitle>
+                    <CardTitle className="text-sm font-medium">Students Late ({dateDisplay})</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
