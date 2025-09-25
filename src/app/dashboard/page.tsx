@@ -102,18 +102,18 @@ export default function DashboardPage() {
     }
   };
   
-    const studentLateCounts = useMemo(() => {
-        return records.reduce((acc, record) => {
-            acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-            return acc;
-        }, {} as { [key: string]: number });
-    }, [records]);
+  const studentLateCounts = useMemo(() => {
+    return records.reduce((acc, record) => {
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+  }, [records]);
 
   if (initialDataLoading) {
       return (
-        <div className="space-y-8">
+        <div className="space-y-8 flex-1 flex flex-col">
             <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-96 w-full" />
+            <Skeleton className="h-[50vh] w-full" />
         </div>
       )
   }
