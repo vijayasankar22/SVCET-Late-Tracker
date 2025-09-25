@@ -91,12 +91,15 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
   const studentLateCounts = useMemo(() => {
-    return filteredRecords.reduce((acc, record) => {
-        const key = record.studentId;
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-    }, {} as {[key: string]: number});
+    const counts: { [key: string]: number } = {};
+    for (const record of filteredRecords) {
+        // Fallback to studentName for older records that might not have studentId
+        const key = record.studentId || record.studentName;
+        counts[key] = (counts[key] || 0) + 1;
+    }
+    return counts;
   }, [filteredRecords]);
+
 
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
@@ -108,7 +111,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentId] || 0,
+      timesLate: studentLateCounts[record.studentId || record.studentName] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -159,7 +162,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 record.time,
                 record.status,
                 record.markedBy,
-                (studentLateCounts[record.studentId] || 0).toString(),
+                (studentLateCounts[record.studentId || record.studentName] || 0).toString(),
             ]),
             headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
             styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -327,7 +330,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId || record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId || record.studentName] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
@@ -345,3 +348,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    
