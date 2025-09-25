@@ -110,91 +110,50 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     exportToCsv("late-records.csv", recordsToExport);
   };
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    let contentY = 15;
 
-    const generatePdf = (img?: HTMLImageElement) => {
-      let contentY = 10;
-      
-      if (img) {
-        const imgWidth = 20;
-        const imgHeight = 20;
-        const imgX = (pageWidth - imgWidth) / 2;
-        doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
-        contentY += imgHeight + 5;
-      }
-      
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-      contentY += 8;
-      
-      doc.setFontSize(16);
-      const mainTitle = "STUDENTS LATE REPORT";
-      doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
-      
-      const textWidth = doc.getTextWidth(mainTitle);
-      doc.setLineWidth(0.5);
-      doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
-      contentY += 8;
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
-      doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
-      contentY += 10;
-
-      autoTable(doc, {
-        startY: contentY,
-        head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-        body: filteredRecords.map((record, index) => [
-          index + 1,
-          record.studentName,
-          record.departmentName,
-          record.className,
-          record.date,
-          record.time,
-          record.status,
-          record.markedBy,
-          (studentLateCounts[record.studentName] || 0).toString(),
-        ]),
-        headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-        styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-      });
-
-      doc.save("late-records.pdf");
-    };
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+    contentY += 8;
     
-    const logoUrl = '/logo.png';
+    doc.setFontSize(16);
+    const mainTitle = "STUDENTS LATE REPORT";
+    doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
+    
+    const textWidth = doc.getTextWidth(mainTitle);
+    doc.setLineWidth(0.5);
+    doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+    contentY += 8;
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+    doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+    contentY += 10;
 
-    try {
-      const response = await fetch(logoUrl);
-      if (!response.ok) throw new Error('Image not found');
-      const blob = await response.blob();
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = () => {
-          const base64data = reader.result as string;
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = base64data;
-          img.onload = () => {
-              generatePdf(img);
-          };
-          img.onerror = (e) => {
-              console.error("Could not load image for PDF.", e);
-              generatePdf();
-          };
-      };
-      reader.onerror = () => {
-          console.error("Could not read image file.");
-          generatePdf();
-      }
-    } catch (error) {
-      console.error("Could not fetch image for PDF, generating without it.", error);
-      generatePdf();
-    }
+    autoTable(doc, {
+      startY: contentY,
+      head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+      body: filteredRecords.map((record, index) => [
+        index + 1,
+        record.studentName,
+        record.departmentName,
+        record.className,
+        record.date,
+        record.time,
+        record.status,
+        record.markedBy,
+        (studentLateCounts[record.studentName] || 0).toString(),
+      ]),
+      headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+      styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+    });
+
+    doc.save("late-records.pdf");
   };
 
 
