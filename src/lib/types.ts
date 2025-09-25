@@ -24,6 +24,7 @@ export interface Staff {
 
 export interface LateRecord {
   id: string;
+  studentId: string;
   studentName: string;
   departmentName: string;
   className: string;

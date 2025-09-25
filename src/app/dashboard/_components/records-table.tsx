@@ -46,7 +46,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
   const filteredRecords = useMemo(() => {
     const studentLateCounts = records.reduce((acc, record) => {
-      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
 
@@ -81,7 +81,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       })
       .map(record => ({
           ...record,
-          timesLate: studentLateCounts[record.studentName] || 0
+          timesLate: studentLateCounts[record.studentId] || 0
       }))
       .sort((a, b) => {
         const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;

@@ -68,6 +68,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       setIsSubmitting(true);
       const now = new Date();
       const newRecord = {
+        studentId: student.id,
         studentName: student.name,
         departmentName: department.name,
         className: cls.name,
