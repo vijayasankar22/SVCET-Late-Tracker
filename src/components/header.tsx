@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { ClipboardCheck, LogOut } from 'lucide-react';
@@ -19,7 +20,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
       <div className="flex items-center gap-2">
-        <ClipboardCheck className="h-6 w-6" />
+        <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/bffb.png?alt=media&token=acbbec94-e28a-4d5f-8120-11cce538c484" alt="logo" width={40} height={40} />
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </div>
       <div className="ml-auto flex items-center gap-4">
