@@ -101,6 +101,13 @@ export default function DashboardPage() {
       return false;
     }
   };
+  
+    const studentLateCounts = useMemo(() => {
+        return records.reduce((acc, record) => {
+            acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+            return acc;
+        }, {} as { [key: string]: number });
+    }, [records]);
 
   if (initialDataLoading) {
       return (
@@ -112,7 +119,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 flex-1 flex flex-col">
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}
@@ -125,9 +132,8 @@ export default function DashboardPage() {
         loading={loading}
         departments={departments}
         classes={classes}
+        studentLateCounts={studentLateCounts}
       />
     </div>
   );
 }
-
-    

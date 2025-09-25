@@ -24,9 +24,10 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
+  studentLateCounts: { [key: string]: number };
 };
 
-export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes, studentLateCounts }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -44,13 +45,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
-  const { filteredRecords, studentLateCounts } = useMemo(() => {
-    const studentLateCounts = records.reduce((acc, record) => {
-      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    const filteredRecords = records
+  const filteredRecords = useMemo(() => {
+    return records
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -85,8 +81,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         return dateB - dateA;
       });
       
-      return { filteredRecords, studentLateCounts };
-
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
   const handleExportCsv = () => {
@@ -99,7 +93,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentName] || 0,
+      timesLate: studentLateCounts[record.studentId] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -154,7 +148,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           record.time,
           record.status,
           record.markedBy,
-          (studentLateCounts[record.studentName] || 0).toString(),
+          (studentLateCounts[record.studentId] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -193,7 +187,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
 
   return (
-    <Card className="shadow-xl">
+    <Card className="shadow-xl flex flex-col flex-1">
       <CardHeader>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -212,7 +206,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col flex-1">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -288,7 +282,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             </Select>
            </div>
         </div>
-        <div className="rounded-lg border">
+        <div className="rounded-lg border flex-1 flex">
           <Table className="table-alternating-rows">
             <TableHeader>
               <TableRow>
@@ -326,7 +320,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentName] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
