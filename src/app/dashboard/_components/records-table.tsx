@@ -120,7 +120,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const imgHeight = imgWidth * aspectRatio;
         const imgX = (pageWidth - imgWidth) / 2;
         doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
-        contentY += imgHeight + 10;
+        contentY += imgHeight ;
       } else {
         contentY = 20; // fallback if image doesn't load
       }
