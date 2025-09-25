@@ -54,7 +54,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       )
       .filter((record) => {
         if (!dateRange || !dateRange.from) {
-          return true; 
+          return true;
         }
         try {
             const recordDate = new Date(record.timestamp);
@@ -72,6 +72,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     return false;
                 }
             } else {
+                 // If only 'from' is selected, filter for that single day
                  const fromDateEnd = new Date(dateRange.from);
                  fromDateEnd.setHours(23, 59, 59, 999);
                  if (recordDate > fromDateEnd) {
