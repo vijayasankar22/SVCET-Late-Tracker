@@ -117,14 +117,14 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (logoDataUrl: string | null) => {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
-        let contentY = 2; // Initial padding from top
+        let contentY = 15; // Initial padding from top
 
         if (logoDataUrl) {
             const imgWidth = 40;
             const imgHeight = 40;
             const x = (pageWidth - imgWidth) / 2;
             doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 2; // Space after logo
+            contentY += imgHeight + 5;
         }
 
         doc.setFontSize(12);
