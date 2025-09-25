@@ -45,13 +45,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [departmentFilter, departments, classes]);
 
   const filteredRecords = useMemo(() => {
-    const twentySecondSeptember = new Date('2025-09-22T00:00:00');
-
     return records
-      .filter((record) => {
-        const recordDate = record.timestamp instanceof Date ? record.timestamp : new Date(record.timestamp);
-        return recordDate >= twentySecondSeptember;
-      })
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -368,5 +362,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
