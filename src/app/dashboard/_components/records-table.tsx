@@ -98,7 +98,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   
   const studentLateCounts = useMemo(() => {
     return filteredRecords.reduce((acc, record) => {
-      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
   }, [filteredRecords]);
@@ -113,7 +113,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentName] || 0,
+      timesLate: studentLateCounts[record.studentId] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -157,7 +157,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 record.time,
                 record.status,
                 record.markedBy,
-                (studentLateCounts[record.studentName] || 0).toString(),
+                (studentLateCounts[record.studentId] || 0).toString(),
               ]),
               headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
               styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -356,7 +356,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentName] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
