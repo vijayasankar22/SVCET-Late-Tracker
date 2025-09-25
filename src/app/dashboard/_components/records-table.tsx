@@ -94,7 +94,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: record.timesLate,
+      timesLate: studentLateCounts[record.studentId] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -137,7 +137,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
           record.time,
           record.status,
           record.markedBy,
-          record.timesLate.toString(),
+          (studentLateCounts[record.studentId] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
