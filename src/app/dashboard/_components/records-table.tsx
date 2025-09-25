@@ -24,9 +24,10 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
+  studentLateCounts: { [key: string]: number };
 };
 
-export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes, studentLateCounts }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -45,7 +46,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [departmentFilter, departments, classes]);
 
   const filteredRecords = useMemo(() => {
+    const twentySecondSeptember = new Date('2025-09-22T00:00:00');
+
     return records
+      .filter((record) => {
+        const recordDate = record.timestamp instanceof Date ? record.timestamp : new Date(record.timestamp);
+        return recordDate >= twentySecondSeptember;
+      })
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
       )
@@ -58,7 +65,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       .filter((record) => {
         if (!dateRange || (!dateRange.from && !dateRange.to)) return true;
         try {
-            const recordDate = new Date(record.timestamp);
+            const recordDate = record.timestamp instanceof Date ? record.timestamp : new Date(record.timestamp);
             if (dateRange.from) {
                 const fromDate = new Date(dateRange.from);
                 fromDate.setHours(0, 0, 0, 0);
@@ -82,13 +89,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
-  const studentLateCounts = useMemo(() => {
-    return filteredRecords.reduce((acc, record) => {
-      acc[record.studentName] = (acc[record.studentName] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-  }, [filteredRecords]);
-
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
       "S.No.": index + 1,
@@ -99,7 +99,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentName] || 0,
+      timesLate: studentLateCounts[record.studentId] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -151,7 +151,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           record.time,
           record.status,
           record.markedBy,
-          (studentLateCounts[record.studentName] || 0).toString(),
+          (studentLateCounts[record.studentId] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -159,9 +159,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
       doc.save("late-records.pdf");
     };
+    
+    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08';
 
     try {
-      const response = await fetch('/logo.png');
+      const response = await fetch(logoUrl);
       if (!response.ok) throw new Error('Image not found');
       const blob = await response.blob();
       const reader = new FileReader();
@@ -169,12 +171,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       reader.onloadend = () => {
           const base64data = reader.result as string;
           const img = new Image();
+          img.crossOrigin = "anonymous";
           img.src = base64data;
           img.onload = () => {
               generatePdf(img);
           };
-          img.onerror = () => {
-              console.error("Could not load image for PDF.");
+          img.onerror = (e) => {
+              console.error("Could not load image for PDF.", e);
               generatePdf();
           };
       };
@@ -323,7 +326,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentName] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
