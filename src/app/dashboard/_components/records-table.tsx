@@ -44,12 +44,14 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
-  const filteredRecords = useMemo(() => {
-    const studentLateCounts = records.reduce((acc, record) => {
+  const studentLateCounts = useMemo(() => {
+    return records.reduce((acc, record) => {
       acc[record.studentId] = (acc[record.studentId] || 0) + 1;
       return acc;
     }, {} as { [key: string]: number });
+  }, [records]);
 
+  const filteredRecords = useMemo(() => {
     return records
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -88,7 +90,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
-  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
+  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes, studentLateCounts]);
 
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
@@ -262,7 +264,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     ))}
                 </SelectContent>
             </Select>
-            <Select value={classFilter} onValueChange={setClassFilter}>
+            <Select value={classFilter} onValueChange={(value) => {
+                setClassFilter(value);
+            }}>
                  <SelectTrigger className="w-full md:w-[180px]">
                     <SelectValue placeholder="Filter by Class" />
                 </SelectTrigger>
@@ -331,3 +335,5 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
+
+    

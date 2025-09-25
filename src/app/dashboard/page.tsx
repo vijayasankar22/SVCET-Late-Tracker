@@ -9,7 +9,8 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import Image from 'next/image';
+import { DateRange } from 'react-day-picker';
+
 
 export default function DashboardPage() {
   const [records, setRecords] = useState<LateRecord[]>([]);
@@ -19,6 +20,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [initialDataLoading, setInitialDataLoading] = useState(true);
   const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -31,9 +36,9 @@ export default function DashboardPage() {
           getDocs(query(collection(db, 'lateRecords'), orderBy('timestamp', 'desc')))
         ]);
 
-        const deptsData = depts.docs.map(doc => doc.data() as Department);
-        const clssData = clss.docs.map(doc => doc.data() as Class);
-        const studsData = studs.docs.map(doc => doc.data() as Student);
+        const deptsData = depts.docs.map(doc => ({id: doc.id, ...doc.data()} as Department));
+        const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
+        const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
         
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
@@ -116,7 +121,7 @@ export default function DashboardPage() {
         classes={classes}
         students={students}
        />
-       <Stats records={records} />
+       <Stats records={records} dateRange={dateRange} onDateRangeChange={setDateRange} />
       <RecordsTable 
         records={records} 
         loading={loading}
@@ -126,3 +131,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

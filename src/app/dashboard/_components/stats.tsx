@@ -2,32 +2,54 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 
 type StatsProps = {
   records: LateRecord[];
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (dateRange: DateRange | undefined) => void;
 };
 
-export function Stats({ records }: StatsProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+export function Stats({ records, dateRange, onDateRangeChange }: StatsProps) {
+  
   const dailyStats = useMemo(() => {
-    const targetDate = selectedDate.toLocaleDateString();
     
-    const todaysRecords = records.filter(record => {
-      const recordDate = new Date(record.timestamp);
-      return recordDate.toLocaleDateString() === targetDate;
+    const filtered = records.filter(record => {
+      if (!dateRange || (!dateRange.from && !dateRange.to)) {
+        const today = new Date();
+        const recordDate = new Date(record.timestamp);
+        return recordDate.getDate() === today.getDate() &&
+               recordDate.getMonth() === today.getMonth() &&
+               recordDate.getFullYear() === today.getFullYear();
+      }
+      try {
+        const recordDate = new Date(record.timestamp);
+        if (dateRange.from) {
+            const fromDate = new Date(dateRange.from);
+            fromDate.setHours(0, 0, 0, 0);
+            if (recordDate < fromDate) return false;
+        }
+        if (dateRange.to) {
+            const toDate = new Date(dateRange.to);
+            toDate.setHours(23, 59, 59, 999);
+            if (recordDate > toDate) return false;
+        }
+        return true;
+      } catch (e) {
+          return true;
+      }
     });
 
-    const uniqueStudents = new Set(todaysRecords.map(r => r.studentName));
+    const uniqueStudents = new Set(filtered.map(r => r.studentId));
 
-    const departmentCounts = todaysRecords.reduce((acc, record) => {
+    const departmentCounts = filtered.reduce((acc, record) => {
         acc[record.departmentName] = (acc[record.departmentName] || 0) + 1;
         return acc;
     }, {} as {[key: string]: number});
@@ -35,39 +57,27 @@ export function Stats({ records }: StatsProps) {
 
     return {
       lateCount: uniqueStudents.size,
-      totalRecords: todaysRecords.length,
+      totalRecords: filtered.length,
       departmentCounts: Object.entries(departmentCounts).sort((a,b) => b[1] - a[1]),
     };
-  }, [records, selectedDate]);
+  }, [records, dateRange]);
   
-  const dateDisplay = format(selectedDate, "PPP");
+  const dateDisplay = useMemo(() => {
+    if (dateRange?.from) {
+      if (dateRange.to) {
+        if (format(dateRange.from, "PPP") === format(dateRange.to, "PPP")) {
+          return format(dateRange.from, "PPP");
+        }
+        return `${format(dateRange.from, "PP")} - ${format(dateRange.to, "PP")}`;
+      }
+      return format(dateRange.from, "PPP");
+    }
+    return format(new Date(), "PPP");
+  }, [dateRange]);
+
 
   return (
     <div className="space-y-4">
-        <div className="flex justify-start">
-             <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[280px] justify-start text-left font-normal",
-                      !selectedDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => setSelectedDate(date || new Date())}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -102,7 +112,7 @@ export function Stats({ records }: StatsProps) {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-muted-foreground text-center py-8">No late entries recorded on this day.</p>
+                        <p className="text-sm text-muted-foreground text-center py-8">No late entries recorded for this date range.</p>
                     )}
                 </CardContent>
             </Card>
@@ -110,3 +120,5 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
+
+    
