@@ -114,96 +114,82 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   };
   
  const handleExportPdf = () => {
-    const generatePdf = (logoDataUrl: string | null = null) => {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      let contentY = 0;
+    const generatePdf = (logoDataUrl: string | null) => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        let contentY = 2; // Initial padding from top
 
-      if (logoDataUrl) {
-          const img = new Image();
-          img.src = logoDataUrl;
-          
-          const naturalWidth = 150;
-          const naturalHeight = 150;
-          const aspectRatio = naturalWidth / naturalHeight;
-          
-          let imgWidth = naturalWidth * 1.3;
-          let imgHeight = imgWidth / aspectRatio;
+        if (logoDataUrl) {
+            const imgWidth = 40;
+            const imgHeight = 40;
+            const x = (pageWidth - imgWidth) / 2;
+            doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
+            contentY += imgHeight + 2; // Space after logo
+        }
 
-          const maxWidth = 120;
-          if (imgWidth > maxWidth) {
-              imgWidth = maxWidth;
-              imgHeight = imgWidth / aspectRatio;
-          }
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+        contentY += 8;
 
-          const x = (pageWidth - imgWidth) / 2;
-          doc.addImage(logoDataUrl, 'PNG', x, contentY + 2, imgWidth, imgHeight);
-          contentY += imgHeight;
-      }
-      
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-      contentY += 8;
-      
-      doc.setFontSize(16);
-      const mainTitle = "STUDENTS LATE REPORT";
-      doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
-      
-      const textWidth = doc.getTextWidth(mainTitle);
-      doc.setLineWidth(0.5);
-      doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
-      contentY += 8;
-      
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
-      doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
-      contentY += 10;
+        doc.setFontSize(16);
+        const mainTitle = "STUDENTS LATE REPORT";
+        doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
 
-      autoTable(doc, {
-        startY: contentY,
-        head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
-        body: filteredRecords.map((record, index) => [
-          index + 1,
-          record.studentName,
-          record.departmentName,
-          record.className,
-          record.date,
-          record.time,
-          record.status,
-          record.markedBy,
-          (studentLateCounts[record.studentId] || 0).toString(),
-        ]),
-        headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-        styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-      });
-      
-      doc.save("late-records.pdf");
-    }
+        const textWidth = doc.getTextWidth(mainTitle);
+        doc.setLineWidth(0.5);
+        doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+        contentY += 8;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+        doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+        contentY += 10;
+
+        autoTable(doc, {
+            startY: contentY,
+            head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+            body: filteredRecords.map((record, index) => [
+                index + 1,
+                record.studentName,
+                record.departmentName,
+                record.className,
+                record.date,
+                record.time,
+                record.status,
+                record.markedBy,
+                (studentLateCounts[record.studentId] || 0).toString(),
+            ]),
+            headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+            styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+        });
+
+        doc.save("late-records.pdf");
+    };
 
     fetch('https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Logo not found');
-        }
-        return response.blob();
-    })
-    .then(blob => {
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-            generatePdf(reader.result as string);
-        };
-        reader.onerror = () => {
-            console.error("Could not convert image blob to data URL.");
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Logo not found');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                generatePdf(reader.result as string);
+            };
+            reader.onerror = () => {
+                console.error("Could not convert image blob to data URL.");
+                generatePdf(null);
+            };
+        })
+        .catch(error => {
+            console.error("Error loading image for PDF:", error.message);
             generatePdf(null);
-        }
-    })
-    .catch(error => {
-        console.error("Error loading image for PDF:", error.message);
-        generatePdf(null);
-    });
+        });
   };
 
 
