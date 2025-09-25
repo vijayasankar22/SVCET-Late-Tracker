@@ -16,16 +16,20 @@ type StatsProps = {
 };
 
 export function Stats({ records }: StatsProps) {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const today = new Date();
+    return { from: today, to: today };
+  });
   
   const dailyStats = useMemo(() => {
     
     const filtered = records.filter(record => {
       if (!dateRange?.from) {
-        return true;
+        return false; // Should not happen with default, but good practice
       }
       try {
         const recordDate = new Date(record.timestamp);
+        
         const fromDate = new Date(dateRange.from);
         fromDate.setHours(0, 0, 0, 0);
 
@@ -33,27 +37,21 @@ export function Stats({ records }: StatsProps) {
             return false;
         }
 
-        if (dateRange.to) {
-            const toDate = new Date(dateRange.to);
-            toDate.setHours(23, 59, 59, 999);
-            if (recordDate > toDate) {
-                return false;
-            }
-        } else {
-            // If only 'from' is selected, filter for that single day
-            const fromDateEnd = new Date(dateRange.from);
-            fromDateEnd.setHours(23, 59, 59, 999);
-            if (recordDate > fromDateEnd) {
-              return false;
-            }
+        const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+        toDate.setHours(23, 59, 59, 999);
+
+        if (recordDate > toDate) {
+            return false;
         }
+
         return true;
       } catch (e) {
+          console.error("Error filtering stats by date:", e);
           return true;
       }
     });
 
-    const uniqueStudents = new Set(filtered.map(r => r.studentName));
+    const uniqueStudents = new Set(filtered.map(r => r.studentId || r.studentName));
 
     const departmentCounts = filtered.reduce((acc, record) => {
         acc[record.departmentName] = (acc[record.departmentName] || 0) + 1;
@@ -78,7 +76,7 @@ export function Stats({ records }: StatsProps) {
       }
       return format(dateRange.from, "PPP");
     }
-    return 'All Time';
+    return 'Select a date';
   }, [dateRange]);
 
 
