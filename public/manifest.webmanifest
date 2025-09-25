@@ -1,11 +1,11 @@
 {
   "name": "SVCET - Late Tracker",
-  "short_name": "Late Tracker",
+  "short_name": "SVCET Tracker",
   "description": "Late Student Tracker for SVCET",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1e3a8a",
+  "theme_color": "#263f94",
   "icons": [
     {
       "src": "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08",
@@ -16,6 +16,12 @@
       "src": "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
