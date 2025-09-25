@@ -99,14 +99,6 @@ export default function DashboardPage() {
       return false;
     }
   };
-  
-  const studentLateCounts = useMemo(() => {
-    return records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-  }, [records]);
-
 
   if (initialDataLoading) {
       return (
@@ -131,7 +123,6 @@ export default function DashboardPage() {
         loading={loading}
         departments={departments}
         classes={classes}
-        studentLateCounts={studentLateCounts}
       />
     </div>
   );
