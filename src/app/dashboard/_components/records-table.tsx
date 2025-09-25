@@ -24,9 +24,10 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
+  studentLateCounts: { [key: string]: number };
 };
 
-export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes, studentLateCounts }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -43,13 +44,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     if (!dept) return [];
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
-
-  const studentLateCounts = useMemo(() => {
-    return records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-  }, [records]);
 
   const filteredRecords = useMemo(() => {
     return records
@@ -120,7 +114,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const imgHeight = imgWidth * aspectRatio;
         const imgX = (pageWidth - imgWidth) / 2;
         doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
-        contentY += imgHeight ;
+        contentY += imgHeight + 2; // Add some padding
       } else {
         contentY = 20; // fallback if image doesn't load
       }
@@ -138,7 +132,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       doc.setLineWidth(0.5);
       doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
       contentY += 8;
-
+      
       doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;

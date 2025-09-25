@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { EntryForm } from './_components/entry-form';
@@ -75,6 +75,13 @@ export default function DashboardPage() {
     fetchInitialData();
   }, [toast]);
 
+  const studentLateCounts = useMemo(() => {
+    return records.reduce((acc, record) => {
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+  }, [records]);
+
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
@@ -122,6 +129,7 @@ export default function DashboardPage() {
         loading={loading}
         departments={departments}
         classes={classes}
+        studentLateCounts={studentLateCounts}
       />
     </div>
   );
