@@ -30,7 +30,10 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: new Date(),
+  });
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
