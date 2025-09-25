@@ -30,7 +30,10 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const today = new Date();
+    return { from: today, to: today };
+  });
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -54,7 +57,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       )
       .filter((record) => {
         if (!dateRange || !dateRange.from) {
-          return true; // Show all if no date range
+          return true;
         }
         try {
             const recordDate = new Date(record.timestamp);
@@ -76,7 +79,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             return true;
         } catch (e) {
             console.error("Error filtering by date:", e)
-            return true; // if error, don't filter out
+            return true;
         }
       })
       .sort((a, b) => {
@@ -88,12 +91,12 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
   const studentLateCounts = useMemo(() => {
-    return records.reduce((acc, record) => {
-        const key = record.studentName;
+    return filteredRecords.reduce((acc, record) => {
+        const key = record.studentId;
         acc[key] = (acc[key] || 0) + 1;
         return acc;
     }, {} as {[key: string]: number});
-  }, [records]);
+  }, [filteredRecords]);
 
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
@@ -105,7 +108,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentName] || 0,
+      timesLate: studentLateCounts[record.studentId] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -114,27 +117,27 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (logoDataUrl: string | null = null) => {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
-      let contentY = 0; // Start at top
+      let contentY = 0;
 
       if (logoDataUrl) {
           const img = new Image();
           img.src = logoDataUrl;
           
-          const maxWidth = 187; 
           const naturalWidth = 150;
           const naturalHeight = 150;
           const aspectRatio = naturalWidth / naturalHeight;
           
-          let imgWidth = naturalWidth;
-          let imgHeight = naturalHeight;
+          let imgWidth = naturalWidth * 1.3;
+          let imgHeight = imgWidth / aspectRatio;
 
+          const maxWidth = 120;
           if (imgWidth > maxWidth) {
               imgWidth = maxWidth;
               imgHeight = imgWidth / aspectRatio;
           }
 
           const x = (pageWidth - imgWidth) / 2;
-          doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
+          doc.addImage(logoDataUrl, 'PNG', x, contentY + 2, imgWidth, imgHeight);
           contentY += imgHeight;
       }
       
@@ -170,7 +173,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           record.time,
           record.status,
           record.markedBy,
-          (studentLateCounts[record.studentName] || 0).toString(),
+          (studentLateCounts[record.studentId] || 0).toString(),
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
         styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -338,7 +341,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentName] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
