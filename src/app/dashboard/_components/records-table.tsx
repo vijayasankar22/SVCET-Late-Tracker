@@ -162,8 +162,13 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         doc.save("late-records.pdf");
     };
 
-    fetch('https://placehold.co/150x150/243A73/FFFFFF/png?text=LOGO')
-        .then(response => response.blob())
+    fetch('/logo.png')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Logo not found');
+            }
+            return response.blob();
+        })
         .then(blob => {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
