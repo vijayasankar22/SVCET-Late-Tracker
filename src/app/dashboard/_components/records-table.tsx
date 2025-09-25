@@ -218,7 +218,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             <div className="flex gap-2">
                 <img 
                     ref={logoImageRef} 
-                    src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" 
+                    src="/svcet-logo-PNG-scaled (1).png"
                     crossOrigin="anonymous" 
                     className="hidden" 
                     alt="logo" 
