@@ -138,7 +138,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       }
 
       doc.setFontSize(20);
-      doc.text('SVCET Late Entry Records', pageWidth / 2, tableStartY, { align: 'center' });
+      doc.text('Students Late', pageWidth / 2, tableStartY, { align: 'center' });
       tableStartY += 10;
       doc.setFontSize(12);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
