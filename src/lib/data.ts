@@ -598,9 +598,4 @@ export const students: Student[] = [
   { id: 'mba-2b-45', name: 'VAISHNAVI .K', departmentId: 'mba', classId: 'mba-2-b' },
 ];
 
-
-
-
-    
-
     
