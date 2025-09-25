@@ -75,16 +75,12 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
             return true;
         }
       })
-      .map(record => ({
-          ...record,
-          timesLate: studentLateCounts[record.studentId] || 0
-      }))
       .sort((a, b) => {
         const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
         const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
-  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes, studentLateCounts]);
+  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
 
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
@@ -323,7 +319,7 @@ export function RecordsTable({ records, loading, departments, classes, studentLa
                             </TableCell>
                             <TableCell>{record.markedBy}</TableCell>
                             <TableCell>
-                                <span className={`font-bold ${record.timesLate >= 3 ? 'text-destructive' : 'text-primary'}`}>{record.timesLate}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                     ))
