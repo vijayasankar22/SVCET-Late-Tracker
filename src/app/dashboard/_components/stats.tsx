@@ -49,7 +49,7 @@ export function Stats({ records }: StatsProps) {
       }
     });
 
-    const uniqueStudents = new Set(filtered.map(r => r.studentId));
+    const uniqueStudents = new Set(filtered.map(r => r.studentName));
 
     const departmentCounts = filtered.reduce((acc, record) => {
         acc[record.departmentName] = (acc[record.departmentName] || 0) + 1;
@@ -160,5 +160,3 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
-
-    
