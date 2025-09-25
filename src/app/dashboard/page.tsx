@@ -110,7 +110,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 flex flex-col flex-grow">
+    <div className="space-y-8">
       <EntryForm 
         onAddRecord={handleAddRecord}
         departments={departments}

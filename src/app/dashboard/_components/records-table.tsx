@@ -166,7 +166,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       doc.save("late-records.pdf");
     };
     
-    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08';
+    const logoUrl = '/logo.png';
 
     try {
       const response = await fetch(logoUrl);
