@@ -30,10 +30,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -56,12 +53,17 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         classFilter === "all" || record.className === classes.find(c => c.id === classFilter)?.name
       )
       .filter((record) => {
-        if (!dateRange || !dateRange.from) return true;
+        if (!dateRange || (!dateRange.from && !dateRange.to)) {
+          return true; // Show all records if no date range is selected
+        }
         try {
             const recordDate = new Date(record.timestamp);
-            const fromDate = new Date(dateRange.from);
-            fromDate.setHours(0, 0, 0, 0);
-            if (recordDate < fromDate) return false;
+            
+            if (dateRange.from) {
+                const fromDate = new Date(dateRange.from);
+                fromDate.setHours(0, 0, 0, 0);
+                if (recordDate < fromDate) return false;
+            }
             
             if (dateRange.to) {
                 const toDate = new Date(dateRange.to);
@@ -361,5 +363,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    

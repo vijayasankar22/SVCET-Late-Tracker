@@ -16,10 +16,7 @@ type StatsProps = {
 };
 
 export function Stats({ records }: StatsProps) {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   
   const dailyStats = useMemo(() => {
     
@@ -74,7 +71,7 @@ export function Stats({ records }: StatsProps) {
       }
       return format(dateRange.from, "PPP");
     }
-    return format(new Date(), "PPP");
+    return 'Today';
   }, [dateRange]);
 
 
