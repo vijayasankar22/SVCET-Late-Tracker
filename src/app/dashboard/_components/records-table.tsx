@@ -112,40 +112,39 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const pageWidth = doc.internal.pageSize.getWidth();
 
     const generatePdf = (img?: HTMLImageElement) => {
-      let tableStartY = 20;
+      let contentY = 20;
+
       if (img) {
-        const newImgWidth = 182; // A larger width for the image
+        const imgWidth = 180;
         const aspectRatio = img.naturalHeight / img.naturalWidth;
-        const newImgHeight = newImgWidth * aspectRatio;
-        const imgX = (pageWidth - newImgWidth) / 2;
-        const imgY = 1;
-        doc.addImage(img, 'PNG', imgX, imgY, newImgWidth, newImgHeight);
-        tableStartY = newImgHeight + imgY + 5; // Position content below the image
+        const imgHeight = imgWidth * aspectRatio;
+        const imgX = (pageWidth - imgWidth) / 2;
+        doc.addImage(img, 'PNG', imgX, 15, imgWidth, imgHeight);
+        contentY = imgHeight + 25;
       }
 
       doc.setFont("helvetica", "bold");
-
-      // Academic year line above title
+      
       doc.setFontSize(12);
-      doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, 48, { align: "center" });
-    
-      // Main title
+      doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+      contentY += 8;
+      
       doc.setFontSize(16);
       const mainTitle = "STUDENTS LATE REPORT";
-      const titleY = 56;
-      doc.text(mainTitle, pageWidth / 2, titleY, { align: "center" });
-    
-      // Underline main title
+      doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
+      
       const textWidth = doc.getTextWidth(mainTitle);
-      const underlineY = titleY + 1; // slightly below text
       doc.setLineWidth(0.5);
-      doc.line((pageWidth - textWidth) / 2, underlineY, (pageWidth + textWidth) / 2, underlineY);
+      doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+      contentY += 8;
+
+      doc.setFontSize(10);
       const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'PPP') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'PPP') : 'N/A'}`;
-      doc.text(dateRangeText, pageWidth / 2, tableStartY, { align: 'center' });
-      tableStartY += 10;
+      doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+      contentY += 10;
 
       autoTable(doc, {
-        startY: tableStartY,
+        startY: contentY,
         head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
         body: filteredRecords.map((record, index) => [
           index + 1,
