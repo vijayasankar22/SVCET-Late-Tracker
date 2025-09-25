@@ -54,7 +54,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       )
       .filter((record) => {
         if (!dateRange?.from) {
-          return true;
+          return true; // Show all records if no start date is selected
         }
         try {
             const recordDate = new Date(record.timestamp);
@@ -71,9 +71,17 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 if (recordDate > toDate) {
                     return false;
                 }
+            } else {
+                // If only 'from' is selected, filter from that day onwards
+                const fromDateEnd = new Date(dateRange.from);
+                fromDateEnd.setHours(23, 59, 59, 999);
+                if (recordDate > fromDateEnd && format(recordDate, 'yyyy-MM-dd') !== format(fromDate, 'yyyy-MM-dd')) {
+                  // this case is for single day selection
+                }
             }
             return true;
         } catch (e) {
+            console.error("Error filtering by date:", e)
             return true;
         }
       })
@@ -303,7 +311,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 <SelectContent>
                     <SelectItem value="all">All Classes</SelectItem>
                     {availableClasses.map(c => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        <SelectItem key={c.id} value={c.id}>{c.id}</SelectItem>
                     ))}
                 </SelectContent>
             </Select>
