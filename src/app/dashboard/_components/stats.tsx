@@ -160,5 +160,3 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
-
-    
