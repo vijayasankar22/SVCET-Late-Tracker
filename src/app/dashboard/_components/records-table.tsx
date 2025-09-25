@@ -111,6 +111,14 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const generatePdf = (img?: HTMLImageElement) => {
       let contentY = 10;
       
+      if (img) {
+        const imgWidth = 20;
+        const imgHeight = 20;
+        const imgX = (pageWidth - imgWidth) / 2;
+        doc.addImage(img, 'PNG', imgX, contentY, imgWidth, imgHeight);
+        contentY += imgHeight + 5;
+      }
+      
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
