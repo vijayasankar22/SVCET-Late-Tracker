@@ -223,11 +223,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     className="hidden" 
                     alt="logo" 
                 />
-                <Button onClick={handleExportCsv} variant="outline" size="sm" className="gap-2">
+                <Button onClick={handleExportCsv} size="sm" className="gap-2">
                     <FileDown />
                     Export CSV
                 </Button>
-                 <Button onClick={handleExportPdf} variant="outline" size="sm" className="gap-2">
+                 <Button onClick={handleExportPdf} size="sm" className="gap-2">
                     <Download />
                     Export PDF
                 </Button>
@@ -367,5 +367,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   );
 }
 
+    
     
     
