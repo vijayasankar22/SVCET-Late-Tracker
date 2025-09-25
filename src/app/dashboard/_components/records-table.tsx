@@ -132,9 +132,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         const aspectRatio = img.naturalHeight / img.naturalWidth;
         const newImgHeight = newImgWidth * aspectRatio;
         const imgX = (pageWidth - newImgWidth) / 2;
-        const imgY = 10;
+        const imgY = 1;
         doc.addImage(img, 'PNG', imgX, imgY, newImgWidth, newImgHeight);
-        tableStartY = newImgHeight + imgY + 15; // Position content below the image
+        tableStartY = newImgHeight + imgY + 5; // Position content below the image
       }
 
       doc.setFontSize(20);
