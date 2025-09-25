@@ -24,16 +24,15 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
+  studentLateCounts: { [key: string]: number };
+  dateRange: DateRange | undefined;
+  onDateRangeChange: (dateRange: DateRange | undefined) => void;
 };
 
-export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes, studentLateCounts, dateRange, onDateRangeChange }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(),
-    to: new Date(),
-  });
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -43,13 +42,6 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     if (!dept) return [];
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
-
-  const studentLateCounts = useMemo(() => {
-    return records.reduce((acc, record) => {
-      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-  }, [records]);
 
   const filteredRecords = useMemo(() => {
     return records
@@ -246,7 +238,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={setDateRange}
+                    onSelect={onDateRangeChange}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -335,5 +327,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
