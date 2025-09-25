@@ -57,10 +57,12 @@ export function RecordsTable({ records, loading, departments, classes }: Records
       )
       .filter((record) => {
         if (!dateRange || !dateRange.from) {
-          return true;
+          return true; // Show all if no date range
         }
         try {
             const recordDate = new Date(record.timestamp);
+            recordDate.setHours(0,0,0,0); // Normalize record date
+            
             const fromDate = new Date(dateRange.from);
             fromDate.setHours(0, 0, 0, 0);
 
@@ -68,24 +70,17 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 return false;
             }
 
-            if (dateRange.to) {
-                const toDate = new Date(dateRange.to);
-                toDate.setHours(23, 59, 59, 999);
-                if (recordDate > toDate) {
-                    return false;
-                }
-            } else {
-                 // If only 'from' is selected, filter for that single day
-                 const fromDateEnd = new Date(dateRange.from);
-                 fromDateEnd.setHours(23, 59, 59, 999);
-                 if (recordDate > fromDateEnd) {
-                   return false;
-                 }
+            const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+            toDate.setHours(0,0,0,0);
+
+            if (recordDate > toDate) {
+                return false;
             }
+
             return true;
         } catch (e) {
             console.error("Error filtering by date:", e)
-            return true;
+            return true; // if error, don't filter out
         }
       })
       .sort((a, b) => {
@@ -97,11 +92,10 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
   const studentLateCounts = useMemo(() => {
-    const counts: { [key: string]: number } = {};
-    for (const record of filteredRecords) {
-      counts[record.studentId] = (counts[record.studentId] || 0) + 1;
-    }
-    return counts;
+    return filteredRecords.reduce((acc, record) => {
+      acc[record.studentId] = (acc[record.studentId] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
   }, [filteredRecords]);
 
   const handleExportCsv = () => {
@@ -167,38 +161,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             doc.save("late-records.pdf");
         }
 
-        if (logoDataUrl) {
-            const img = new Image();
-            img.src = logoDataUrl;
-            img.onload = () => {
-                const imgWidth = img.width;
-                const imgHeight = img.height;
-                const aspectRatio = imgWidth / imgHeight;
-
-                let pdfImgWidth = 187;
-                let pdfImgHeight = pdfImgWidth / aspectRatio;
-                
-                if (pdfImgHeight > 187) {
-                    pdfImgHeight = 187;
-                    pdfImgWidth = pdfImgHeight * aspectRatio;
-                }
-
-                const x = (pageWidth - pdfImgWidth) / 2;
-                doc.addImage(logoDataUrl, 'PNG', x, contentY, pdfImgWidth, pdfImgHeight);
-                contentY += pdfImgHeight;
-                
-                addTextAndTable();
-            };
-            img.onerror = () => {
-                console.error("Could not load image for PDF.");
-                addTextAndTable();
-            };
-        } else {
-            addTextAndTable();
-        }
-    };
-
-    fetch('/logo.png')
+        fetch('/logo.png')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Logo not found');
