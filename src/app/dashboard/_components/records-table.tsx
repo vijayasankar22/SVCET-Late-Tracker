@@ -30,10 +30,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
-    const today = new Date();
-    return { from: today, to: today };
-  });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -60,26 +57,26 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           return true;
         }
         try {
-            const recordDate = new Date(record.timestamp);
-            
-            const fromDate = new Date(dateRange.from);
-            fromDate.setHours(0, 0, 0, 0);
+          const recordDate = new Date(record.timestamp);
+          
+          const fromDate = new Date(dateRange.from);
+          fromDate.setHours(0, 0, 0, 0);
 
-            if (recordDate < fromDate) {
-                return false;
-            }
+          if (recordDate < fromDate) {
+            return false;
+          }
 
-            const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
-            toDate.setHours(23, 59, 59, 999);
+          const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+          toDate.setHours(23, 59, 59, 999);
 
-            if (recordDate > toDate) {
-                return false;
-            }
+          if (recordDate > toDate) {
+            return false;
+          }
 
-            return true;
+          return true;
         } catch (e) {
-            console.error("Error filtering by date:", e)
-            return true;
+          console.error("Error filtering by date:", e);
+          return true;
         }
       })
       .sort((a, b) => {
@@ -92,9 +89,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of records) {
-        // Fallback to studentName for older records that might not have studentId
-        const key = record.studentId || record.studentName;
+    for (const record of records) { // Count across all records, not just filtered ones
+        const key = record.studentId || record.studentName; // Fallback for older records
         counts[key] = (counts[key] || 0) + 1;
     }
     return counts;
