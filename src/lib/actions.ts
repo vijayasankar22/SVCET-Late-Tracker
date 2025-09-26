@@ -46,8 +46,8 @@ export async function seedDatabase() {
 export async function cleanupOldRecords() {
   try {
     const recordsCollection = collection(db, 'lateRecords');
-    // Query for the last 4 records by ordering by timestamp descending and limiting to 4
-    const q = query(recordsCollection, orderBy('timestamp', 'desc'), limit(4));
+    // Query for the last record by ordering by timestamp descending and limiting to 1
+    const q = query(recordsCollection, orderBy('timestamp', 'desc'), limit(1));
 
     const querySnapshot = await getDocs(q);
     
@@ -62,7 +62,7 @@ export async function cleanupOldRecords() {
 
     await batch.commit();
     
-    return { success: true, message: `The ${querySnapshot.size} most recent record(s) have been deleted successfully.` };
+    return { success: true, message: `The last record has been deleted successfully.` };
 
   } catch (error) {
     console.error('Error cleaning up recent records:', error);
