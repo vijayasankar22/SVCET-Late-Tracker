@@ -383,6 +383,7 @@ export const students: Student[] = [
   { id: 'ece-2-54', name: 'YASAR ARAFATH. G', departmentId: 'ece', classId: 'ece-2' },
   { id: 'ece-2-55', name: 'YOGA PRIYA.P', departmentId: 'ece', classId: 'ece-2' },
   { id: 'ece-2-56', name: 'YUVASRI.S', departmentId: 'ece', classId: 'ece-2' },
+  { id: 'ece-2-57', name: 'LOKESH.M.S', departmentId: 'ece', classId: 'ece-2' },
 
   // ECE III
   { id: 'ece-3-1', name: 'AAMINA BEGAM G', departmentId: 'ece', classId: 'ece-3' },
