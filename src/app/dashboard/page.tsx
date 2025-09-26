@@ -33,15 +33,19 @@ export default function DashboardPage() {
         const deptsData = depts.docs.map(doc => ({id: doc.id, ...doc.data()} as Department));
         const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
         const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
+        
         const studentsMap = new Map(studsData.map(s => [s.id, s]));
-        const studentsByNameMap = new Map(studsData.map(s => [s.name, s]));
+        
+        // Create a map with normalized names for robust lookup
+        const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim();
+        const studentsByNameMap = new Map(studsData.map(s => [normalizeName(s.name), s]));
         
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
           
-          // First try to find student by ID, then fall back to finding by name for older records
-          const student = studentsMap.get(data.studentId) || studentsByNameMap.get(data.studentName);
+          // First try to find student by ID, then fall back to finding by normalized name for older records
+          const student = studentsMap.get(data.studentId) || studentsByNameMap.get(normalizeName(data.studentName));
 
           return { 
             id: doc.id, 
@@ -49,6 +53,7 @@ export default function DashboardPage() {
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed',
+            studentName: student?.name || data.studentName, // Use the canonical name from student list if available
             registerNo: data.registerNo || student?.registerNo || '',
             gender: data.gender || student?.gender || 'MALE',
           } as LateRecord;
