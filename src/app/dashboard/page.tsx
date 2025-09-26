@@ -33,18 +33,21 @@ export default function DashboardPage() {
         const deptsData = depts.docs.map(doc => ({id: doc.id, ...doc.data()} as Department));
         const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
         const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
+        const studentsMap = new Map(studsData.map(s => [s.id, s]));
         
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
+          const student = studentsMap.get(data.studentId);
+
           return { 
             id: doc.id, 
             ...data,
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
-            status: data.status || 'Not Informed', // backward compatibility
-            registerNo: data.registerNo || '', // backward compatibility
-            gender: data.gender || 'MALE', // backward compatibility
+            status: data.status || 'Not Informed',
+            registerNo: data.registerNo || student?.registerNo || '',
+            gender: data.gender || student?.gender || 'MALE',
           } as LateRecord;
         });
 
