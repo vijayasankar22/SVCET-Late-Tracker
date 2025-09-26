@@ -43,6 +43,8 @@ export default function DashboardPage() {
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed', // backward compatibility
+            registerNo: data.registerNo || '', // backward compatibility
+            gender: data.gender || 'MALE', // backward compatibility
           } as LateRecord;
         });
 

@@ -50,7 +50,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const filteredRecords = useMemo(() => {
     return records
       .filter((record) =>
-        record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+        record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.registerNo.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .filter((record) =>
         departmentFilter === "all" || record.departmentName === departments.find(d => d.id === departmentFilter)?.name
@@ -106,7 +107,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
       "S.No.": index + 1,
+      registerNo: record.registerNo,
       studentName: record.studentName,
+      gender: record.gender,
       departmentName: record.departmentName,
       className: record.className,
       date: record.date,
@@ -163,10 +166,12 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
         autoTable(doc, {
             startY: contentY,
-            head: [['S.No.', 'Student Name', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+            head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
             body: filteredRecords.map((record, index) => [
                 index + 1,
+                record.registerNo,
                 record.studentName,
+                record.gender,
                 record.departmentName,
                 record.className,
                 record.date,
@@ -223,11 +228,11 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     className="hidden" 
                     alt="logo" 
                 />
-                <Button onClick={handleExportCsv} size="sm" className="gap-2">
+                <Button onClick={handleExportCsv} size="sm">
                     <FileDown />
                     Export CSV
                 </Button>
-                 <Button onClick={handleExportPdf} size="sm" className="gap-2">
+                 <Button onClick={handleExportPdf} size="sm">
                     <Download />
                     Export PDF
                 </Button>
@@ -240,7 +245,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search by student name..."
+              placeholder="Search by student name or register no..."
               className="pl-8 sm:w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -315,7 +320,9 @@ export function RecordsTable({ records, loading, departments, classes }: Records
             <TableHeader>
               <TableRow>
                 <TableHead>S.No.</TableHead>
+                <TableHead>Register No.</TableHead>
                 <TableHead>Student Name</TableHead>
+                <TableHead>Gender</TableHead>
                 <TableHead>Department</TableHead>
                 <TableHead>Class</TableHead>
                 <TableHead>Date</TableHead>
@@ -329,14 +336,16 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                 {loading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                         <TableRow key={i}>
-                            <TableCell colSpan={9}><Skeleton className="h-6" /></TableCell>
+                            <TableCell colSpan={11}><Skeleton className="h-6" /></TableCell>
                         </TableRow>
                     ))
                 ) : filteredRecords.length > 0 ? (
                     filteredRecords.map((record, index) => (
                         <TableRow key={record.id}>
                             <TableCell>{index + 1}</TableCell>
+                            <TableCell>{record.registerNo}</TableCell>
                             <TableCell className="font-medium">{record.studentName}</TableCell>
+                            <TableCell>{record.gender}</TableCell>
                             <TableCell>{record.departmentName}</TableCell>
                             <TableCell>{record.className}</TableCell>
                             <TableCell>{record.date}</TableCell>
@@ -354,7 +363,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                     ))
                 ) : (
                      <TableRow>
-                        <TableCell colSpan={9} className="text-center">
+                        <TableCell colSpan={11} className="text-center">
                             No records found for the selected filters.
                         </TableCell>
                     </TableRow>
@@ -366,7 +375,3 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     </Card>
   );
 }
-
-    
-    
-    

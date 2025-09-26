@@ -14,6 +14,8 @@ export interface Student {
   name: string;
   departmentId: string;
   classId: string;
+  registerNo: string;
+  gender: 'MALE' | 'FEMALE';
 }
 
 export interface Staff {
@@ -26,6 +28,8 @@ export interface LateRecord {
   id: string;
   studentId: string;
   studentName: string;
+  registerNo: string;
+  gender: 'MALE' | 'FEMALE';
   departmentName: string;
   className: string;
   date: string;
