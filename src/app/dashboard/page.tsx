@@ -34,11 +34,14 @@ export default function DashboardPage() {
         const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
         const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
         const studentsMap = new Map(studsData.map(s => [s.id, s]));
+        const studentsByNameMap = new Map(studsData.map(s => [s.name, s]));
         
         const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
-          const student = studentsMap.get(data.studentId);
+          
+          // First try to find student by ID, then fall back to finding by name for older records
+          const student = studentsMap.get(data.studentId) || studentsByNameMap.get(data.studentName);
 
           return { 
             id: doc.id, 
