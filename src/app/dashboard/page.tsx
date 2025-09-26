@@ -54,8 +54,8 @@ export default function DashboardPage() {
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed',
             studentName: student?.name || data.studentName, // Use the canonical name from student list if available
-            registerNo: data.registerNo || student?.registerNo || '',
-            gender: data.gender || student?.gender || 'MALE',
+            registerNo: student?.registerNo || data.registerNo || '',
+            gender: student?.gender || data.gender || 'MALE',
           } as LateRecord;
         });
 

@@ -51,7 +51,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     return records
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.registerNo.toLowerCase().includes(searchTerm.toLowerCase())
+        (record.registerNo && record.registerNo.toLowerCase().includes(searchTerm.toLowerCase()))
       )
       .filter((record) =>
         departmentFilter === "all" || record.departmentName === departments.find(d => d.id === departmentFilter)?.name
