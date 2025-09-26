@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileDown } from "lucide-react";
+import { Download, Search, FileDown, History } from "lucide-react";
 import type { LateRecord, Department, Class } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -20,6 +20,13 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -36,7 +43,16 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     const today = new Date();
     return { from: today, to: today };
   });
+  const [selectedStudentHistory, setSelectedStudentHistory] = useState<LateRecord[] | null>(null);
+
   const logoImageRef = useRef<HTMLImageElement>(null);
+
+  const handleRowClick = (studentId: string) => {
+    const history = records.filter(
+      (record) => record.studentId === studentId || record.studentName === studentId
+    ).sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    setSelectedStudentHistory(history);
+  };
 
   const availableClasses = useMemo(() => {
     if (departmentFilter === 'all') {
@@ -213,165 +229,209 @@ export function RecordsTable({ records, loading, departments, classes }: Records
 
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                 <CardTitle className="font-headline text-2xl">Late Entry Records</CardTitle>
-                <CardDescription>View, filter, and export late student records.</CardDescription>
-            </div>
-            <div className="flex gap-2">
-                <img 
-                    ref={logoImageRef} 
-                    src="/svcet-logo-PNG-scaled (1).png"
-                    crossOrigin="anonymous" 
-                    className="hidden" 
-                    alt="logo" 
-                />
-                <Button onClick={handleExportCsv} size="sm">
-                    <FileDown />
-                    Export CSV
-                </Button>
-                 <Button onClick={handleExportPdf} size="sm">
-                    <Download />
-                    Export PDF
-                </Button>
-            </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search by student name or register no..."
-              className="pl-8 sm:w-full"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-4">
-             <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[280px] justify-start text-left font-normal",
-                      !dateRange && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} -{" "}
-                          {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                   <CardTitle className="font-headline text-2xl">Late Entry Records</CardTitle>
+                  <CardDescription>View, filter, and export late student records. Click a row to see a student's history.</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                  <img 
+                      ref={logoImageRef} 
+                      src="/svcet-logo-PNG-scaled (1).png"
+                      crossOrigin="anonymous" 
+                      className="hidden" 
+                      alt="logo" 
                   />
-                </PopoverContent>
-              </Popover>
+                  <Button onClick={handleExportCsv} size="sm">
+                      <FileDown />
+                      Export CSV
+                  </Button>
+                   <Button onClick={handleExportPdf} size="sm">
+                      <Download />
+                      Export PDF
+                  </Button>
+              </div>
           </div>
-           <div className="flex gap-4">
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Filter by Department" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Departments</SelectItem>
-                    {departments.map(dept => (
-                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            <Select value={classFilter} onValueChange={(value) => {
-                setClassFilter(value);
-            }}>
-                 <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Filter by Class" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Classes</SelectItem>
-                    {availableClasses.map(c => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-           </div>
-        </div>
-        <div className="rounded-lg border">
-          <Table className="table-alternating-rows">
-            <TableHeader>
-              <TableRow>
-                <TableHead>S.No.</TableHead>
-                <TableHead>Register No.</TableHead>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Gender</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Class</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Marked By</TableHead>
-                <TableHead>Times Late</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-                {loading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                        <TableRow key={i}>
-                            <TableCell colSpan={11}><Skeleton className="h-6" /></TableCell>
-                        </TableRow>
-                    ))
-                ) : filteredRecords.length > 0 ? (
-                    filteredRecords.map((record, index) => (
-                        <TableRow key={record.id}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>{record.registerNo}</TableCell>
-                            <TableCell className="font-medium">{record.studentName}</TableCell>
-                            <TableCell>{record.gender}</TableCell>
-                            <TableCell>{record.departmentName}</TableCell>
-                            <TableCell>{record.className}</TableCell>
-                            <TableCell>{record.date}</TableCell>
-                            <TableCell>{record.time}</TableCell>
-                             <TableCell>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${record.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                    {record.status}
-                                </span>
-                            </TableCell>
-                            <TableCell>{record.markedBy}</TableCell>
-                            <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentId || record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId || record.studentName] || 0}</span>
-                            </TableCell>
-                        </TableRow>
-                    ))
-                ) : (
-                     <TableRow>
-                        <TableCell colSpan={11} className="text-center">
-                            No records found for the selected filters.
-                        </TableCell>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by student name or register no..."
+                className="pl-8 sm:w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-4">
+               <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[280px] justify-start text-left font-normal",
+                        !dateRange && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "LLL dd, y")} -{" "}
+                            {format(dateRange.to, "LLL dd, y")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "LLL dd, y")
+                        )
+                      ) : (
+                        <span>Pick a date range</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+            </div>
+             <div className="flex gap-4">
+              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Filter by Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {departments.map(dept => (
+                          <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+              <Select value={classFilter} onValueChange={(value) => {
+                  setClassFilter(value);
+              }}>
+                   <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Filter by Class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Classes</SelectItem>
+                      {availableClasses.map(c => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+             </div>
+          </div>
+          <div className="rounded-lg border">
+            <Table className="table-alternating-rows">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>S.No.</TableHead>
+                  <TableHead>Register No.</TableHead>
+                  <TableHead>Student Name</TableHead>
+                  <TableHead>Gender</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Class</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Marked By</TableHead>
+                  <TableHead>Times Late</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                  {loading ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                          <TableRow key={i}>
+                              <TableCell colSpan={11}><Skeleton className="h-6" /></TableCell>
+                          </TableRow>
+                      ))
+                  ) : filteredRecords.length > 0 ? (
+                      filteredRecords.map((record, index) => (
+                          <TableRow key={record.id} onClick={() => handleRowClick(record.studentId || record.studentName)} className="cursor-pointer">
+                              <TableCell>{index + 1}</TableCell>
+                              <TableCell>{record.registerNo || "N/A"}</TableCell>
+                              <TableCell className="font-medium">{record.studentName}</TableCell>
+                              <TableCell>{record.gender}</TableCell>
+                              <TableCell>{record.departmentName}</TableCell>
+                              <TableCell>{record.className}</TableCell>
+                              <TableCell>{record.date}</TableCell>
+                              <TableCell>{record.time}</TableCell>
+                               <TableCell>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${record.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                      {record.status}
+                                  </span>
+                              </TableCell>
+                              <TableCell>{record.markedBy}</TableCell>
+                              <TableCell>
+                                  <span className={`font-bold ${ (studentLateCounts[record.studentId || record.studentName] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId || record.studentName] || 0}</span>
+                              </TableCell>
+                          </TableRow>
+                      ))
+                  ) : (
+                       <TableRow>
+                          <TableCell colSpan={11} className="text-center">
+                              No records found for the selected filters.
+                          </TableCell>
+                      </TableRow>
+                  )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {selectedStudentHistory && (
+        <Dialog open={!!selectedStudentHistory} onOpenChange={(isOpen) => !isOpen && setSelectedStudentHistory(null)}>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <History className="h-6 w-6" /> 
+                Late Entry History for {selectedStudentHistory[0]?.studentName}
+              </DialogTitle>
+              <DialogDescription>
+                Register No: {selectedStudentHistory[0]?.registerNo || "N/A"} | Total late entries: {selectedStudentHistory.length}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="max-h-[60vh] overflow-y-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Time</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Marked By</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedStudentHistory.map((entry) => (
+                    <TableRow key={entry.id}>
+                      <TableCell>{entry.date}</TableCell>
+                      <TableCell>{entry.time}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {entry.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>{entry.markedBy}</TableCell>
                     </TableRow>
-                )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
