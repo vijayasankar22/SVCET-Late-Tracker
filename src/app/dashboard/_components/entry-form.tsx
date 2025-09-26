@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from 'react';
@@ -70,8 +71,8 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       const newRecord = {
         studentId: student.id,
         studentName: student.name,
-        registerNo: student.registerNo,
-        gender: student.gender,
+        registerNo: student.registerNo || '',
+        gender: student.gender || 'MALE',
         departmentName: department.name,
         className: cls.name,
         date: now.toLocaleDateString(),
