@@ -180,7 +180,7 @@ export function Stats({ records }: StatsProps) {
                         Total number of times students have been marked late.
                     </p>
                     {dailyStats.departmentCounts.length > 0 ? (
-                        <div className="mt-4 border-t pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="mt-4 border-t pt-4 grid grid-cols-2 lg:grid-cols-3 gap-4">
                           {dailyStats.departmentCounts.map(([dept, counts]) => (
                             <div key={dept} className="flip-card cursor-pointer" onClick={() => handleFlip(dept)}>
                                 <motion.div 
