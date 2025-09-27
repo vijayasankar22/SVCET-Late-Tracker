@@ -197,7 +197,6 @@ export function Stats({ records }: StatsProps) {
                                             </CardHeader>
                                             <CardContent className="p-2 flex-grow flex flex-col justify-center items-center">
                                                 <p className="text-4xl font-bold text-primary">{counts.total}</p>
-                                                <p className="text-xs text-muted-foreground mt-1">Total Entries</p>
                                             </CardContent>
                                         </Card>
                                     </div>
@@ -234,5 +233,3 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
-
-    
