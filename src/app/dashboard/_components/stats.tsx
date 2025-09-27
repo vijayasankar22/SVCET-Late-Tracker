@@ -139,7 +139,7 @@ export function Stats({ records }: StatsProps) {
               </Popover>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-             <Card className="col-span-1 lg:col-span-1">
+             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Students Late</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
@@ -191,7 +191,7 @@ export function Stats({ records }: StatsProps) {
                                 >
                                     {/* Front of the card */}
                                     <div className="flip-card-front absolute w-full h-full">
-                                        <Card className="w-full h-full flex flex-col justify-center items-center">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center border-none">
                                             <CardHeader className="p-2">
                                                 <CardTitle className="text-sm font-semibold text-primary truncate">{dept}</CardTitle>
                                             </CardHeader>
@@ -203,7 +203,7 @@ export function Stats({ records }: StatsProps) {
 
                                     {/* Back of the card */}
                                     <div className="flip-card-back absolute w-full h-full">
-                                        <Card className="w-full h-full flex flex-col justify-center items-center bg-primary text-primary-foreground">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center bg-primary text-primary-foreground border-none">
                                              <CardHeader className="p-2 flex-row items-center justify-between w-full">
                                                 <CardTitle className="text-sm font-semibold truncate">{dept}</CardTitle>
                                             </CardHeader>
@@ -232,3 +232,5 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
+
+    
