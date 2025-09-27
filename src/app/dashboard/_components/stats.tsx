@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon as CalendarIconStat, VenetianMask, PersonStanding } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -134,7 +134,7 @@ export function Stats({ records }: StatsProps) {
                 </PopoverContent>
               </Popover>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Students Late</CardTitle>
@@ -143,31 +143,7 @@ export function Stats({ records }: StatsProps) {
                 <CardContent>
                     <div className="text-2xl font-bold">{dailyStats.lateCount}</div>
                     <p className="text-xs text-muted-foreground">
-                        {dailyStats.totalRecords} total late entries recorded.
-                    </p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Boys Late</CardTitle>
-                    <PersonStanding className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{dailyStats.boysCount}</div>
-                     <p className="text-xs text-muted-foreground">
-                        {dateDisplay}
-                    </p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Girls Late</CardTitle>
-                    <VenetianMask className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{dailyStats.girlsCount}</div>
-                     <p className="text-xs text-muted-foreground">
-                         {dateDisplay}
+                        {dailyStats.boysCount} boys and {dailyStats.girlsCount} girls. {dailyStats.totalRecords} total entries.
                     </p>
                 </CardContent>
             </Card>
@@ -178,7 +154,7 @@ export function Stats({ records }: StatsProps) {
                         Dept. Breakdown
                     </CardTitle>
                      <CardDescription>
-                        Total entries by department.
+                        Total entries by department for {dateDisplay}.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
