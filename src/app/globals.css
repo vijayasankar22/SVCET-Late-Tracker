@@ -71,4 +71,21 @@
   .table-alternating-rows tbody tr:hover {
     @apply bg-accent/20;
   }
+
+  /* Flip card styles */
+  .flip-card {
+    perspective: 1000px;
+    min-height: 120px; /* Ensure card has a minimum height to flip correctly */
+  }
+  .flip-card-inner {
+    transform-style: preserve-3d;
+  }
+  .flip-card-front,
+  .flip-card-back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .flip-card-back {
+    transform: rotateY(180deg);
+  }
 }

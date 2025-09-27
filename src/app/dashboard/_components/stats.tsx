@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck, RotateCcw } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { motion, AnimatePresence } from "framer-motion";
 
 type StatsProps = {
   records: LateRecord[];
@@ -27,6 +22,12 @@ export function Stats({ records }: StatsProps) {
     const today = new Date();
     return { from: today, to: today };
   });
+
+  const [flippedDepartments, setFlippedDepartments] = useState<Record<string, boolean>>({});
+
+  const handleFlip = (deptName: string) => {
+    setFlippedDepartments(prev => ({ ...prev, [deptName]: !prev[deptName] }));
+  };
   
   const dailyStats = useMemo(() => {
     
@@ -95,19 +96,6 @@ export function Stats({ records }: StatsProps) {
       departmentCounts: Object.entries(departmentCounts).sort((a,b) => b[1].total - a[1].total),
     };
   }, [records, dateRange]);
-  
-  const dateDisplay = useMemo(() => {
-    if (dateRange?.from) {
-      if (dateRange.to) {
-        if (format(dateRange.from, "PPP") === format(dateRange.to, "PPP")) {
-          return format(dateRange.from, "PPP");
-        }
-        return `${format(dateRange.from, "PP")} - ${format(dateRange.to, "PP")}`;
-      }
-      return format(dateRange.from, "PPP");
-    }
-    return 'Select a date';
-  }, [dateRange]);
 
 
   return (
@@ -192,30 +180,51 @@ export function Stats({ records }: StatsProps) {
                         Total number of times students have been marked late.
                     </p>
                     {dailyStats.departmentCounts.length > 0 ? (
-                        <Accordion type="single" collapsible className="w-full mt-4 border-t pt-4">
+                        <div className="mt-4 border-t pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                           {dailyStats.departmentCounts.map(([dept, counts]) => (
-                            <AccordionItem value={dept} key={dept} className="border-b-0">
-                              <AccordionTrigger className="hover:no-underline p-3 rounded-lg hover:bg-accent/10 data-[state=open]:bg-accent/10 -mx-3 [&>svg]:hidden">
-                                <div className="flex justify-between items-center w-full">
-                                  <p className="text-sm font-semibold text-primary truncate">{dept}</p>
-                                  <p className="text-2xl font-bold text-primary">{counts.total}</p>
-                                </div>
-                              </AccordionTrigger>
-                              <AccordionContent className="pb-0">
-                                <div className="grid grid-cols-2 gap-2 text-xs pt-2">
-                                  <div className="text-center bg-primary/5 p-2 rounded-lg">
-                                    <p className="font-semibold text-lg">{counts.boys}</p>
-                                    <p className="text-primary/80">Boys</p>
-                                  </div>
-                                  <div className="text-center bg-primary/5 p-2 rounded-lg">
-                                    <p className="font-semibold text-lg">{counts.girls}</p>
-                                    <p className="text-primary/80">Girls</p>
-                                  </div>
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
+                            <div key={dept} className="flip-card cursor-pointer" onClick={() => handleFlip(dept)}>
+                                <motion.div 
+                                    className="flip-card-inner relative w-full h-full"
+                                    initial={false}
+                                    animate={{ rotateY: flippedDepartments[dept] ? 180 : 0 }}
+                                    transition={{ duration: 0.6, animationDirection: "normal" }}
+                                >
+                                    {/* Front of the card */}
+                                    <div className="flip-card-front absolute w-full h-full">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center">
+                                            <CardHeader className="p-2">
+                                                <CardTitle className="text-sm font-semibold text-primary truncate">{dept}</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-2 flex-grow flex flex-col justify-center items-center">
+                                                <p className="text-4xl font-bold text-primary">{counts.total}</p>
+                                                <p className="text-xs text-muted-foreground mt-1">Total Entries</p>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+
+                                    {/* Back of the card */}
+                                    <div className="flip-card-back absolute w-full h-full">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center bg-primary text-primary-foreground">
+                                             <CardHeader className="p-2 flex-row items-center justify-between w-full">
+                                                <CardTitle className="text-sm font-semibold truncate">{dept}</CardTitle>
+                                                <RotateCcw className="h-4 w-4"/>
+                                            </CardHeader>
+                                            <CardContent className="p-2 flex-grow grid grid-cols-2 gap-2 w-full">
+                                                <div className="text-center bg-primary-foreground/10 p-2 rounded-lg flex flex-col justify-center">
+                                                    <p className="font-bold text-2xl">{counts.boys}</p>
+                                                    <p className="text-xs">Boys</p>
+                                                </div>
+                                                <div className="text-center bg-primary-foreground/10 p-2 rounded-lg flex flex-col justify-center">
+                                                    <p className="font-bold text-2xl">{counts.girls}</p>
+                                                    <p className="text-xs">Girls</p>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </motion.div>
+                            </div>
                           ))}
-                        </Accordion>
+                        </div>
                     ) : (
                         <p className="text-sm text-muted-foreground mt-4 pt-4 border-t">No entries for selected date.</p>
                     )}
