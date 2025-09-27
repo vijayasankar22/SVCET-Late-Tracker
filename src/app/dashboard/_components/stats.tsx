@@ -191,7 +191,7 @@ export function Stats({ records }: StatsProps) {
                                 >
                                     {/* Front of the card */}
                                     <div className="flip-card-front absolute w-full h-full">
-                                        <Card className="w-full h-full flex flex-col justify-center items-center border-none">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center border-none bg-secondary/50">
                                             <CardHeader className="p-2">
                                                 <CardTitle className="text-sm font-semibold text-primary truncate">{dept}</CardTitle>
                                             </CardHeader>
@@ -232,5 +232,7 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
+
+    
 
     
