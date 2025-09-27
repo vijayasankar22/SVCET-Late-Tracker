@@ -67,9 +67,18 @@ export function Stats({ records }: StatsProps) {
     const girlsCount = uniqueStudentRecords.filter(r => r.gender === 'FEMALE').length;
 
     const departmentCounts = filtered.reduce((acc, record) => {
-        acc[record.departmentName] = (acc[record.departmentName] || 0) + 1;
+        const deptName = record.departmentName;
+        if (!acc[deptName]) {
+            acc[deptName] = { total: 0, boys: 0, girls: 0 };
+        }
+        acc[deptName].total += 1;
+        if (record.gender === 'MALE') {
+            acc[deptName].boys += 1;
+        } else if (record.gender === 'FEMALE') {
+            acc[deptName].girls += 1;
+        }
         return acc;
-    }, {} as {[key: string]: number});
+    }, {} as {[key: string]: { total: number, boys: number, girls: number }});
 
 
     return {
@@ -77,7 +86,7 @@ export function Stats({ records }: StatsProps) {
       boysCount,
       girlsCount,
       totalRecords: filtered.length,
-      departmentCounts: Object.entries(departmentCounts).sort((a,b) => b[1] - a[1]),
+      departmentCounts: Object.entries(departmentCounts).sort((a,b) => b[1].total - a[1].total),
     };
   }, [records, dateRange]);
   
@@ -177,11 +186,21 @@ export function Stats({ records }: StatsProps) {
                         Total number of times students have been marked late.
                     </p>
                     {dailyStats.departmentCounts.length > 0 ? (
-                        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 border-t pt-4">
-                            {dailyStats.departmentCounts.map(([dept, count]) => (
-                                <div key={dept} className="bg-primary/5 p-2 rounded-lg text-center flex flex-col justify-center">
-                                    <p className="text-sm font-bold text-primary">{count}</p>
-                                    <p className="text-[10px] font-medium text-primary/80 truncate leading-tight">{dept}</p>
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border-t pt-4">
+                            {dailyStats.departmentCounts.map(([dept, counts]) => (
+                                <div key={dept} className="bg-primary/5 p-3 rounded-lg text-center flex flex-col justify-center">
+                                    <p className="text-sm font-semibold text-primary truncate leading-tight mb-2">{dept}</p>
+                                    <p className="text-3xl font-bold text-primary">{counts.total}</p>
+                                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                                        <div className="text-center">
+                                            <p className="font-semibold">{counts.boys}</p>
+                                            <p className="text-primary/80">Boys</p>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="font-semibold">{counts.girls}</p>
+                                            <p className="text-primary/80">Girls</p>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
