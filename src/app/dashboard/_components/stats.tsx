@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck, PersonStanding } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -135,66 +135,58 @@ export function Stats({ records }: StatsProps) {
                 </PopoverContent>
               </Popover>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-             <Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+             <Card className="col-span-1 lg:col-span-1">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Students Late</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{dailyStats.lateCount}</div>
-                    <p className="text-xs text-muted-foreground">
-                        Across all departments
+                    <div className="text-4xl font-bold">{dailyStats.lateCount}</div>
+                    <p className="text-xs text-muted-foreground pb-2">
+                        Across all departments for the selected date(s)
                     </p>
+                    <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4">
+                        <div className="flex flex-col items-center justify-center">
+                           <User className="h-5 w-5 text-muted-foreground" />
+                           <p className="text-xs text-muted-foreground mt-1">Boys</p>
+                           <div className="text-2xl font-bold">{dailyStats.boysCount}</div>
+                        </div>
+                         <div className="flex flex-col items-center justify-center">
+                           <UserCheck className="h-5 w-5 text-muted-foreground" />
+                           <p className="text-xs text-muted-foreground mt-1">Girls</p>
+                           <div className="text-2xl font-bold">{dailyStats.girlsCount}</div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Boys Late</CardTitle>
-                    <User className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{dailyStats.boysCount}</div>
-                    <p className="text-xs text-muted-foreground">
-                        Total male students late
-                    </p>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Girls Late</CardTitle>
-                    <UserCheck className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{dailyStats.girlsCount}</div>
-                     <p className="text-xs text-muted-foreground">
-                        Total female students late
-                    </p>
-                </CardContent>
-            </Card>
-            <Card>
+            
+            <Card className="col-span-1 lg:col-span-2">
                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Total Entries
+                        Total Entries & Department Breakdown
                     </CardTitle>
-                     <CardDescription className="flex items-center">
-                        <Building className="h-4 w-4 mr-2 text-muted-foreground" />
-                        Dept. Breakdown
+                     <CardDescription className="flex items-center text-xs">
+                        <Building className="h-4 w-4 mr-1 text-muted-foreground" />
+                        Repeated entries are included
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                   <div className="text-2xl font-bold">{dailyStats.totalRecords}</div>
+                   <div className="text-4xl font-bold">{dailyStats.totalRecords}</div>
+                   <p className="text-xs text-muted-foreground">
+                        Total number of times students have been marked late.
+                    </p>
                     {dailyStats.departmentCounts.length > 0 ? (
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-1 mt-2">
+                        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 border-t pt-4">
                             {dailyStats.departmentCounts.map(([dept, count]) => (
-                                <div key={dept} className="bg-primary/5 p-1 rounded-md text-center">
-                                    <p className="text-[10px] font-medium text-primary/80 truncate">{dept}</p>
+                                <div key={dept} className="bg-primary/5 p-2 rounded-lg text-center flex flex-col justify-center">
                                     <p className="text-sm font-bold text-primary">{count}</p>
+                                    <p className="text-[10px] font-medium text-primary/80 truncate leading-tight">{dept}</p>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-xs text-muted-foreground">No entries for selected date.</p>
+                        <p className="text-sm text-muted-foreground mt-4 pt-4 border-t">No entries for selected date.</p>
                     )}
                 </CardContent>
             </Card>
