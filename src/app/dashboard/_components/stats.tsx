@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck, RotateCcw } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -167,7 +167,7 @@ export function Stats({ records }: StatsProps) {
             <Card className="col-span-1 lg:col-span-2">
                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                        Total Entries & Department Breakdown
+                        Department Breakdown
                     </CardTitle>
                      <CardDescription className="flex items-center text-xs">
                         <Building className="h-4 w-4 mr-1 text-muted-foreground" />
@@ -191,7 +191,7 @@ export function Stats({ records }: StatsProps) {
                                 >
                                     {/* Front of the card */}
                                     <div className="flip-card-front absolute w-full h-full">
-                                        <Card className="w-full h-full flex flex-col justify-center items-center border-none">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center">
                                             <CardHeader className="p-2">
                                                 <CardTitle className="text-sm font-semibold text-primary truncate">{dept}</CardTitle>
                                             </CardHeader>
@@ -203,10 +203,9 @@ export function Stats({ records }: StatsProps) {
 
                                     {/* Back of the card */}
                                     <div className="flip-card-back absolute w-full h-full">
-                                        <Card className="w-full h-full flex flex-col justify-center items-center bg-primary text-primary-foreground border-none">
+                                        <Card className="w-full h-full flex flex-col justify-center items-center bg-primary text-primary-foreground">
                                              <CardHeader className="p-2 flex-row items-center justify-between w-full">
                                                 <CardTitle className="text-sm font-semibold truncate">{dept}</CardTitle>
-                                                <RotateCcw className="h-4 w-4"/>
                                             </CardHeader>
                                             <CardContent className="p-2 flex-grow grid grid-cols-2 gap-2 w-full">
                                                 <div className="text-center bg-primary-foreground/10 p-2 rounded-lg flex flex-col justify-center">
