@@ -194,14 +194,14 @@ export function Stats({ records }: StatsProps) {
                     {dailyStats.departmentCounts.length > 0 ? (
                         <Accordion type="single" collapsible className="w-full mt-4 border-t pt-4">
                           {dailyStats.departmentCounts.map(([dept, counts]) => (
-                            <AccordionItem value={dept} key={dept}>
-                              <AccordionTrigger className="hover:no-underline">
-                                <div className="flex justify-between items-center w-full pr-4">
+                            <AccordionItem value={dept} key={dept} className="border-b-0">
+                              <AccordionTrigger className="hover:no-underline p-3 rounded-lg hover:bg-accent/10 data-[state=open]:bg-accent/10 -mx-3 [&>svg]:hidden">
+                                <div className="flex justify-between items-center w-full">
                                   <p className="text-sm font-semibold text-primary truncate">{dept}</p>
                                   <p className="text-2xl font-bold text-primary">{counts.total}</p>
                                 </div>
                               </AccordionTrigger>
-                              <AccordionContent>
+                              <AccordionContent className="pb-0">
                                 <div className="grid grid-cols-2 gap-2 text-xs pt-2">
                                   <div className="text-center bg-primary/5 p-2 rounded-lg">
                                     <p className="font-semibold text-lg">{counts.boys}</p>
