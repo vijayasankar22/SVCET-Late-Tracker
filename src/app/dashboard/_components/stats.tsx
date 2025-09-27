@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck, PersonStanding } from "lucide-react";
+import { Users, Building, CalendarIcon as CalendarIconStat, User, UserCheck } from "lucide-react";
 import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 type StatsProps = {
   records: LateRecord[];
@@ -186,24 +192,30 @@ export function Stats({ records }: StatsProps) {
                         Total number of times students have been marked late.
                     </p>
                     {dailyStats.departmentCounts.length > 0 ? (
-                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 border-t pt-4">
-                            {dailyStats.departmentCounts.map(([dept, counts]) => (
-                                <div key={dept} className="bg-primary/5 p-3 rounded-lg text-center flex flex-col justify-center">
-                                    <p className="text-sm font-semibold text-primary truncate leading-tight mb-2">{dept}</p>
-                                    <p className="text-3xl font-bold text-primary">{counts.total}</p>
-                                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                                        <div className="text-center">
-                                            <p className="font-semibold">{counts.boys}</p>
-                                            <p className="text-primary/80">Boys</p>
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="font-semibold">{counts.girls}</p>
-                                            <p className="text-primary/80">Girls</p>
-                                        </div>
-                                    </div>
+                        <Accordion type="single" collapsible className="w-full mt-4 border-t pt-4">
+                          {dailyStats.departmentCounts.map(([dept, counts]) => (
+                            <AccordionItem value={dept} key={dept}>
+                              <AccordionTrigger className="hover:no-underline">
+                                <div className="flex justify-between items-center w-full pr-4">
+                                  <p className="text-sm font-semibold text-primary truncate">{dept}</p>
+                                  <p className="text-2xl font-bold text-primary">{counts.total}</p>
                                 </div>
-                            ))}
-                        </div>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="grid grid-cols-2 gap-2 text-xs pt-2">
+                                  <div className="text-center bg-primary/5 p-2 rounded-lg">
+                                    <p className="font-semibold text-lg">{counts.boys}</p>
+                                    <p className="text-primary/80">Boys</p>
+                                  </div>
+                                  <div className="text-center bg-primary/5 p-2 rounded-lg">
+                                    <p className="font-semibold text-lg">{counts.girls}</p>
+                                    <p className="text-primary/80">Girls</p>
+                                  </div>
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          ))}
+                        </Accordion>
                     ) : (
                         <p className="text-sm text-muted-foreground mt-4 pt-4 border-t">No entries for selected date.</p>
                     )}
