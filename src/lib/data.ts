@@ -262,7 +262,7 @@ export const students: Student[] = [
   { id: 'ece-4-3', name: 'AKASH M', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0453', gender: 'MALE' },
   { id: 'ece-4-4', name: 'AKASH R', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0454', gender: 'MALE' },
   { id: 'ece-4-5', name: 'DHANUSH KUMAR A', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0455', gender: 'MALE' },
-  { id: 'ece-4-6', name: 'DHARMASASTHA L', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0456', gender: 'MALE' },
+  { id: 'ece-4-6', name: 'DHARMA SASTHA L', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0456', gender: 'MALE' },
   { id: 'ece-4-7', name: 'DURGADEVI D', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0457', gender: 'FEMALE' },
   { id: 'ece-4-8', name: 'DURGAPRASATH K', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0458', gender: 'MALE' },
   { id: 'ece-4-9', name: 'ELANGO N', departmentId: 'ece', classId: 'ece-4', registerNo: '22TC0459', gender: 'MALE' },
@@ -489,5 +489,6 @@ export const students: Student[] = [
     
 
     
+
 
 
