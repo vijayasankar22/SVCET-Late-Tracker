@@ -35,15 +35,15 @@ export default function CleanupPage() {
     <div className="flex min-h-screen w-full items-center justify-center bg-primary p-4">
       <Card className="w-full max-w-lg shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Cleanup Last Record</CardTitle>
+          <CardTitle className="text-2xl font-headline">Cleanup Today's Records</CardTitle>
           <CardDescription>
-            Permanently delete the most recently added late entry record.
+            Permanently delete the last two late entry records added today.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
             <p className="font-bold">Warning: This action is irreversible.</p>
-            <p>Please be certain before you proceed. This will permanently delete the last record from the database and it cannot be recovered.</p>
+            <p>Please be certain before you proceed. This will permanently delete the last two records from today and they cannot be recovered.</p>
           </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -56,7 +56,7 @@ export default function CleanupPage() {
                 ) : (
                   <>
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Last Record
+                    Delete Last 2 Records from Today
                   </>
                 )}
               </Button>
@@ -65,13 +65,13 @@ export default function CleanupPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the most recent record from your database.
+                  This action cannot be undone. This will permanently delete the last two records added today from your database.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={handleCleanup} className="bg-destructive hover:bg-destructive/90">
-                  Yes, delete it
+                  Yes, delete them
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

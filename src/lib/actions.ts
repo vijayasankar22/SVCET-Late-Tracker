@@ -13,22 +13,22 @@ export async function seedDatabase() {
     const studentsCollection = collection(db, 'students');
 
     console.log('Seeding departments...');
-    departments.forEach((dept) => {
+    for (const dept of departments) {
       const docRef = doc(departmentsCollection, dept.id);
       batch.set(docRef, dept);
-    });
+    }
 
     console.log('Seeding classes...');
-    classes.forEach((cls) => {
+    for (const cls of classes) {
       const docRef = doc(classesCollection, cls.id);
       batch.set(docRef, cls);
-    });
+    }
 
     console.log('Seeding students...');
-    students.forEach((student) => {
-      const docRef = doc(studentsCollection, student.id);
-      batch.set(docRef, student);
-    });
+    for (const student of students) {
+        const docRef = doc(studentsCollection, student.id);
+        batch.set(docRef, student);
+    }
 
     await batch.commit();
 
@@ -46,13 +46,24 @@ export async function seedDatabase() {
 export async function cleanupOldRecords() {
   try {
     const recordsCollection = collection(db, 'lateRecords');
-    // Query for the last record by ordering by timestamp descending and limiting to 1
-    const q = query(recordsCollection, orderBy('timestamp', 'desc'), limit(1));
+    
+    // Get today's date at midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayTimestamp = Timestamp.fromDate(today);
+
+    // Query for the last 2 records from today
+    const q = query(
+        recordsCollection, 
+        where('timestamp', '>=', todayTimestamp),
+        orderBy('timestamp', 'desc'), 
+        limit(2)
+    );
 
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      return { success: true, message: 'No records found to delete.' };
+      return { success: true, message: 'No records found from today to delete.' };
     }
 
     const batch = writeBatch(db);
@@ -62,7 +73,7 @@ export async function cleanupOldRecords() {
 
     await batch.commit();
     
-    return { success: true, message: `The last record has been deleted successfully.` };
+    return { success: true, message: `Successfully deleted ${querySnapshot.size} record(s) from today.` };
 
   } catch (error) {
     console.error('Error cleaning up recent records:', error);
