@@ -199,7 +199,7 @@ export const students: Student[] = [
   { id: 'cse-3a-31', name: 'MANOJ . V', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0695', gender: 'MALE' },
   { id: 'cse-3a-32', name: 'MOHAMMED AAQIL . M', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0699', gender: 'MALE' },
   { id: 'cse-3a-33', name: 'NAMACHIVAYAM . S', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0701', gender: 'MALE' },
-  { id: 'cse-3a-34', name: 'NANDHA KUMAR . B', departmentId: 'cse', classId: 'cse-3a', registerNo: '23TD0702', gender: 'MALE' },
+  { id: 'cse-3a-34', name: 'NANDHA KUMAR . B', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0702', gender: 'MALE' },
   { id: 'cse-3a-35', name: 'PUSHPARAJ . E', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0708', gender: 'MALE' },
   { id: 'cse-3a-36', name: 'RAGUL .A', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0709', gender: 'MALE' },
   { id: 'cse-3a-37', name: 'RANJITH . S', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0712', gender: 'MALE' },
@@ -208,6 +208,51 @@ export const students: Student[] = [
   { id: 'cse-3a-40', name: 'VIGNESHWARAN V', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0730', gender: 'MALE' },
   { id: 'cse-3a-41', name: 'VISHWA . B. R', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0732', gender: 'MALE' },
   { id: 'cse-3a-42', name: 'VITHYASAKAR S', departmentId: 'cse', classId: 'cse-3-a', registerNo: '23TD0733', gender: 'MALE' },
+  
+  // CSE III-B
+  { id: 'cse-3b-1', name: 'AARTHI .A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0651', gender: 'FEMALE' },
+  { id: 'cse-3b-2', name: 'ABARNA  .S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0652', gender: 'FEMALE' },
+  { id: 'cse-3b-3', name: 'ANBARASI . M', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0655', gender: 'FEMALE' },
+  { id: 'cse-3b-4', name: 'ANISHA . V', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0657', gender: 'FEMALE' },
+  { id: 'cse-3b-5', name: 'DEEPIKA . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0665', gender: 'FEMALE' },
+  { id: 'cse-3b-6', name: 'DHARSHINI . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0669', gender: 'FEMALE' },
+  { id: 'cse-3b-7', name: 'HARINI G', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0677', gender: 'FEMALE' },
+  { id: 'cse-3b-8', name: 'JEEVITHA . E', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0685', gender: 'FEMALE' },
+  { id: 'cse-3b-9', name: 'MAHALAKSHMI . A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0693', gender: 'FEMALE' },
+  { id: 'cse-3b-10', name: 'PAVITHRA . K', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0706', gender: 'FEMALE' },
+  { id: 'cse-3b-11', name: 'RENUGA . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0713', gender: 'FEMALE' },
+  { id: 'cse-3b-12', name: 'ROSHEKAA R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0714', gender: 'FEMALE' },
+  { id: 'cse-3b-13', name: 'SENTHAMIZH S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0720', gender: 'FEMALE' },
+  { id: 'cse-3b-14', name: 'SHALINI . C', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0721', gender: 'FEMALE' },
+  { id: 'cse-3b-15', name: 'SIVARANJANI K', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0723', gender: 'FEMALE' },
+  { id: 'cse-3b-16', name: 'SWETHA . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0728', gender: 'FEMALE' },
+  { id: 'cse-3b-17', name: 'YUVASREE . G', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0735', gender: 'FEMALE' },
+  { id: 'cse-3b-18', name: 'ABDUL RAHMAN . A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0653', gender: 'MALE' },
+  { id: 'cse-3b-19', name: 'BHUVANESHWARAN A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0662', gender: 'MALE' },
+  { id: 'cse-3b-20', name: 'DHANUSH . V', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0667', gender: 'MALE' },
+  { id: 'cse-3b-21', name: 'DULASI KRISHNA . P', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0670', gender: 'MALE' },
+  { id: 'cse-3b-22', name: 'GANESH . P', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0673', gender: 'MALE' },
+  { id: 'cse-3b-23', name: 'GOKUL . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0674', gender: 'MALE' },
+  { id: 'cse-3b-24', name: 'HARISHKUMAR . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0678', gender: 'MALE' },
+  { id: 'cse-3b-25', name: 'JAYA SRINIVASAN . A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0683', gender: 'MALE' },
+  { id: 'cse-3b-26', name: 'KALAIVANAN . L', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0686', gender: 'MALE' },
+  { id: 'cse-3b-27', name: 'KARTHIKEYAN . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0688', gender: 'MALE' },
+  { id: 'cse-3b-28', name: 'KESAVAN . M', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0689', gender: 'MALE' },
+  { id: 'cse-3b-29', name: 'KIROUBAKARAN . V', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0690', gender: 'MALE' },
+  { id: 'cse-3b-30', name: 'MADHAN.R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TDL015', gender: 'MALE' },
+  { id: 'cse-3b-31', name: 'MOHAMED ASIF . M', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0696', gender: 'MALE' },
+  { id: 'cse-3b-32', name: 'MOHAMED THASLEEM . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0698', gender: 'MALE' },
+  { id: 'cse-3b-33', name: 'MUCKTHAR AHAMED . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0700', gender: 'MALE' },
+  { id: 'cse-3b-34', name: 'NIKILESHYOGAN . G', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0703', gender: 'MALE' },
+  { id: 'cse-3b-35', name: 'PADHRINATH . G', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0704', gender: 'MALE' },
+  { id: 'cse-3b-36', name: 'PARTHASARATHI . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0705', gender: 'MALE' },
+  { id: 'cse-3b-37', name: 'PRAKASHRAJ . S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0707', gender: 'MALE' },
+  { id: 'cse-3b-38', name: 'SATHYA J', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0719', gender: 'MALE' },
+  { id: 'cse-3b-39', name: 'SHARAN SHANTH . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0722', gender: 'MALE' },
+  { id: 'cse-3b-40', name: 'SIVASANKAR . A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0724', gender: 'MALE' },
+  { id: 'cse-3b-41', name: 'SRIRAM I', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0726', gender: 'MALE' },
+  { id: 'cse-3b-42', name: 'VIJAYAVEL .R. S', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0731', gender: 'MALE' },
+  { id: 'cse-3b-43', name: 'YOGESH . M', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0734', gender: 'MALE' },
 
   // BME II
   { id: 'bme-2-1', name: 'AKSHAYA M', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0051', gender: 'FEMALE' },
@@ -675,3 +720,6 @@ export const students: Student[] = [
 
 
 
+
+
+    
