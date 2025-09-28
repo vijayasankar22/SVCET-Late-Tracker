@@ -2,6 +2,7 @@
 import type { Department, Class, Student, Staff } from './types';
 
 export const departments: Department[] = [
+  { id: 'cse', name: 'CSE' },
   { id: 'ece', name: 'ECE' },
   { id: 'bme', name: 'BME' },
   { id: 'eee', name: 'EEE' },
@@ -10,6 +11,13 @@ export const departments: Department[] = [
 ];
 
 export const classes: Class[] = [
+  // CSE
+  { id: 'cse-2-a', departmentId: 'cse', name: 'II-A' },
+  { id: 'cse-2-b', departmentId: 'cse', name: 'II-B' },
+  { id: 'cse-3-a', departmentId: 'cse', name: 'III-A' },
+  { id: 'cse-3-b', departmentId: 'cse', name: 'III-B' },
+  { id: 'cse-4-a', departmentId: 'cse', name: 'IV-A' },
+  { id: 'cse-4-b', departmentId: 'cse', name: 'IV-B' },
   // ECE
   { id: 'ece-2', departmentId: 'ece', name: 'II' },
   { id: 'ece-3', departmentId: 'ece', name: 'III' },
@@ -489,6 +497,7 @@ export const students: Student[] = [
     
 
     
+
 
 
 

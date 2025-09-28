@@ -8,22 +8,6 @@ export async function seedDatabase() {
   try {
     const batch = writeBatch(db);
     
-    // START: Manual cleanup for old CSE data
-    const oldCseDeptRef = doc(db, 'departments', 'cse');
-    batch.delete(oldCseDeptRef);
-    
-    const oldCseClasses = ['cse-2-a', 'cse-2-b', 'cse-3-a', 'cse-3-b', 'cse-4-a', 'cse-4-b'];
-    oldCseClasses.forEach(classId => {
-      batch.delete(doc(db, 'classes', classId));
-    });
-    
-    // To delete all students from CSE, we'd have to query them. 
-    // It's safer to delete the department and classes and let the student dropdowns become empty.
-    // A more robust solution for large data would be a separate cleanup script.
-    // For now, this handles the department and class removal on seed.
-    console.log('Scheduling deletion for old CSE department and classes.');
-    // END: Manual cleanup
-    
     const departmentsCollection = collection(db, 'departments');
     const classesCollection = collection(db, 'classes');
     const studentsCollection = collection(db, 'students');
@@ -47,21 +31,8 @@ export async function seedDatabase() {
     });
 
     await batch.commit();
-    
-    // Second batch for querying and deleting students to avoid read/write in same batch
-    const cleanupBatch = writeBatch(db);
-    const studentsQuery = query(collection(db, 'students'), where('departmentId', '==', 'cse'));
-    const studentsSnapshot = await getDocs(studentsQuery);
-    if (!studentsSnapshot.empty) {
-      console.log(`Found ${studentsSnapshot.docs.length} old CSE students to delete.`);
-      studentsSnapshot.forEach(studentDoc => {
-        cleanupBatch.delete(studentDoc.ref);
-      });
-      await cleanupBatch.commit();
-      console.log('Old CSE students deleted.');
-    }
 
-    return { success: true, message: 'Database seeded successfully. Old CSE data has been removed.' };
+    return { success: true, message: 'Database seeded successfully.' };
 
   } catch (error) {
     console.error('Error seeding database:', error);
