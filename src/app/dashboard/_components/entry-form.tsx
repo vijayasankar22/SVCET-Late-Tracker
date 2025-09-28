@@ -14,10 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 
 const formSchema = z.object({
   departmentId: z.string().min(1, 'Please select a department.'),
@@ -39,7 +35,6 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [studentComboboxOpen, setStudentComboboxOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -93,13 +88,6 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       setIsSubmitting(false);
     }
   }
-
-  const handleStudentSelect = (studentId: string) => {
-    form.setValue("studentId", studentId);
-    setStudentComboboxOpen(false);
-  };
-
-  const studentValue = form.watch('studentId');
 
   return (
     <Card className="shadow-lg">
@@ -157,54 +145,16 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Student Name</FormLabel>
-                    <Popover open={studentComboboxOpen} onOpenChange={setStudentComboboxOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={studentComboboxOpen}
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            disabled={!selectedClassId || isSubmitting}
-                          >
-                            {studentValue
-                              ? availableStudents.find(
-                                  (student) => student.id === studentValue
-                                )?.name
-                              : "Search and Select Student"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search student..." />
-                          <CommandEmpty>No student found.</CommandEmpty>
-                          <CommandGroup>
-                            {availableStudents.map((student) => (
-                              <CommandItem
-                                value={student.name}
-                                key={student.id}
-                                onSelect={() => handleStudentSelect(student.id)}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    student.id === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {student.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId || isSubmitting}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {availableStudents.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>{student.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
