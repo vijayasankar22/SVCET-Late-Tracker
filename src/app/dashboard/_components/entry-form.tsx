@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -52,18 +52,8 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
   });
 
   const selectedDepartmentId = form.watch('departmentId');
-  const selectedClassId = form.watch('classId');
 
-  const availableClasses = useMemo(() => {
-    if (!selectedDepartmentId) return [];
-    return classes.filter((c) => c.departmentId === selectedDepartmentId);
-  }, [selectedDepartmentId, classes]);
-
-  const availableStudents = useMemo(() => {
-    if (!selectedClassId) return [];
-    return students.filter((s) => s.classId === selectedClassId);
-  }, [selectedClassId, students]);
-
+  const availableClasses = classes.filter((c) => c.departmentId === selectedDepartmentId);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const student = students.find((s) => s.id === values.studentId);
@@ -98,25 +88,35 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       setIsSubmitting(false);
     }
   }
+
+  const handleStudentSelect = (studentId: string) => {
+    const student = students.find((s) => s.id === studentId);
+    if (student) {
+        form.setValue("studentId", student.id);
+        form.setValue("departmentId", student.departmentId);
+        form.setValue("classId", student.classId, { shouldValidate: true });
+        setStudentComboboxOpen(false);
+    }
+  };
   
-  // Reset class and student when department changes
   const handleDepartmentChange = (value: string) => {
     form.setValue('departmentId', value);
     form.setValue('classId', '');
     form.setValue('studentId', '');
   };
   
-  // Reset student when class changes
   const handleClassChange = (value: string) => {
     form.setValue('classId', value);
     form.setValue('studentId', '');
   };
 
+  const studentValue = form.watch('studentId');
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Mark Student Late</CardTitle>
-        <CardDescription>Select a student and click "Mark Late" to record their tardiness.</CardDescription>
+        <CardDescription>Search for a student, their details will be filled automatically. Then click "Mark Late".</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -124,11 +124,69 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <FormField
                 control={form.control}
+                name="studentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Student Name</FormLabel>
+                    <Popover open={studentComboboxOpen} onOpenChange={setStudentComboboxOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={studentComboboxOpen}
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            disabled={isSubmitting}
+                          >
+                            {studentValue
+                              ? students.find(
+                                  (student) => student.id === studentValue
+                                )?.name
+                              : "Search and Select Student"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search student..." />
+                          <CommandEmpty>No student found.</CommandEmpty>
+                          <CommandGroup>
+                            {students.map((student) => (
+                              <CommandItem
+                                value={student.name}
+                                key={student.id}
+                                onSelect={() => handleStudentSelect(student.id)}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    student.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {student.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="departmentId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={handleDepartmentChange} defaultValue={field.value} disabled={isSubmitting || departments.length === 0}>
+                    <Select onValueChange={handleDepartmentChange} value={field.value} disabled={isSubmitting || departments.length === 0}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -158,67 +216,6 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="studentId"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Student Name</FormLabel>
-                    <Popover open={studentComboboxOpen} onOpenChange={setStudentComboboxOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={studentComboboxOpen}
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            disabled={!selectedClassId || isSubmitting}
-                          >
-                            {field.value
-                              ? availableStudents.find(
-                                  (student) => student.id === field.value
-                                )?.name
-                              : "Select Student"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search student..." />
-                          <CommandEmpty>No student found.</CommandEmpty>
-                          <CommandGroup>
-                            {availableStudents.map((student) => (
-                              <CommandItem
-                                value={student.name}
-                                key={student.id}
-                                onSelect={() => {
-                                  form.setValue("studentId", student.id)
-                                  setStudentComboboxOpen(false)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    student.id === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {student.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
