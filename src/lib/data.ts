@@ -42,9 +42,9 @@ export const classes: Class[] = [
 
 export const students: Student[] = [
   // CSE II-A
-  { id: 'cse-2a-1', name: 'ABINAYA G', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0752', gender: 'FEMALE' },
-  { id: 'cse-2a-2', name: 'AKSHAYA C', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0755', gender: 'FEMALE' },
-  { id: 'cse-2a-3', name: 'BHAVA DHARSHNI S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0758', gender: 'FEMALE' },
+  { id: 'cse-2a-1', name: 'ABINAYA G', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0752', gender: 'FEMALE', parentPhoneNumber: '+919999999901' },
+  { id: 'cse-2a-2', name: 'AKSHAYA C', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0755', gender: 'FEMALE', parentPhoneNumber: '+919999999902' },
+  { id: 'cse-2a-3', name: 'BHAVA DHARSHNI S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0758', gender: 'FEMALE', parentPhoneNumber: '+919999999903' },
   { id: 'cse-2a-4', name: 'CATHERINE J', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0760', gender: 'FEMALE' },
   { id: 'cse-2a-5', name: 'CHARU A S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0762', gender: 'FEMALE' },
   { id: 'cse-2a-6', name: 'DHARSHINI M', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0766', gender: 'FEMALE' },

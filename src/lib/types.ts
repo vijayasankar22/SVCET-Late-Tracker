@@ -16,6 +16,7 @@ export interface Student {
   classId: string;
   registerNo: string;
   gender: 'MALE' | 'FEMALE';
+  parentPhoneNumber?: string;
 }
 
 export interface Staff {
