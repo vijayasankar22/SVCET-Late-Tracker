@@ -136,6 +136,7 @@ export default function DashboardPage() {
         loading={loading}
         departments={departments}
         classes={classes}
+        students={students}
       />
     </div>
   );

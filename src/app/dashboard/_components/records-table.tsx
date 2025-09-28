@@ -1,18 +1,18 @@
 
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileDown, History } from "lucide-react";
-import type { LateRecord, Department, Class } from "@/lib/types";
+import { Download, Search, FileDown, History, X } from "lucide-react";
+import type { LateRecord, Department, Class, Student } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -33,9 +33,10 @@ type RecordsTableProps = {
   loading: boolean;
   departments: Department[];
   classes: Class[];
+  students: Student[];
 };
 
-export function RecordsTable({ records, loading, departments, classes }: RecordsTableProps) {
+export function RecordsTable({ records, loading, departments, classes, students }: RecordsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -44,14 +45,59 @@ export function RecordsTable({ records, loading, departments, classes }: Records
     return { from: today, to: today };
   });
   const [selectedStudentHistory, setSelectedStudentHistory] = useState<LateRecord[] | null>(null);
+  const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<Student | null>(null);
+
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
 
   const logoImageRef = useRef<HTMLImageElement>(null);
 
-  const handleRowClick = (studentId: string) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const globalSearchResults = useMemo(() => {
+    if (!globalSearchTerm) return [];
+    return students.filter(student =>
+      student.name.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+      student.registerNo?.toLowerCase().includes(globalSearchTerm.toLowerCase())
+    ).slice(0, 10);
+  }, [globalSearchTerm, students]);
+
+  const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGlobalSearchTerm(e.target.value);
+    if (e.target.value.length > 0) {
+      setShowSearchResults(true);
+    } else {
+      setShowSearchResults(false);
+    }
+  };
+
+  const handleStudentSelect = (student: Student) => {
+    setGlobalSearchTerm('');
+    setShowSearchResults(false);
     const history = records.filter(
-      (record) => record.studentId === studentId || record.studentName === studentId
-    ).sort((a,b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      (record) => record.studentId === student.id || record.studentName === student.name
+    ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    setSelectedStudentForHistory(student);
     setSelectedStudentHistory(history);
+  };
+
+  const handleRowClick = (record: LateRecord) => {
+    const student = students.find(s => s.id === record.studentId || s.name === record.studentName);
+    if (student) {
+        handleStudentSelect(student);
+    }
   };
 
   const availableClasses = useMemo(() => {
@@ -234,8 +280,8 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         <CardHeader>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                   <CardTitle className="font-headline text-2xl">Late Entry Records</CardTitle>
-                  <CardDescription>View, filter, and export late student records. Click a row to see a student's history.</CardDescription>
+                   <CardTitle className="font-headline text-2xl">Student Records</CardTitle>
+                  <CardDescription>Search for any student to view their history, or filter the records table below.</CardDescription>
               </div>
               <div className="flex gap-2">
                   <img 
@@ -257,81 +303,108 @@ export function RecordsTable({ records, loading, departments, classes }: Records
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-4 mb-6">
+            <div ref={searchRef} className="relative w-full max-w-lg mx-auto">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search by student name or register no..."
-                className="pl-8 sm:w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search any student by name or register no..."
+                className="pl-8 w-full"
+                value={globalSearchTerm}
+                onChange={handleGlobalSearchChange}
+                onFocus={() => globalSearchTerm && setShowSearchResults(true)}
               />
+              {showSearchResults && globalSearchResults.length > 0 && (
+                <Card className="absolute z-10 w-full mt-1 max-h-60 overflow-y-auto">
+                  <CardContent className="p-2">
+                    {globalSearchResults.map(student => (
+                      <div key={student.id} onClick={() => handleStudentSelect(student)} className="p-2 hover:bg-accent/50 rounded-md cursor-pointer text-sm">
+                        <p className="font-semibold">{student.name}</p>
+                        <p className="text-xs text-muted-foreground">{student.registerNo} - {students.find(s=> s.id === student.id)?.classId}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
             </div>
-            <div className="flex gap-4">
-               <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-[280px] justify-start text-left font-normal",
-                        !dateRange && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "LLL dd, y")} -{" "}
-                            {format(dateRange.to, "LLL dd, y")}
-                          </>
+
+            <Separator />
+            <p className="text-sm text-center text-muted-foreground">Or, filter the late entry records table:</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="relative lg:col-span-2">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Filter current records..."
+                    className="pl-8 sm:w-full"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !dateRange && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
                         ) : (
-                          format(dateRange.from, "LLL dd, y")
-                        )
-                      ) : (
-                        <span>Pick a date range</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-            </div>
-             <div className="flex gap-4">
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger className="w-full md:w-[180px]">
-                      <SelectValue placeholder="Filter by Department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="all">All Departments</SelectItem>
-                      {departments.map(dept => (
-                          <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                      ))}
-                  </SelectContent>
-              </Select>
-              <Select value={classFilter} onValueChange={(value) => {
-                  setClassFilter(value);
-              }}>
-                   <SelectTrigger className="w-full md:w-[180px]">
-                      <SelectValue placeholder="Filter by Class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="all">All Classes</SelectItem>
-                      {availableClasses.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                  </SelectContent>
-              </Select>
-             </div>
+                          <span>Pick a date range</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={dateRange?.from}
+                        selected={dateRange}
+                        onSelect={setDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <div className="flex gap-4">
+                    <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Departments</SelectItem>
+                            {departments.map(dept => (
+                                <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select value={classFilter} onValueChange={setClassFilter}>
+                         <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Class" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Classes</SelectItem>
+                            {availableClasses.map(c => (
+                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                  </div>
+              </div>
           </div>
+
+
           <div className="rounded-lg border">
             <Table className="table-alternating-rows">
               <TableHeader>
@@ -358,7 +431,7 @@ export function RecordsTable({ records, loading, departments, classes }: Records
                       ))
                   ) : filteredRecords.length > 0 ? (
                       filteredRecords.map((record, index) => (
-                          <TableRow key={record.id} onClick={() => handleRowClick(record.studentId || record.studentName)} className="cursor-pointer">
+                          <TableRow key={record.id} onClick={() => handleRowClick(record)} className="cursor-pointer">
                               <TableCell>{index + 1}</TableCell>
                               <TableCell>{record.registerNo || "N/A"}</TableCell>
                               <TableCell className="font-medium">{record.studentName}</TableCell>
@@ -391,44 +464,55 @@ export function RecordsTable({ records, loading, departments, classes }: Records
         </CardContent>
       </Card>
       
-      {selectedStudentHistory && (
-        <Dialog open={!!selectedStudentHistory} onOpenChange={(isOpen) => !isOpen && setSelectedStudentHistory(null)}>
+      {selectedStudentHistory && selectedStudentForHistory && (
+        <Dialog open={!!selectedStudentHistory} onOpenChange={(isOpen) => {
+            if (!isOpen) {
+                setSelectedStudentHistory(null);
+                setSelectedStudentForHistory(null);
+            }
+        }}>
           <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <History className="h-6 w-6" /> 
-                Late Entry History for {selectedStudentHistory[0]?.studentName}
+                Late Entry History for {selectedStudentForHistory.name}
               </DialogTitle>
               <DialogDescription>
-                Register No: {selectedStudentHistory[0]?.registerNo || "N/A"} | Total late entries: {selectedStudentHistory.length}
+                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {selectedStudentHistory.length}
               </DialogDescription>
             </DialogHeader>
-            <div className="max-h-[60vh] overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Marked By</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {selectedStudentHistory.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>{entry.date}</TableCell>
-                      <TableCell>{entry.time}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {entry.status}
-                        </span>
-                      </TableCell>
-                      <TableCell>{entry.markedBy}</TableCell>
+             {selectedStudentHistory.length > 0 ? (
+                <div className="max-h-[60vh] overflow-y-auto">
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Time</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Marked By</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                    </TableHeader>
+                    <TableBody>
+                    {selectedStudentHistory.map((entry) => (
+                        <TableRow key={entry.id}>
+                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>{entry.time}</TableCell>
+                        <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            {entry.status}
+                            </span>
+                        </TableCell>
+                        <TableCell>{entry.markedBy}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                </div>
+            ) : (
+                <div className="text-center p-8">
+                    <p>No late entries found for this student.</p>
+                </div>
+             )}
           </DialogContent>
         </Dialog>
       )}
