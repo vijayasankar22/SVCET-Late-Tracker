@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -519,3 +520,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
