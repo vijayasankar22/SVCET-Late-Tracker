@@ -179,7 +179,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
       time: record.time,
       status: record.status,
       markedBy: record.markedBy,
-      timesLate: studentLateCounts[record.studentId || record.studentName] || 0,
+      "Total Late Entries": studentLateCounts[record.studentId || record.studentName] || 0,
     }));
     exportToCsv("late-records.csv", recordsToExport);
   };
@@ -229,7 +229,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
         autoTable(doc, {
             startY: contentY,
-            head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Times Late']],
+            head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
             body: filteredRecords.map((record, index) => [
                 index + 1,
                 record.registerNo,
@@ -420,7 +420,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                   <TableHead>Time</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Marked By</TableHead>
-                  <TableHead>Times Late</TableHead>
+                  <TableHead>Total Late Entries</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -520,5 +520,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
 
     
