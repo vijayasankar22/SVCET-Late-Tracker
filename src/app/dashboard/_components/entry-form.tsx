@@ -192,7 +192,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedStudentId}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -212,7 +212,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Class</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value} disabled={!selectedStudentId}>
+                     <Select onValueChange={field.onChange} value={field.value} disabled>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
                       </FormControl>
@@ -233,7 +233,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
               name="status"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Status (Parent/Guardian)</FormLabel>
+                  <FormLabel>Status</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
