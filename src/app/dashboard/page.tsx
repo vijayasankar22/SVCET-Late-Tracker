@@ -10,6 +10,8 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LateEntriesChart } from './_components/late-entries-chart';
+
 
 export default function DashboardPage() {
   const [records, setRecords] = useState<LateRecord[]>([]);
@@ -44,7 +46,10 @@ export default function DashboardPage() {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
           
-          const student = studentsMap.get(data.studentId) || studentsByNameMap.get(normalizeName(data.studentName));
+          let student = studentsMap.get(data.studentId);
+          if (!student && data.studentName) {
+            student = studentsByNameMap.get(normalizeName(data.studentName));
+          }
 
           return { 
             id: doc.id, 
@@ -52,7 +57,7 @@ export default function DashboardPage() {
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed',
-            studentId: student?.id || data.studentId, // Ensure the canonical ID is used
+            studentId: student?.id || data.studentId,
             studentName: student?.name || data.studentName,
             registerNo: student?.registerNo || data.registerNo || '',
             gender: student?.gender || data.gender || 'MALE',
@@ -142,6 +147,7 @@ export default function DashboardPage() {
         students={students}
        />
       <Stats records={records} />
+      <LateEntriesChart records={records} />
       <RecordsTable 
         records={records} 
         loading={loading}
