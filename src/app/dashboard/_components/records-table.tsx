@@ -77,7 +77,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of records) {
+    for (const record of records) { // Use the full 'records' list
         const key = record.studentId || record.studentName;
         counts[key] = (counts[key] || 0) + 1;
     }
