@@ -1,3 +1,4 @@
+
 'use server';
 
 import { collection, writeBatch, getDocs, query, doc, where, Timestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
@@ -77,6 +78,44 @@ export async function cleanupOldRecords() {
 
   } catch (error) {
     console.error('Error cleaning up recent records:', error);
+    if (error instanceof Error) {
+        return { success: false, message: `Error cleaning up records: ${error.message}` };
+    }
+    return { success: false, message: 'An unknown error occurred during cleanup.' };
+  }
+}
+
+export async function cleanupRecordsBeforeDate() {
+  try {
+    const recordsCollection = collection(db, 'lateRecords');
+    
+    // Set the cutoff date to Sep 22, 2025
+    const cutoffDate = new Date('2025-09-22T00:00:00');
+    const cutoffTimestamp = Timestamp.fromDate(cutoffDate);
+
+    // Query for records before the cutoff date
+    const q = query(
+        recordsCollection, 
+        where('timestamp', '<', cutoffTimestamp)
+    );
+
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return { success: true, message: 'No records found before Sep 22, 2025 to delete.' };
+    }
+
+    const batch = writeBatch(db);
+    querySnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    
+    return { success: true, message: `Successfully deleted ${querySnapshot.size} record(s) from before Sep 22, 2025.` };
+
+  } catch (error) {
+    console.error('Error cleaning up old records:', error);
     if (error instanceof Error) {
         return { success: false, message: `Error cleaning up records: ${error.message}` };
     }
