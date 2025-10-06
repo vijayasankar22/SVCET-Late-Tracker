@@ -56,7 +56,7 @@ export default function DashboardPage() {
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed',
-            studentId: student?.id || data.studentId,
+            studentId: student?.id || data.studentId || data.studentName,
             studentName: student?.name || data.studentName,
             registerNo: student?.registerNo || data.registerNo || '',
             gender: student?.gender || data.gender || 'MALE',
@@ -96,6 +96,23 @@ export default function DashboardPage() {
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const existingRecord = records.find(record => {
+          const recordDate = new Date(record.timestamp);
+          return record.studentId === newRecord.studentId && recordDate >= todayStart;
+      });
+
+      if (existingRecord) {
+        toast({
+            variant: "destructive",
+            title: "Duplicate Entry",
+            description: `${newRecord.studentName} has already been marked late today.`,
+        });
+        return false;
+      }
+      
       const timestamp = new Date();
       
       const student = students.find(s => s.id === newRecord.studentId);
