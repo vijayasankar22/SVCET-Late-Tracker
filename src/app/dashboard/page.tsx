@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -36,7 +37,6 @@ export default function DashboardPage() {
         
         const studentsMap = new Map(studsData.map(s => [s.id, s]));
         
-        // Create a map with normalized names for robust lookup
         const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim();
         const studentsByNameMap = new Map(studsData.map(s => [normalizeName(s.name), s]));
         
@@ -44,7 +44,6 @@ export default function DashboardPage() {
           const data = doc.data();
           const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
           
-          // First try to find student by ID, then fall back to finding by normalized name for older records
           const student = studentsMap.get(data.studentId) || studentsByNameMap.get(normalizeName(data.studentName));
 
           return { 
@@ -53,7 +52,8 @@ export default function DashboardPage() {
             timestamp: timestamp,
             date: timestamp.toLocaleDateString(),
             status: data.status || 'Not Informed',
-            studentName: student?.name || data.studentName, // Use the canonical name from student list if available
+            studentId: student?.id || data.studentId, // Ensure the canonical ID is used
+            studentName: student?.name || data.studentName,
             registerNo: student?.registerNo || data.registerNo || '',
             gender: student?.gender || data.gender || 'MALE',
           } as LateRecord;
@@ -93,11 +93,22 @@ export default function DashboardPage() {
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     try {
       const timestamp = new Date();
+      
+      const student = students.find(s => s.id === newRecord.studentId);
+      if (!student) {
+        throw new Error("Student not found for the new record.");
+      }
+
       const recordWithTimestamp = {
         ...newRecord,
         timestamp: timestamp,
         date: timestamp.toLocaleDateString(),
+        // Ensure canonical student data is saved
+        studentName: student.name,
+        registerNo: student.registerNo,
+        gender: student.gender,
       };
+
       const docRef = await addDoc(collection(db, 'lateRecords'), recordWithTimestamp);
 
       setRecords((prevRecords) => [{ id: docRef.id, ...recordWithTimestamp, timestamp: timestamp } as LateRecord, ...prevRecords]);
