@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,6 +14,10 @@ import { useToast } from '@/hooks/use-toast';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   departmentId: z.string().min(1, 'Please select a department.'),
@@ -35,6 +39,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,11 +50,26 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
       status: 'Not Informed',
     },
   });
-
+  
+  const selectedStudentId = form.watch('studentId');
   const selectedDepartmentId = form.watch('departmentId');
+  
+  useEffect(() => {
+    if (selectedStudentId) {
+      const student = students.find((s) => s.id === selectedStudentId);
+      if (student) {
+        if (form.getValues('departmentId') !== student.departmentId) {
+            form.setValue('departmentId', student.departmentId, { shouldValidate: true });
+        }
+        if (form.getValues('classId') !== student.classId) {
+            form.setValue('classId', student.classId, { shouldValidate: true });
+        }
+      }
+    }
+  }, [selectedStudentId, students, form]);
+
 
   const availableClasses = classes.filter((c) => c.departmentId === selectedDepartmentId);
-  const availableStudents = students.filter((s) => s.classId === form.watch('classId'));
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const student = students.find((s) => s.id === values.studentId);
@@ -96,23 +116,83 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Mark Student Late</CardTitle>
-        <CardDescription>Select a department and class to see the list of students.</CardDescription>
+        <CardDescription>Select a student to mark them as late. Department and class will be auto-filled.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+               <FormField
+                control={form.control}
+                name="studentId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Student Name</FormLabel>
+                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? students.find(
+                                  (student) => student.id === field.value
+                                )?.name
+                              : "Select Student"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search student..." />
+                           <CommandList>
+                            <CommandEmpty>No student found.</CommandEmpty>
+                            <CommandGroup>
+                              {students.map((student) => (
+                                <CommandItem
+                                  value={student.name}
+                                  key={student.id}
+                                  onSelect={() => {
+                                    form.setValue("studentId", student.id);
+                                    setPopoverOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      student.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                   <div>
+                                    <p>{student.name}</p>
+                                    <p className="text-xs text-muted-foreground">{student.registerNo}</p>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="departmentId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('classId', '');
-                      form.setValue('studentId', '');
-                    }} value={field.value} disabled={isSubmitting}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !selectedStudentId}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -132,36 +212,13 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Class</FormLabel>
-                     <Select onValueChange={(value) => {
-                       field.onChange(value)
-                       form.setValue('studentId', '');
-                     }} value={field.value} disabled={!selectedDepartmentId || isSubmitting}>
+                     <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !selectedStudentId}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {availableClasses.map((cls) => (
                           <SelectItem key={cls.id} value={cls.id}>{cls.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="studentId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Student</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!form.watch('classId') || isSubmitting}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {availableStudents.map((student) => (
-                          <SelectItem key={student.id} value={student.id}>{student.name} - {student.registerNo}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -188,7 +245,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                         <FormControl>
                           <RadioGroupItem value="Not Informed" />
                         </FormControl>
-                        <FormLabel className="font-normal">Not Informed (Clicking 'Mark Late' will open WhatsApp)</FormLabel>
+                        <FormLabel className="font-normal">Not Informed</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
