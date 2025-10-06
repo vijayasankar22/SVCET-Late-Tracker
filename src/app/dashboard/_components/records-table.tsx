@@ -75,6 +75,15 @@ export function RecordsTable({ records, loading, departments, classes, students 
     ).slice(0, 10);
   }, [globalSearchTerm, students]);
 
+  const studentLateCounts = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    for (const record of records) {
+        const key = record.studentId || record.studentName;
+        counts[key] = (counts[key] || 0) + 1;
+    }
+    return counts;
+  }, [records]);
+
   const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGlobalSearchTerm(e.target.value);
     if (e.target.value.length > 0) {
@@ -157,16 +166,6 @@ export function RecordsTable({ records, loading, departments, classes, students 
       
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
-  const studentLateCounts = useMemo(() => {
-    const counts: { [key: string]: number } = {};
-    for (const record of records) {
-        const key = record.studentId || record.studentName;
-        counts[key] = (counts[key] || 0) + 1;
-    }
-    return counts;
-  }, [records]);
-
-
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => ({
       "S.No.": index + 1,
@@ -479,7 +478,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 Late Entry History for {selectedStudentForHistory.name}
               </DialogTitle>
               <DialogDescription>
-                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {selectedStudentHistory.length}
+                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {studentLateCounts[selectedStudentForHistory.id] || 0}
               </DialogDescription>
             </DialogHeader>
              {selectedStudentHistory.length > 0 ? (
@@ -520,7 +519,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
-
-    
