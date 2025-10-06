@@ -100,12 +100,6 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
           description: `${student.name} has been marked as late.`,
         });
 
-        if (values.status === 'Not Informed' && student.parentPhoneNumber) {
-          const message = `Dear Parent, your ward ${student.name} (${student.registerNo}) has been marked late to college today, ${now.toLocaleDateString()}. Thank you, SVCET.`;
-          const whatsappUrl = `https://wa.me/${student.parentPhoneNumber}?text=${encodeURIComponent(message)}`;
-          window.open(whatsappUrl, '_blank');
-        }
-
         form.reset();
       }
       setIsSubmitting(false);
