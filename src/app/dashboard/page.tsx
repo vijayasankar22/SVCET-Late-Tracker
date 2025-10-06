@@ -10,7 +10,6 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LateEntriesChart } from './_components/late-entries-chart';
 
 
 export default function DashboardPage() {
@@ -147,7 +146,6 @@ export default function DashboardPage() {
         students={students}
        />
       <Stats records={records} />
-      <LateEntriesChart records={records} />
       <RecordsTable 
         records={records} 
         loading={loading}
