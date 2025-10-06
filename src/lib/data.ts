@@ -747,7 +747,7 @@ export const students: Student[] = [
   { id: 'mba-2a-47', name: 'VIMAL.G', departmentId: 'mba', classId: 'mba-2-a', registerNo: '24810890', gender: 'MALE' },
 
   // MBA II-B
-  { id: 'mba-2b-1', name: 'AATHI.V', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810801', gender: 'MALE' },
+  { id: 'mba-2b-1', name: 'AARTHI.V', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810801', gender: 'MALE' },
   { id: 'mba-2b-2', name: 'ARTHI.V', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810803', gender: 'FEMALE' },
   { id: 'mba-2b-3', name: 'ARUN PRASAD.T', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810804', gender: 'MALE' },
   { id: 'mba-2b-4', name: 'AVINASH.M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810807', gender: 'MALE' },
@@ -756,7 +756,7 @@ export const students: Student[] = [
   { id: 'mba-2b-7', name: 'BHUVANESH.A', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810811', gender: 'MALE' },
   { id: 'mba-2b-8', name: 'CLAUDIN.L', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810812', gender: 'MALE' },
   { id: 'mba-2b-9', name: 'DHIVYA DHARSHINI.E', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810815', gender: 'FEMALE' },
-  { id: 'mba-2b-10', name: 'DHIVYA .M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810817', gender: 'FEMALE' },
+  { id: 'mba-2b-10', name: 'DHIVIYA.M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810817', gender: 'FEMALE' },
   { id: 'mba-2b-11', name: 'GAYATHRI.M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810819', gender: 'FEMALE' },
   { id: 'mba-2b-12', name: 'HEMASRI.T', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810824', gender: 'FEMALE' },
   { id: 'mba-2b-13', name: 'JAYASRI.P', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810828', gender: 'FEMALE' },
@@ -766,11 +766,11 @@ export const students: Student[] = [
   { id: 'mba-2b-17', name: 'LOURDHU SOWMIYA.A', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810844', gender: 'FEMALE' },
   { id: 'mba-2b-18', name: 'MANI MARAN.M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810846', gender: 'MALE' },
   { id: 'mba-2b-19', name: 'MOHAMED INAMUL HASAN.A', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810848', gender: 'MALE' },
-  { id: 'mba-2b-20', name: 'MOHAMED JUBEIR', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810849', gender: 'MALE' },
+  { id: 'mba-2b-20', name: 'MOHAMED JUBEIR.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810849', gender: 'MALE' },
   { id: 'mba-2b-21', name: 'MYTHILI.R', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810851', gender: 'FEMALE' },
   { id: 'mba-2b-22', name: 'NAVANITHAKRISHNAN.P', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810853', gender: 'MALE' },
   { id: 'mba-2b-23', name: 'NETHAJI.B', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810854', gender: 'MALE' },
-  { id: 'mba-2b-24', name: 'PARASURAMAN', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810855', gender: 'MALE' },
+  { id: 'mba-2b-24', name: 'PARASURAMAN.P', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810855', gender: 'MALE' },
   { id: 'mba-2b-25', name: 'PRADEEP.V', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810857', gender: 'MALE' },
   { id: 'mba-2b-26', name: 'PREETHIGA.D', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810859', gender: 'FEMALE' },
   { id: 'mba-2b-27', name: 'PREMADAS.S', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810861', gender: 'MALE' },
@@ -785,13 +785,13 @@ export const students: Student[] = [
   { id: 'mba-2b-36', name: 'SURESH.E', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810875', gender: 'MALE' },
   { id: 'mba-2b-37', name: 'SUSHMITHA.M', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810876', gender: 'FEMALE' },
   { id: 'mba-2b-38', name: 'SWADHI.S', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810877', gender: 'FEMALE' },
-  { id: 'mba-2b-39', name: 'THANGAMALAR.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810881', gender: 'FEMALE' },
-  { id: 'mba-2b-40', name: 'THILAGAVATHI', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810882', gender: 'FEMALE' },
-  { id: 'mba-2b-41', name: 'VAITHEESWARI', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810884', gender: 'FEMALE' },
-  { id: 'mba-2b-42', name: 'VIGNESH KUMAR', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810889', gender: 'MALE' },
-  { id: 'mba-2b-43', name: 'YOUVARANI', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810891', gender: 'FEMALE' },
-  { id: 'mba-2b-44', name: 'UMAMAHESWARI', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810892', gender: 'FEMALE' },
-  { id: 'mba-2b-45', name: 'VAISHNAVI .K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810893', gender: 'FEMALE' },
+  { id: 'mba-2b-39', name: 'THANAGAMALAR.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810881', gender: 'FEMALE' },
+  { id: 'mba-2b-40', name: 'THILAGAVATHI.H', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810882', gender: 'FEMALE' },
+  { id: 'mba-2b-41', name: 'VAITHEESWARI.V', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810884', gender: 'FEMALE' },
+  { id: 'mba-2b-42', name: 'VIGNESH KUMAR.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810889', gender: 'MALE' },
+  { id: 'mba-2b-43', name: 'YOUVARANI.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810891', gender: 'FEMALE' },
+  { id: 'mba-2b-44', name: 'UMAMAHESWARI.S', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810892', gender: 'FEMALE' },
+  { id: 'mba-2b-45', name: 'VAISHNAVI.K', departmentId: 'mba', classId: 'mba-2-b', registerNo: '24810893', gender: 'FEMALE' },
 ];
 
 
@@ -815,4 +815,5 @@ export const students: Student[] = [
 
 
     
+
 
