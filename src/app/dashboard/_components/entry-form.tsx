@@ -100,6 +100,12 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
           description: `${student.name} has been marked as late.`,
         });
 
+        if (student.parentPhoneNumber) {
+          const message = `Dear Parent/Guardian, this is to inform you that your ward, ${student.name}, has been marked late today. Thank you.`;
+          const whatsappUrl = `https://wa.me/${student.parentPhoneNumber}?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank');
+        }
+
         form.reset();
       }
       setIsSubmitting(false);
@@ -120,7 +126,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 control={form.control}
                 name="studentId"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Student Name</FormLabel>
                     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                       <PopoverTrigger asChild>
@@ -186,7 +192,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !selectedStudentId}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedStudentId}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -206,7 +212,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Class</FormLabel>
-                     <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !selectedStudentId}>
+                     <Select onValueChange={field.onChange} value={field.value} disabled={!selectedStudentId}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
                       </FormControl>
