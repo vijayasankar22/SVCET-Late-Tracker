@@ -25,9 +25,6 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
       <Link href="/dashboard" className="flex items-center gap-2">
-        <div className='bg-white rounded-full p-1 flex items-center justify-center h-8 w-8'>
-          <Image src="/svcet-logo.png" alt="Logo" width={24} height={24} />
-        </div>
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </Link>
       <div className="ml-auto flex items-center gap-4">
