@@ -102,6 +102,7 @@ export const students: Student[] = [
   { id: 'cse-2a-58', name: 'YESHUA R', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0862', gender: 'MALE' },
   { id: 'cse-2a-59', name: 'YUKESSH M', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0867', gender: 'MALE' },
   { id: 'cse-2a-60', name: 'BALAMANI P', departmentId: 'cse', classId: 'cse-2-a', registerNo: 'LATERAL1', gender: 'MALE' },
+  { id: 'cse-2a-61', name: 'RAJASRI V', departmentId: 'cse', classId: 'cse-2-a', registerNo: 'LATERAL2', gender: 'FEMALE' },
 
   // CSE II-B
   { id: 'cse-2b-1', name: 'AFRINE S', departmentId: 'cse', classId: 'cse-2-b', registerNo: '24TD0753', gender: 'FEMALE' },
@@ -815,6 +816,7 @@ export const students: Student[] = [
 
 
     
+
 
 
 
