@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, LogOut } from 'lucide-react';
+import { ClipboardCheck, LogOut, BarChart3 } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -13,19 +13,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
-      <div className="flex items-center gap-2">
+      <Link href="/dashboard" className="flex items-center gap-2">
         <div className='bg-white rounded-full p-1 flex items-center justify-center h-8 w-8'>
           <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" alt="Logo" width={24} height={24} />
         </div>
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
-      </div>
+      </Link>
       <div className="ml-auto flex items-center gap-4">
+        {pathname === '/dashboard' && (
+          <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
+            <BarChart3 className="mr-2 h-4 w-4" />
+            View Analytics
+          </Button>
+        )}
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
