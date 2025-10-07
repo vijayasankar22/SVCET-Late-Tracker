@@ -54,21 +54,17 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
   useEffect(() => {
-    const convertImageToBase64 = async () => {
-      try {
-        const response = await fetch('/svcet-logo.png');
-        const blob = await response.blob();
+    fetch('/svcet-logo.png')
+      .then(response => response.blob())
+      .then(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
           setLogoBase64(reader.result as string);
         };
         reader.readAsDataURL(blob);
-      } catch (error) {
+      }).catch(error => {
         console.error("Error fetching or converting logo:", error);
-      }
-    };
-
-    convertImageToBase64();
+      });
   }, []);
 
 
@@ -208,8 +204,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
     if (logoBase64) {
       try {
-        const imgWidth = 50;
-        const imgHeight = 50;
+        const imgWidth = 30;
+        const imgHeight = 30;
         const x = (pageWidth - imgWidth) / 2;
         doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
         contentY += imgHeight + 10;
