@@ -51,9 +51,26 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [globalSearchTerm, setGlobalSearchTerm] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
+  useEffect(() => {
+    const convertImageToBase64 = async () => {
+      try {
+        const response = await fetch('/svcet-logo.png');
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onload = () => {
+          setLogoBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Error fetching or converting logo:", error);
+      }
+    };
 
-  const logoImageRef = useRef<HTMLImageElement>(null);
+    convertImageToBase64();
+  }, []);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -185,93 +202,70 @@ export function RecordsTable({ records, loading, departments, classes, students 
   };
   
  const handleExportPdf = () => {
-    const generatePdf = (logoDataUrl: string | null) => {
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        let contentY = 10;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let contentY = 10;
 
-        if (logoDataUrl) {
-            try {
-                const originalWidth = logoImageRef.current!.naturalWidth;
-                const originalHeight = logoImageRef.current!.naturalHeight;
-                const aspectRatio = originalHeight / originalWidth;
+    if (logoBase64) {
+      try {
+        const img = new window.Image();
+        img.src = logoBase64;
+        const originalWidth = img.width;
+        const originalHeight = img.height;
+        const aspectRatio = originalHeight / originalWidth;
 
-                const imgWidth = pageWidth * (2 / 3);
-                const imgHeight = imgWidth * aspectRatio;
+        const imgWidth = pageWidth * (2 / 3);
+        const imgHeight = imgWidth * aspectRatio;
 
-                const x = (pageWidth - imgWidth) / 2;
-                doc.addImage(logoDataUrl, 'PNG', x, contentY, imgWidth, imgHeight);
-                contentY += imgHeight + 10;
-            } catch (e) {
-                console.error("Error adding image to PDF:", e);
-            }
-        }
-
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-        contentY += 8;
-
-        doc.setFontSize(16);
-        const mainTitle = "STUDENTS LATE REPORT";
-        doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
-
-        const textWidth = doc.getTextWidth(mainTitle);
-        doc.setLineWidth(0.5);
-        doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
-        contentY += 8;
-
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
-        doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
-        contentY += 10;
-
-        autoTable(doc, {
-            startY: contentY,
-            head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
-            body: filteredRecords.map((record, index) => [
-                index + 1,
-                record.registerNo,
-                record.studentName,
-                record.gender,
-                record.departmentName,
-                record.className,
-                record.date,
-                record.time,
-                record.status,
-                record.markedBy,
-                (studentLateCounts[record.studentId] || 0).toString(),
-            ]),
-            headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-            styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-        });
-
-        doc.save("late-records.pdf");
-    };
-    
-    if (logoImageRef.current && logoImageRef.current.complete) {
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = logoImageRef.current.naturalWidth;
-            canvas.height = logoImageRef.current.naturalHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                ctx.drawImage(logoImageRef.current, 0, 0);
-                const dataUrl = canvas.toDataURL('image/png');
-                generatePdf(dataUrl);
-            } else {
-                 console.error("Could not get canvas context.");
-                 generatePdf(null);
-            }
-        } catch (e) {
-            console.error("Error creating data URL from image:", e);
-            generatePdf(null);
-        }
-    } else {
-        console.error("Logo image not loaded or not found.");
-        generatePdf(null);
+        const x = (pageWidth - imgWidth) / 2;
+        doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+        contentY += imgHeight + 10;
+      } catch (e) {
+        console.error("Error adding image to PDF:", e);
+      }
     }
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+    contentY += 8;
+
+    doc.setFontSize(16);
+    const mainTitle = "STUDENTS LATE REPORT";
+    doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
+
+    const textWidth = doc.getTextWidth(mainTitle);
+    doc.setLineWidth(0.5);
+    doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+    contentY += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+    doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+    contentY += 10;
+
+    autoTable(doc, {
+      startY: contentY,
+      head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
+      body: filteredRecords.map((record, index) => [
+        index + 1,
+        record.registerNo,
+        record.studentName,
+        record.gender,
+        record.departmentName,
+        record.className,
+        record.date,
+        record.time,
+        record.status,
+        record.markedBy,
+        (studentLateCounts[record.studentId] || 0).toString(),
+      ]),
+      headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+      styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+    });
+
+    doc.save("late-records.pdf");
   };
 
 
@@ -285,13 +279,6 @@ export function RecordsTable({ records, loading, departments, classes, students 
                   <CardDescription>Search for any student to view their history, or filter the records table below.</CardDescription>
               </div>
               <div className="flex gap-2">
-                  <img 
-                      ref={logoImageRef} 
-                      src="/svcet-logo.png"
-                      crossOrigin="anonymous" 
-                      className="hidden" 
-                      alt="logo" 
-                  />
                   <Button onClick={handleExportCsv} size="sm">
                       <FileDown />
                       Export CSV
@@ -538,5 +525,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
