@@ -14,7 +14,7 @@ type TopLatecomersListProps = {
   classes: Class[];
 };
 
-export function TopLatecomersList({ records, students, departments }: TopLatecomersListProps) {
+export function TopLatecomersList({ records, students, departments, classes }: TopLatecomersListProps) {
   const topLatecomers = useMemo(() => {
     const studentLateCounts: { [key: string]: number } = {};
     for (const record of records) {
@@ -29,11 +29,13 @@ export function TopLatecomersList({ records, students, departments }: TopLatecom
         if (!studentDetails) return null;
 
         const department = departments.find(d => d.id === studentDetails.departmentId);
+        const studentClass = classes.find(c => c.id === studentDetails.classId);
 
         return {
           ...studentDetails,
           count,
           departmentName: department?.name || 'N/A',
+          className: studentClass?.name || 'N/A',
         };
       })
       .filter((s): s is NonNullable<typeof s> => s !== null)
@@ -41,7 +43,7 @@ export function TopLatecomersList({ records, students, departments }: TopLatecom
       .slice(0, 10);
 
     return studentsWithDetails;
-  }, [records, students, departments]);
+  }, [records, students, departments, classes]);
 
   return (
     <div className="space-y-4">
@@ -66,7 +68,7 @@ export function TopLatecomersList({ records, students, departments }: TopLatecom
                                 <TableCell>{student.name}</TableCell>
                                 <TableCell>{student.registerNo}</TableCell>
                                 <TableCell>{student.departmentName}</TableCell>
-                                <TableCell>{student.classId.split('-').slice(1).join('-').toUpperCase()}</TableCell>
+                                <TableCell>{student.className}</TableCell>
                                 <TableCell className="text-right font-bold">{student.count}</TableCell>
                             </TableRow>
                         ))
