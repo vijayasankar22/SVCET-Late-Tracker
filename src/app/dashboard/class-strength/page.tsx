@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, FileDown } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { exportToCsv } from '@/lib/utils';
 
 type ClassStrength = {
   classId: string;
@@ -207,6 +208,18 @@ export default function ClassStrengthPage() {
     }
   };
 
+  const handleExportCsv = () => {
+    if (!selectedClassInfo || !selectedClassStudents.length) return;
+
+    const rows = selectedClassStudents.map((student, index) => ({
+      "S.No.": index + 1,
+      "Register No.": student.registerNo,
+      "Student Name": student.name,
+    }));
+
+    exportToCsv(`${selectedClassInfo.deptName}_${selectedClassInfo.className}_students.csv`, rows);
+  };
+
 
   if (loading) {
     return (
@@ -322,7 +335,11 @@ export default function ClassStrengthPage() {
               </TableBody>
             </Table>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
+            <Button onClick={handleExportCsv} variant="outline" disabled={!selectedClassStudents.length}>
+              <FileDown className="mr-2 h-4 w-4" />
+              Download CSV
+            </Button>
             <Button onClick={handleExportPdf} disabled={!selectedClassStudents.length}>
               <Download className="mr-2 h-4 w-4" />
               Download PDF
@@ -333,5 +350,3 @@ export default function ClassStrengthPage() {
     </>
   );
 }
-
-    
