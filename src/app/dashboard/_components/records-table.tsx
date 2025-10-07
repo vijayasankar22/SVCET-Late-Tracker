@@ -258,7 +258,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
             const imgHeight = imgWidth / ratio;
             const x = (pageWidth - imgWidth) / 2;
             doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 2;
+            contentY += imgHeight + 8;
             drawContent();
         };
         img.onerror = () => {
@@ -533,6 +533,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+
 
 
 
