@@ -33,8 +33,8 @@ export function Header() {
       <div className="ml-auto flex items-center gap-4">
         {pathname === '/dashboard' && (
           <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
-            <BarChart3 className="mr-2 h-4 w-4" />
-            View Analytics
+            <BarChart3 className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">View Analytics</span>
           </Button>
         )}
         {user && (
