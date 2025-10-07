@@ -16,20 +16,51 @@ type TopLatecomersListProps = {
 
 export function TopLatecomersList({ records, students, departments, classes }: TopLatecomersListProps) {
   const topLatecomers = useMemo(() => {
-    const studentLateCounts: { [key: string]: number } = {};
+    const studentLateCounts: { [key: string]: { count: number, record: LateRecord } } = {};
+    const studentMapByName = new Map(students.map(s => [s.name.toLowerCase(), s]));
+
     for (const record of records) {
+      let student: Student | undefined;
       if (record.studentId) {
-        studentLateCounts[record.studentId] = (studentLateCounts[record.studentId] || 0) + 1;
+        student = students.find(s => s.id === record.studentId);
       }
+      if (!student) {
+        student = studentMapByName.get(record.studentName.toLowerCase());
+      }
+      
+      const studentKey = student?.id || `${record.studentName.toLowerCase()}-${record.registerNo}`;
+
+      if (!studentKey) continue;
+
+      if (!studentLateCounts[studentKey]) {
+        studentLateCounts[studentKey] = { count: 0, record };
+      }
+      studentLateCounts[studentKey].count++;
     }
 
-    const studentsWithDetails = Object.entries(studentLateCounts)
-      .map(([studentId, count]) => {
-        const studentDetails = students.find(s => s.id === studentId);
-        if (!studentDetails) return null;
+    const studentsWithDetails = Object.values(studentLateCounts)
+      .map(({ count, record }) => {
+        let studentDetails = students.find(s => s.id === record.studentId);
+        if(!studentDetails) {
+            studentDetails = studentMapByName.get(record.studentName.toLowerCase());
+        }
 
-        const department = departments.find(d => d.id === studentDetails.departmentId);
-        const studentClass = classes.find(c => c.id === studentDetails.classId);
+        if (!studentDetails) {
+            // Fallback to record data if student not found in master list
+            const department = departments.find(d => d.name === record.departmentName);
+            const studentClass = classes.find(c => c.name === record.className && c.departmentId === department?.id);
+            return {
+              id: record.id,
+              name: record.studentName,
+              registerNo: record.registerNo,
+              count,
+              departmentName: record.departmentName,
+              className: record.className,
+            };
+        }
+
+        const department = departments.find(d => d.id === studentDetails!.departmentId);
+        const studentClass = classes.find(c => c.id === studentDetails!.classId);
 
         return {
           ...studentDetails,
@@ -38,7 +69,6 @@ export function TopLatecomersList({ records, students, departments, classes }: T
           className: studentClass?.name || 'N/A',
         };
       })
-      .filter((s): s is NonNullable<typeof s> => s !== null)
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
