@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, LogOut, BarChart3 } from 'lucide-react';
+import { ClipboardCheck, LogOut, BarChart3, Users } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -30,7 +30,13 @@ export function Header() {
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </Link>
       <div className="ml-auto flex items-center gap-4">
-        {pathname === '/dashboard' && (
+        {pathname.startsWith('/dashboard') && (
+            <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
+                <Users className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Class Strength</span>
+            </Button>
+        )}
+        {pathname.startsWith('/dashboard') && !pathname.endsWith('analytics') && (
           <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
             <BarChart3 className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">View Analytics</span>

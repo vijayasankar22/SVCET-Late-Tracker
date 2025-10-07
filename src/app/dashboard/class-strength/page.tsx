@@ -1,0 +1,162 @@
+
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Department, Student, Class } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Users } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+type ClassStrength = {
+  boys: number;
+  girls: number;
+  total: number;
+  className: string;
+};
+
+type DepartmentStrength = {
+  [departmentName: string]: ClassStrength[];
+};
+
+export default function ClassStrengthPage() {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true);
+        const [depts, studs, clss] = await Promise.all([
+          getDocs(query(collection(db, 'departments'), orderBy('name'))),
+          getDocs(query(collection(db, 'students'))),
+          getDocs(collection(db, 'classes')),
+        ]);
+
+        const deptsData = depts.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
+        const studsData = studs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+        const clssData = clss.docs.map(doc => ({ id: doc.id, ...doc.data() } as Class));
+
+        setDepartments(deptsData);
+        setStudents(studsData);
+        setClasses(clssData);
+
+      } catch (error) {
+        console.error("Error fetching initial data: ", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not fetch data for class strength. Please try again.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [toast]);
+
+  const strengthData = useMemo(() => {
+    if (loading || !students.length || !classes.length || !departments.length) {
+      return {};
+    }
+
+    const data: DepartmentStrength = {};
+
+    departments.forEach(dept => {
+      data[dept.name] = [];
+      const deptClasses = classes.filter(c => c.departmentId === dept.id).sort((a,b) => a.name.localeCompare(b.name));
+
+      deptClasses.forEach(cls => {
+        const classStudents = students.filter(s => s.classId === cls.id);
+        const boys = classStudents.filter(s => s.gender === 'MALE').length;
+        const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
+        data[dept.name].push({
+          className: cls.name,
+          boys,
+          girls,
+          total: boys + girls,
+        });
+      });
+    });
+
+    return data;
+  }, [students, classes, departments, loading]);
+
+  if (loading) {
+    return (
+        <div className="space-y-8">
+            <div className='flex items-center justify-between'>
+                 <Skeleton className="h-8 w-64" />
+                 <Skeleton className="h-10 w-40" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({length: 6}).map((_, i) => (
+                     <Skeleton key={i} className="h-64 w-full" />
+                ))}
+            </div>
+        </div>
+    )
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className='flex items-center justify-between'>
+        <div className='space-y-1'>
+            <h1 className="text-2xl font-headline font-bold">Class Strength</h1>
+            <p className="text-muted-foreground">Student count for each class, broken down by gender.</p>
+        </div>
+        <Link href="/dashboard">
+            <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Dashboard
+            </Button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {Object.entries(strengthData).map(([deptName, classStrengths]) => (
+          <Card key={deptName}>
+            <CardHeader>
+              <CardTitle className='flex items-center gap-2'>
+                <Users className="h-5 w-5" />
+                {deptName}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Class</TableHead>
+                    <TableHead className='text-center'>Boys</TableHead>
+                    <TableHead className='text-center'>Girls</TableHead>
+                    <TableHead className='text-center'>Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {classStrengths.map(cs => (
+                    <TableRow key={cs.className}>
+                      <TableCell className='font-medium'>{cs.className}</TableCell>
+                      <TableCell className='text-center'>{cs.boys}</TableCell>
+                      <TableCell className='text-center'>{cs.girls}</TableCell>
+                      <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
