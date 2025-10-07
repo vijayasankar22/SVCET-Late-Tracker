@@ -22,9 +22,7 @@ type ChartProps = {
 export function LateEntriesChart({ records, departments }: ChartProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
-    const from = new Date(today);
-    from.setDate(today.getDate() - 30);
-    return { from: from, to: today };
+    return { from: today, to: today };
   });
 
   const chartData = useMemo(() => {

@@ -8,7 +8,7 @@ import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { format, eachDayOfInterval, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { format, eachDayOfInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -20,8 +20,7 @@ type ChartProps = {
 export function DayWiseChart({ records, departments }: ChartProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
-    const from = subDays(today, 29); // Last 30 days
-    return { from, to: today };
+    return { from: startOfWeek(today), to: endOfWeek(today) };
   });
 
   const departmentColors = useMemo(() => {
