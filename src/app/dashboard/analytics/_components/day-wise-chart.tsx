@@ -11,6 +11,7 @@ import { CalendarIcon } from "lucide-react";
 import { format, eachDayOfInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type ChartProps = {
   records: LateRecord[];
@@ -22,6 +23,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
     const today = new Date();
     return { from: startOfWeek(today), to: endOfWeek(today) };
   });
+  const [departmentFilter, setDepartmentFilter] = useState('all');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const departmentColors = useMemo(() => {
@@ -51,7 +53,11 @@ export function DayWiseChart({ records, departments }: ChartProps) {
         from.setHours(0, 0, 0, 0);
         const to = dateRange.to!;
         to.setHours(23, 59, 59, 999);
-        return recordDate >= from && recordDate <= to;
+
+        const isDateInRange = recordDate >= from && recordDate <= to;
+        const isDepartmentMatch = departmentFilter === 'all' || record.departmentName === departmentFilter;
+
+        return isDateInRange && isDepartmentMatch;
       } catch (e) {
         return false;
       }
@@ -86,13 +92,32 @@ export function DayWiseChart({ records, departments }: ChartProps) {
       ...depts
     }));
 
-  }, [records, dateRange, departments]);
+  }, [records, dateRange, departments, departmentFilter]);
+  
+  const activeDepartments = useMemo(() => {
+    if (departmentFilter === 'all') {
+      return departments;
+    }
+    return departments.filter(d => d.name === departmentFilter);
+  }, [departments, departmentFilter]);
+
 
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <h3 className="text-lg font-medium">Day-wise Late Entries</h3>
              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                        <SelectValue placeholder="Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                        {departments.map(dept => (
+                            <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <Button
@@ -164,7 +189,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                         }}
                     />
                     <Legend />
-                    {departments.map(dept => (
+                    {activeDepartments.map(dept => (
                       <Bar 
                         key={dept.id} 
                         dataKey={dept.name} 
