@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import type { LateRecord } from '@/lib/types';
+import type { LateRecord, Department } from '@/lib/types';
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -11,18 +11,22 @@ import { CalendarIcon } from "lucide-react";
 import { format, eachDayOfInterval, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 type ChartProps = {
   records: LateRecord[];
+  departments: Department[];
 };
 
-export function DayWiseChart({ records }: ChartProps) {
+export function DayWiseChart({ records, departments }: ChartProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
     const from = subDays(today, 29); // Last 30 days
     return { from, to: today };
   });
+
+  const [departmentFilter, setDepartmentFilter] = useState("all");
 
   const chartData = useMemo(() => {
     if (!dateRange || !dateRange.from || !dateRange.to) {
@@ -32,7 +36,9 @@ export function DayWiseChart({ records }: ChartProps) {
     const filteredRecords = records.filter(record => {
       try {
         const recordDate = new Date(record.timestamp);
-        return recordDate >= dateRange.from! && recordDate <= dateRange.to!;
+        const isInDateRange = recordDate >= dateRange.from! && recordDate <= dateRange.to!;
+        const isInDepartment = departmentFilter === 'all' || record.departmentName === departments.find(d => d.id === departmentFilter)?.name;
+        return isInDateRange && isInDepartment;
       } catch (e) {
         return false;
       }
@@ -62,71 +68,84 @@ export function DayWiseChart({ records }: ChartProps) {
       'Late Entries': count,
     }));
 
-  }, [records, dateRange]);
+  }, [records, dateRange, departmentFilter, departments]);
 
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <h3 className="text-lg font-medium">Day-wise Late Entries</h3>
-            <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full sm:w-[300px] justify-start text-left font-normal",
-                      !dateRange && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "LLL dd, y")} -{" "}
-                          {format(dateRange.to, "LLL dd, y")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "LLL dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                   <div className="flex flex-col space-y-2 p-2">
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => {
-                                const now = new Date();
-                                setDateRange({ from: now, to: now });
-                            }}>Today</Button>
-                            <Button variant="outline" size="sm" onClick={() => {
-                                const now = new Date();
-                                setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
-                            }}>This Week</Button>
-                            <Button variant="outline" size="sm" onClick={() => {
-                                const now = new Date();
-                                setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
-                            }}>This Month</Button>
-                        </div>
-                        <div className="rounded-md border">
-                          <Calendar
-                            initialFocus
-                            mode="range"
-                            defaultMonth={dateRange?.from}
-                            selected={dateRange}
-                            onSelect={setDateRange}
-                            numberOfMonths={2}
-                          />
-                        </div>
-                      </div>
-                </PopoverContent>
-              </Popover>
+             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                        <SelectValue placeholder="Select Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                        {departments.map(dept => (
+                            <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full sm:w-[300px] justify-start text-left font-normal",
+                          !dateRange && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date range</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                       <div className="flex flex-col space-y-2 p-2">
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: now, to: now });
+                                }}>Today</Button>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                }}>This Week</Button>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                }}>This Month</Button>
+                            </div>
+                            <div className="rounded-md border">
+                              <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={dateRange?.from}
+                                selected={dateRange}
+                                onSelect={setDateRange}
+                                numberOfMonths={2}
+                              />
+                            </div>
+                          </div>
+                    </PopoverContent>
+                  </Popover>
+             </div>
         </div>
          <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={chartData.length > 31 ? Math.floor(chartData.length / 31) : 0} />
                     <YAxis allowDecimals={false} />
                     <Tooltip
                         contentStyle={{

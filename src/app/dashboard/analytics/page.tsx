@@ -112,7 +112,7 @@ export default function AnalyticsPage() {
               {loading ? (
                   <Skeleton className="h-[400px] w-full" />
               ) : (
-                  <DayWiseChart records={records} />
+                  <DayWiseChart records={records} departments={departments} />
               )}
           </CardContent>
       </Card>
