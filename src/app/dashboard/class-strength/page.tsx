@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
@@ -18,7 +18,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type ClassStrength = {
   classId: string;
@@ -47,6 +50,21 @@ export default function ClassStrengthPage() {
   const [selectedClassStudents, setSelectedClassStudents] = useState<Student[]>([]);
   const [selectedClassInfo, setSelectedClassInfo] = useState<{className: string; deptName: string} | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+
+   useEffect(() => {
+    fetch('/svcet-head.png')
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      }).catch(error => {
+        console.error("Error fetching or converting logo:", error);
+      });
+  }, []);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -122,11 +140,73 @@ export default function ClassStrengthPage() {
   }, [students, classes, departments, loading]);
 
   const handleClassClick = (classId: string, className: string, deptName: string) => {
-    const classStudents = students.filter(s => s.classId === classId).sort((a, b) => a.name.localeCompare(b.name));
+    const classStudents = students.filter(s => s.classId === classId).sort((a, b) => (a.registerNo || '').localeCompare(b.registerNo || ''));
     setSelectedClassStudents(classStudents);
     setSelectedClassInfo({ className, deptName });
     setIsDialogOpen(true);
   };
+  
+  const handleExportPdf = () => {
+    if (!selectedClassInfo || !selectedClassStudents.length) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let contentY = 10;
+  
+    const drawContent = () => {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("STUDENT LIST", pageWidth / 2, contentY, { align: "center" });
+        contentY += 8;
+    
+        doc.setFontSize(12);
+        const subTitle = `${selectedClassInfo?.deptName} - ${selectedClassInfo?.className}`;
+        doc.text(subTitle, pageWidth / 2, contentY, { align: 'center' });
+        contentY += 10;
+    
+        autoTable(doc, {
+          startY: contentY,
+          head: [['S.No.', 'Register No.', 'Student Name']],
+          body: selectedClassStudents.map((student, index) => [
+            index + 1,
+            student.registerNo,
+            student.name,
+          ]),
+          headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+          styles: { cellPadding: 2, fontSize: 10, lineColor: [44, 62, 80], lineWidth: 0.1 },
+        });
+    
+        doc.save(`${selectedClassInfo?.deptName}_${selectedClassInfo?.className}_students.pdf`);
+    };
+
+    if (logoBase64) {
+      try {
+        const img = new window.Image();
+        img.src = logoBase64;
+        img.onload = () => {
+            const originalWidth = 190;
+            const scalingFactor = 0.7;
+            const imgWidth = originalWidth * scalingFactor;
+            const ratio = img.width / img.height;
+            const imgHeight = imgWidth / ratio;
+            const x = (pageWidth - imgWidth) / 2;
+            doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+            contentY += imgHeight + 5;
+            drawContent();
+        };
+        img.onerror = () => {
+            console.error("Error loading image for PDF.");
+            drawContent();
+        };
+      } catch (e) {
+        console.error("Error adding image to PDF:", e);
+        drawContent();
+      }
+    } else {
+        drawContent();
+    }
+  };
+
 
   if (loading) {
     return (
@@ -242,8 +322,16 @@ export default function ClassStrengthPage() {
               </TableBody>
             </Table>
           </div>
+          <DialogFooter>
+            <Button onClick={handleExportPdf} disabled={!selectedClassStudents.length}>
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
 }
+
+    
