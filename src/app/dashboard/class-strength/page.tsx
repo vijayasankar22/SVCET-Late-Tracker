@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
 type ClassStrength = {
   boys: number;
@@ -139,14 +139,14 @@ export default function ClassStrengthPage() {
         </Link>
       </div>
 
-      <div className="space-y-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {Object.entries(strengthData).map(([deptName, deptData]) => (
-          <div key={deptName}>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">{deptName}</h2>
-              <p className="text-muted-foreground">Total Strength: {deptData.total}</p>
-            </div>
-            <div className="rounded-lg border">
+          <Card key={deptName}>
+            <CardHeader>
+              <CardTitle>{deptName}</CardTitle>
+              <p className="text-sm text-muted-foreground">Total Strength: {deptData.total}</p>
+            </CardHeader>
+            <CardContent>
                 <Table>
                     <TableHeader>
                     <TableRow>
@@ -165,16 +165,22 @@ export default function ClassStrengthPage() {
                         <TableCell className='text-center font-bold'>{cs.total}</TableCell>
                         </TableRow>
                     ))}
-                    <TableRow className="bg-secondary hover:bg-secondary">
-                        <TableCell className="font-bold">Department Total</TableCell>
-                        <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
-                        <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
-                        <TableCell className="text-center font-bold">{deptData.total}</TableCell>
-                    </TableRow>
                     </TableBody>
                 </Table>
-            </div>
-          </div>
+            </CardContent>
+            <CardFooter className="bg-secondary/50 p-4">
+                 <Table>
+                    <TableBody>
+                        <TableRow className='border-none'>
+                            <TableCell className="font-bold">Department Total</TableCell>
+                            <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
+                            <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
+                            <TableCell className="text-center font-bold">{deptData.total}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                 </Table>
+            </CardFooter>
+          </Card>
         ))}
       </div>
     </div>

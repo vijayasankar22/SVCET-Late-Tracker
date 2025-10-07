@@ -169,21 +169,9 @@ export function Stats({ records }: StatsProps) {
                 </CardHeader>
                 <CardContent>
                     <div className="text-4xl font-bold">{dailyStats.lateCount}</div>
-                    <p className="text-xs text-muted-foreground pb-2">
+                    <p className="text-xs text-muted-foreground">
                         Across all departments for the selected date(s)
                     </p>
-                    <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4">
-                        <div className="flex flex-col items-center justify-center">
-                           <User className="h-5 w-5 text-muted-foreground" />
-                           <p className="text-xs text-muted-foreground mt-1">Boys</p>
-                           <div className="text-2xl font-bold">{dailyStats.boysCount}</div>
-                        </div>
-                         <div className="flex flex-col items-center justify-center">
-                           <UserCheck className="h-5 w-5 text-muted-foreground" />
-                           <p className="text-xs text-muted-foreground mt-1">Girls</p>
-                           <div className="text-2xl font-bold">{dailyStats.girlsCount}</div>
-                        </div>
-                    </div>
                 </CardContent>
             </Card>
             
