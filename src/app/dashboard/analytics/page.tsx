@@ -87,15 +87,26 @@ export default function AnalyticsPage() {
         </Link>
       </div>
      
-      <Card>
-          <CardContent className="pt-6">
-              {loading ? (
-                  <Skeleton className="h-[400px] w-full" />
-              ) : (
-                  <LateEntriesChart records={records} departments={departments} />
-              )}
-          </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card>
+            <CardContent className="pt-6">
+                {loading ? (
+                    <Skeleton className="h-[400px] w-full" />
+                ) : (
+                    <LateEntriesChart records={records} departments={departments} />
+                )}
+            </CardContent>
+        </Card>
+        <Card>
+            <CardContent className="pt-6">
+                {loading ? (
+                    <Skeleton className="h-[400px] w-full" />
+                ) : (
+                    <DayWiseChart records={records} departments={departments} />
+                )}
+            </CardContent>
+        </Card>
+      </div>
       
       <Card>
           <CardContent className="pt-6">
@@ -103,16 +114,6 @@ export default function AnalyticsPage() {
                   <Skeleton className="h-[400px] w-full" />
               ) : (
                   <TopLatecomersList records={records} students={students} departments={departments} classes={classes} />
-              )}
-          </CardContent>
-      </Card>
-
-      <Card>
-          <CardContent className="pt-6">
-              {loading ? (
-                  <Skeleton className="h-[400px] w-full" />
-              ) : (
-                  <DayWiseChart records={records} departments={departments} />
               )}
           </CardContent>
       </Card>
