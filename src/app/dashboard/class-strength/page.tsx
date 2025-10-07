@@ -10,8 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft, Users, User, UserCheck } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
 
 type ClassStrength = {
   boys: number;
@@ -24,6 +25,8 @@ type DepartmentStrength = {
   [departmentName: string]: {
     classes: ClassStrength[];
     total: number;
+    totalBoys: number;
+    totalGirls: number;
   };
 };
 
@@ -75,16 +78,22 @@ export default function ClassStrengthPage() {
     const data: DepartmentStrength = {};
 
     departments.forEach(dept => {
-      data[dept.name] = { classes: [], total: 0 };
+      data[dept.name] = { classes: [], total: 0, totalBoys: 0, totalGirls: 0 };
       const deptClasses = classes.filter(c => c.departmentId === dept.id).sort((a,b) => a.name.localeCompare(b.name));
       let departmentTotal = 0;
+      let departmentBoys = 0;
+      let departmentGirls = 0;
 
       deptClasses.forEach(cls => {
         const classStudents = students.filter(s => s.classId === cls.id);
         const boys = classStudents.filter(s => s.gender === 'MALE').length;
         const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
         const total = boys + girls;
+        
         departmentTotal += total;
+        departmentBoys += boys;
+        departmentGirls += girls;
+
         data[dept.name].classes.push({
           className: cls.name,
           boys,
@@ -93,6 +102,8 @@ export default function ClassStrengthPage() {
         });
       });
       data[dept.name].total = departmentTotal;
+      data[dept.name].totalBoys = departmentBoys;
+      data[dept.name].totalGirls = departmentGirls;
     });
 
     return data;
@@ -131,7 +142,7 @@ export default function ClassStrengthPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {Object.entries(strengthData).map(([deptName, deptData]) => (
-          <Card key={deptName}>
+          <Card key={deptName} className="flex flex-col">
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Users className="h-5 w-5" />
@@ -139,7 +150,7 @@ export default function ClassStrengthPage() {
               </CardTitle>
               <CardDescription>Total Strength: {deptData.total}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -161,6 +172,22 @@ export default function ClassStrengthPage() {
                 </TableBody>
               </Table>
             </CardContent>
+            <CardFooter className="flex-col items-start gap-2 pt-4">
+                <Separator />
+                <p className="text-sm font-medium text-muted-foreground w-full text-center">Department Totals</p>
+                <div className="grid grid-cols-2 gap-4 w-full">
+                    <div className="flex flex-col items-center justify-center p-2 bg-secondary rounded-lg">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground mt-1">Boys</p>
+                        <p className="text-2xl font-bold">{deptData.totalBoys}</p>
+                    </div>
+                    <div className="flex flex-col items-center justify-center p-2 bg-secondary rounded-lg">
+                        <UserCheck className="h-5 w-5 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground mt-1">Girls</p>
+                        <p className="text-2xl font-bold">{deptData.totalGirls}</p>
+                    </div>
+                </div>
+            </CardFooter>
           </Card>
         ))}
       </div>
