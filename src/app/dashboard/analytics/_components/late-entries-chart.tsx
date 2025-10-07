@@ -9,9 +9,11 @@ import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 type ChartProps = {
   records: LateRecord[];
@@ -97,14 +99,39 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                  />
+                   <div className="flex flex-col space-y-2 p-2">
+                        <Select
+                          onValueChange={(value) => {
+                            const now = new Date();
+                            if (value === "today") {
+                              setDateRange({ from: now, to: now });
+                            } else if (value === "this-week") {
+                              setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                            } else if (value === "this-month") {
+                              setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a preset" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem value="today">Today</SelectItem>
+                            <SelectItem value="this-week">This Week</SelectItem>
+                            <SelectItem value="this-month">This Month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="rounded-md border">
+                           <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={dateRange?.from}
+                            selected={dateRange}
+                            onSelect={setDateRange}
+                            numberOfMonths={2}
+                          />
+                        </div>
+                      </div>
                 </PopoverContent>
               </Popover>
         </div>
@@ -129,3 +156,5 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
     </div>
   );
 }
+
+    

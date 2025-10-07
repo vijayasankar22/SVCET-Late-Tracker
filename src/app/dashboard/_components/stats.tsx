@@ -8,10 +8,12 @@ import type { LateRecord } from "@/lib/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
 import { motion, AnimatePresence } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 type StatsProps = {
   records: LateRecord[];
@@ -127,14 +129,39 @@ export function Stats({ records }: StatsProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                  />
+                   <div className="flex flex-col space-y-2 p-2">
+                        <Select
+                          onValueChange={(value) => {
+                            const now = new Date();
+                            if (value === "today") {
+                              setDateRange({ from: now, to: now });
+                            } else if (value === "this-week") {
+                              setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                            } else if (value === "this-month") {
+                              setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a preset" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem value="today">Today</SelectItem>
+                            <SelectItem value="this-week">This Week</SelectItem>
+                            <SelectItem value="this-month">This Month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="rounded-md border">
+                           <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={dateRange?.from}
+                            selected={dateRange}
+                            onSelect={setDateRange}
+                            numberOfMonths={2}
+                          />
+                        </div>
+                      </div>
                 </PopoverContent>
               </Popover>
         </div>
@@ -232,9 +259,5 @@ export function Stats({ records }: StatsProps) {
     </div>
   );
 }
-
-    
-
-    
 
     
