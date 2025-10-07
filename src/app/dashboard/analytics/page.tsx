@@ -13,7 +13,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { DayWiseChart } from './_components/day-wise-chart';
 
 export default function AnalyticsPage() {
@@ -73,37 +72,50 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
+      <div className='flex items-center justify-between'>
+        <div className='space-y-1'>
+            <h1 className="text-2xl font-headline">Late Entry Analytics</h1>
+            <p className="text-muted-foreground">
+                Visualizing late entry data and identifying trends.
+            </p>
+        </div>
         <Link href="/dashboard">
             <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
             </Button>
         </Link>
-        <Card>
-            <CardHeader>
-                <CardTitle>Late Entry Analytics</CardTitle>
-                <CardDescription>Visualizing late entry data across departments and identifying top latecomers.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-8">
-                {loading ? (
-                    <Skeleton className="h-[400px] w-full" />
-                ) : (
-                    <LateEntriesChart records={records} departments={departments} />
-                )}
-                <Separator />
-                 {loading ? (
-                    <Skeleton className="h-[400px] w-full" />
-                ) : (
-                    <TopLatecomersList records={records} students={students} departments={departments} classes={classes} />
-                )}
-                <Separator />
-                {loading ? (
-                    <Skeleton className="h-[400px] w-full" />
-                ) : (
-                    <DayWiseChart records={records} />
-                )}
-            </CardContent>
-        </Card>
+      </div>
+     
+      <Card>
+          <CardContent className="pt-6">
+              {loading ? (
+                  <Skeleton className="h-[400px] w-full" />
+              ) : (
+                  <LateEntriesChart records={records} departments={departments} />
+              )}
+          </CardContent>
+      </Card>
+      
+      <Card>
+          <CardContent className="pt-6">
+               {loading ? (
+                  <Skeleton className="h-[400px] w-full" />
+              ) : (
+                  <TopLatecomersList records={records} students={students} departments={departments} classes={classes} />
+              )}
+          </CardContent>
+      </Card>
+
+      <Card>
+          <CardContent className="pt-6">
+              {loading ? (
+                  <Skeleton className="h-[400px] w-full" />
+              ) : (
+                  <DayWiseChart records={records} />
+              )}
+          </CardContent>
+      </Card>
     </div>
   );
 }
