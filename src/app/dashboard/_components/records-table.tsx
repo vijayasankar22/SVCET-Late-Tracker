@@ -59,7 +59,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         const response = await fetch('/svcet-logo.png');
         const blob = await response.blob();
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onloadend = () => {
           setLogoBase64(reader.result as string);
         };
         reader.readAsDataURL(blob);
@@ -208,15 +208,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
     if (logoBase64) {
       try {
-        const img = new window.Image();
-        img.src = logoBase64;
-        const originalWidth = img.width;
-        const originalHeight = img.height;
-        const aspectRatio = originalHeight / originalWidth;
-
-        const imgWidth = pageWidth * (2 / 3);
-        const imgHeight = imgWidth * aspectRatio;
-
+        const imgWidth = 50;
+        const imgHeight = 50;
         const x = (pageWidth - imgWidth) / 2;
         doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
         contentY += imgHeight + 10;
