@@ -359,7 +359,7 @@ export const students: Student[] = [
   { id: 'bme-2-8', name: 'EGANATHAN R', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0058', gender: 'MALE' },
   { id: 'bme-2-9', name: 'GIRIJA B', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0059', gender: 'FEMALE' },
   { id: 'bme-2-10', name: 'GOBIGA V', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0060', gender: 'FEMALE' },
-  { id: 'bme-2-11', name: 'HEMASUDHA R', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0061', gender: 'MALE' },
+  { id: 'bme-2-11', name: 'HEMASUDHA R', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0061', gender: 'FEMALE' },
   { id: 'bme-2-12', name: 'JANANI S', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0062', gender: 'FEMALE' },
   { id: 'bme-2-13', name: 'KANISHKA E', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0064', gender: 'FEMALE' },
   { id: 'bme-2-14', name: 'KESAVAN R', departmentId: 'bme', classId: 'bme-2', registerNo: '24TJ0066', gender: 'MALE' },
