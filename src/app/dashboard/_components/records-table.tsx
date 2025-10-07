@@ -251,8 +251,10 @@ export function RecordsTable({ records, loading, departments, classes, students 
         const img = new window.Image();
         img.src = logoBase64;
         img.onload = () => {
+            const originalWidth = 190;
+            const scalingFactor = 0.7;
+            const imgWidth = originalWidth * scalingFactor;
             const ratio = img.width / img.height;
-            const imgWidth = 190;
             const imgHeight = imgWidth / ratio;
             const x = (pageWidth - imgWidth) / 2;
             doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
@@ -531,4 +533,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+
 
