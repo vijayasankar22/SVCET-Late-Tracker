@@ -33,6 +33,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
       'hsl(var(--chart-3))',
       'hsl(var(--chart-4))',
       'hsl(var(--chart-5))',
+      'hsl(262 82% 56%)', // New color for MECH
     ];
     const colorMap: { [key: string]: string } = {};
     departments.forEach((dept, index) => {
