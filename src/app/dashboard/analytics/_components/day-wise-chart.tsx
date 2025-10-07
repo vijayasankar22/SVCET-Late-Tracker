@@ -11,8 +11,6 @@ import { CalendarIcon } from "lucide-react";
 import { format, eachDayOfInterval, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 
 type ChartProps = {
   records: LateRecord[];
@@ -26,7 +24,20 @@ export function DayWiseChart({ records, departments }: ChartProps) {
     return { from, to: today };
   });
 
-  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const departmentColors = useMemo(() => {
+    const colors = [
+      'hsl(var(--chart-1))',
+      'hsl(var(--chart-2))',
+      'hsl(var(--chart-3))',
+      'hsl(var(--chart-4))',
+      'hsl(var(--chart-5))',
+    ];
+    const colorMap: { [key: string]: string } = {};
+    departments.forEach((dept, index) => {
+      colorMap[dept.name] = colors[index % colors.length];
+    });
+    return colorMap;
+  }, [departments]);
 
   const chartData = useMemo(() => {
     if (!dateRange || !dateRange.from || !dateRange.to) {
@@ -36,56 +47,52 @@ export function DayWiseChart({ records, departments }: ChartProps) {
     const filteredRecords = records.filter(record => {
       try {
         const recordDate = new Date(record.timestamp);
-        const isInDateRange = recordDate >= dateRange.from! && recordDate <= dateRange.to!;
-        const isInDepartment = departmentFilter === 'all' || record.departmentName === departments.find(d => d.id === departmentFilter)?.name;
-        return isInDateRange && isInDepartment;
+        const from = dateRange.from!;
+        from.setHours(0, 0, 0, 0);
+        const to = dateRange.to!;
+        to.setHours(23, 59, 59, 999);
+        return recordDate >= from && recordDate <= to;
       } catch (e) {
         return false;
       }
     });
 
-    const dayCounts: { [key: string]: number } = {};
+    const dayCounts: { [key: string]: { [dept: string]: number } } = {};
 
     const daysInInterval = eachDayOfInterval({
         start: dateRange.from,
         end: dateRange.to
     });
 
+    // Initialize all days and departments to 0
     for (const day of daysInInterval) {
         const dayKey = format(day, 'MMM dd');
-        dayCounts[dayKey] = 0;
+        dayCounts[dayKey] = {};
+        for (const dept of departments) {
+            dayCounts[dayKey][dept.name] = 0;
+        }
     }
 
+    // Populate counts from records
     for (const record of filteredRecords) {
       const dayKey = format(new Date(record.timestamp), 'MMM dd');
-      if (dayKey in dayCounts) {
-        dayCounts[dayKey]++;
+      if (dayKey in dayCounts && record.departmentName in dayCounts[dayKey]) {
+        dayCounts[dayKey][record.departmentName]++;
       }
     }
     
-    return Object.entries(dayCounts).map(([name, count]) => ({
+    return Object.entries(dayCounts).map(([name, depts]) => ({
       name,
-      'Late Entries': count,
+      ...depts
     }));
 
-  }, [records, dateRange, departmentFilter, departments]);
+  }, [records, dateRange, departments]);
 
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <h3 className="text-lg font-medium">Day-wise Late Entries</h3>
              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
-                        <SelectValue placeholder="Select Department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Departments</SelectItem>
-                        {departments.map(dept => (
-                            <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
                 <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -154,7 +161,14 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                         }}
                     />
                     <Legend />
-                    <Bar dataKey="Late Entries" fill="hsl(var(--primary))" />
+                    {departments.map(dept => (
+                      <Bar 
+                        key={dept.id} 
+                        dataKey={dept.name} 
+                        stackId="a" 
+                        fill={departmentColors[dept.name]} 
+                      />
+                    ))}
                 </BarChart>
             </ResponsiveContainer>
         </div>
