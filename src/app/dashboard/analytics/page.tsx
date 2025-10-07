@@ -74,7 +74,7 @@ export default function AnalyticsPage() {
     <div className="space-y-8">
       <div className='flex items-center justify-between'>
         <div className='space-y-1'>
-            <h1 className="text-2xl font-headline">Late Entry Analytics</h1>
+            <h1 className="text-2xl font-headline font-bold">Late Entry Analytics</h1>
             <p className="text-muted-foreground">
                 Visualizing late entry data and identifying trends.
             </p>
