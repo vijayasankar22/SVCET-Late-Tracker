@@ -26,7 +26,7 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
       <Link href="/dashboard" className="flex items-center gap-2">
         <div className='bg-white rounded-full p-1 flex items-center justify-center h-8 w-8'>
-          <Image src="https://firebasestorage.googleapis.com/v0/b/studio-4945559493-d87d9.firebasestorage.app/o/add.png?alt=media&token=b09b57a3-e533-4698-bec3-a1cbf27bef08" alt="Logo" width={24} height={24} />
+          <Image src="/svcet-logo.png" alt="Logo" width={24} height={24} />
         </div>
         <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
       </Link>

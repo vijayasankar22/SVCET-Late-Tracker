@@ -287,7 +287,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
               <div className="flex gap-2">
                   <img 
                       ref={logoImageRef} 
-                      src="/svcet-logo-PNG-scaled (1).png"
+                      src="/svcet-logo.png"
                       crossOrigin="anonymous" 
                       className="hidden" 
                       alt="logo" 
