@@ -201,63 +201,75 @@ export function RecordsTable({ records, loading, departments, classes, students 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let contentY = 10;
+  
+    const drawContent = () => {
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
+        contentY += 8;
+    
+        doc.setFontSize(16);
+        const mainTitle = "STUDENTS LATE REPORT";
+        doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
+    
+        const textWidth = doc.getTextWidth(mainTitle);
+        doc.setLineWidth(0.5);
+        doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
+        contentY += 8;
+    
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+        doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
+        contentY += 10;
+    
+        autoTable(doc, {
+          startY: contentY,
+          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
+          body: filteredRecords.map((record, index) => [
+            index + 1,
+            record.registerNo,
+            record.studentName,
+            record.gender,
+            record.departmentName,
+            record.className,
+            record.date,
+            record.time,
+            record.status,
+            record.markedBy,
+            (studentLateCounts[record.studentId] || 0).toString(),
+          ]),
+          headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+          styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+        });
+    
+        doc.save("late-records.pdf");
+    };
 
     if (logoBase64) {
       try {
         const img = new window.Image();
         img.src = logoBase64;
-        const ratio = img.width / img.height;
-        const imgWidth = 190;
-        const imgHeight = imgWidth / ratio;
-        const x = (pageWidth - imgWidth) / 2;
-        doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-        contentY += imgHeight + 2;
+        img.onload = () => {
+            const ratio = img.width / img.height;
+            const imgWidth = 190;
+            const imgHeight = imgWidth / ratio;
+            const x = (pageWidth - imgWidth) / 2;
+            doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+            contentY += imgHeight + 2;
+            drawContent();
+        };
+        img.onerror = () => {
+            console.error("Error loading image for PDF.");
+            drawContent(); // Proceed without the image if it fails
+        };
       } catch (e) {
         console.error("Error adding image to PDF:", e);
+        drawContent();
       }
+    } else {
+        drawContent();
     }
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-    contentY += 8;
-
-    doc.setFontSize(16);
-    const mainTitle = "STUDENTS LATE REPORT";
-    doc.text(mainTitle, pageWidth / 2, contentY, { align: "center" });
-
-    const textWidth = doc.getTextWidth(mainTitle);
-    doc.setLineWidth(0.5);
-    doc.line((pageWidth - textWidth) / 2, contentY + 1, (pageWidth + textWidth) / 2, contentY + 1);
-    contentY += 8;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
-    doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
-    contentY += 10;
-
-    autoTable(doc, {
-      startY: contentY,
-      head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
-      body: filteredRecords.map((record, index) => [
-        index + 1,
-        record.registerNo,
-        record.studentName,
-        record.gender,
-        record.departmentName,
-        record.className,
-        record.date,
-        record.time,
-        record.status,
-        record.markedBy,
-        (studentLateCounts[record.studentId] || 0).toString(),
-      ]),
-      headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-      styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
-    });
-
-    doc.save("late-records.pdf");
   };
 
 
@@ -519,3 +531,4 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+
