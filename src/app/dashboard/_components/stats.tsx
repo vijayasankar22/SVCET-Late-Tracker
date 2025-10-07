@@ -23,6 +23,7 @@ export function Stats({ records }: StatsProps) {
     const today = new Date();
     return { from: today, to: today };
   });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const [flippedDepartments, setFlippedDepartments] = useState<Record<string, boolean>>({});
 
@@ -102,7 +103,7 @@ export function Stats({ records }: StatsProps) {
   return (
     <div className="space-y-4">
         <div className="flex items-center justify-end">
-             <Popover>
+             <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     id="date"
@@ -133,14 +134,17 @@ export function Stats({ records }: StatsProps) {
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: now, to: now });
+                                setIsDatePickerOpen(false);
                             }}>Today</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Week</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Month</Button>
                         </div>
                         <div className="rounded-md border">

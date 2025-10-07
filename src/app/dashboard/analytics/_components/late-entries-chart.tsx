@@ -24,6 +24,7 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
     const today = new Date();
     return { from: today, to: today };
   });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const chartData = useMemo(() => {
     const filteredRecords = records.filter(record => {
@@ -71,7 +72,7 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <h3 className="text-lg font-medium">Late Entries per Department</h3>
-            <Popover>
+            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
@@ -101,14 +102,17 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: now, to: now });
+                                setIsDatePickerOpen(false);
                             }}>Today</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Week</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Month</Button>
                         </div>
                         <div className="rounded-md border">

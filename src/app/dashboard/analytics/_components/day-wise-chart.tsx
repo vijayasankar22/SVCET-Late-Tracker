@@ -22,6 +22,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
     const today = new Date();
     return { from: startOfWeek(today), to: endOfWeek(today) };
   });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const departmentColors = useMemo(() => {
     const colors = [
@@ -92,7 +93,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
             <h3 className="text-lg font-medium">Day-wise Late Entries</h3>
              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Popover>
+                <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={"outline"}
@@ -122,14 +123,17 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                                 <Button variant="outline" size="sm" onClick={() => {
                                     const now = new Date();
                                     setDateRange({ from: now, to: now });
+                                    setIsDatePickerOpen(false);
                                 }}>Today</Button>
                                 <Button variant="outline" size="sm" onClick={() => {
                                     const now = new Date();
                                     setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                    setIsDatePickerOpen(false);
                                 }}>This Week</Button>
                                 <Button variant="outline" size="sm" onClick={() => {
                                     const now = new Date();
                                     setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                    setIsDatePickerOpen(false);
                                 }}>This Month</Button>
                             </div>
                             <div className="rounded-md border">

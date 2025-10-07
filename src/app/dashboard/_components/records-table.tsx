@@ -45,6 +45,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
     const today = new Date();
     return { from: today, to: today };
   });
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedStudentHistory, setSelectedStudentHistory] = useState<LateRecord[] | null>(null);
   const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<Student | null>(null);
 
@@ -206,7 +207,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
         doc.text("ACADEMIC YEAR 2025-26 | ODD SEM", pageWidth / 2, contentY, { align: "center" });
-        contentY += 8;
+        contentY += 16;
     
         doc.setFontSize(16);
         const mainTitle = "STUDENTS LATE REPORT";
@@ -258,7 +259,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
             const imgHeight = imgWidth / ratio;
             const x = (pageWidth - imgWidth) / 2;
             doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 8;
+            contentY += imgHeight;
             drawContent();
         };
         img.onerror = () => {
@@ -336,7 +337,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                 <Popover>
+                 <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant={"outline"}
@@ -366,14 +367,17 @@ export function RecordsTable({ records, loading, departments, classes, students 
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: now, to: now });
+                                setIsDatePickerOpen(false);
                             }}>Today</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Week</Button>
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                setIsDatePickerOpen(false);
                             }}>This Month</Button>
                         </div>
                         <div className="rounded-md border">
@@ -533,6 +537,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+
 
 
 
