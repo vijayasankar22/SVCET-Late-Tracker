@@ -48,7 +48,8 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
 
     const counts = departments.map(dept => ({
       name: dept.name,
-      'Late Entries': 0,
+      'Boys': 0,
+      'Girls': 0,
     }));
 
     const countsMap = new Map(counts.map(c => [c.name, c]));
@@ -56,10 +57,14 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
     for (const record of filteredRecords) {
       const dept = countsMap.get(record.departmentName);
       if (dept) {
-        dept['Late Entries'] += 1;
+        if (record.gender === 'MALE') {
+          dept['Boys'] += 1;
+        } else if (record.gender === 'FEMALE') {
+          dept['Girls'] += 1;
+        }
       }
     }
-    return Array.from(countsMap.values()).filter(d => d['Late Entries'] > 0);
+    return Array.from(countsMap.values()).filter(d => d['Boys'] > 0 || d['Girls'] > 0);
 
   }, [records, departments, dateRange]);
 
@@ -106,17 +111,18 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
          <div className="h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
-                <YAxis allowDecimals={false} />
-                <Tooltip
-                    contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))'
-                    }}
-                />
-                <Legend />
-                <Bar dataKey="Late Entries" fill="hsl(var(--primary))" />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: 'hsl(var(--background))',
+                            borderColor: 'hsl(var(--border))'
+                        }}
+                    />
+                    <Legend />
+                    <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" />
+                    <Bar dataKey="Girls" stackId="a" fill="hsl(var(--accent))" />
                 </BarChart>
             </ResponsiveContainer>
         </div>
