@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Late Student Tracker',
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: '/svcet-logo.png',
+    icon: '/favicon.ico',
     apple: '/svcet-logo.png',
   }
 };
