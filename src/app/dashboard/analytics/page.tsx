@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { MonthWiseChart } from './_components/month-wise-chart';
+import { DayWiseChart } from './_components/day-wise-chart';
 
 export default function AnalyticsPage() {
   const [records, setRecords] = useState<LateRecord[]>([]);
@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
                 {loading ? (
                     <Skeleton className="h-[400px] w-full" />
                 ) : (
-                    <MonthWiseChart records={records} />
+                    <DayWiseChart records={records} />
                 )}
             </CardContent>
         </Card>

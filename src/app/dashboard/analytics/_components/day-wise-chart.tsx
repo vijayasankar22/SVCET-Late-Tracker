@@ -8,7 +8,7 @@ import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachMonthOfInterval, subMonths } from "date-fns";
+import { format, eachDayOfInterval, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -16,12 +16,11 @@ type ChartProps = {
   records: LateRecord[];
 };
 
-export function MonthWiseChart({ records }: ChartProps) {
+export function DayWiseChart({ records }: ChartProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
-    const from = subMonths(startOfMonth(today), 11); // Last 12 months
-    const to = endOfMonth(today);
-    return { from, to };
+    const from = subDays(today, 29); // Last 30 days
+    return { from, to: today };
   });
 
   const chartData = useMemo(() => {
@@ -38,26 +37,26 @@ export function MonthWiseChart({ records }: ChartProps) {
       }
     });
 
-    const monthCounts: { [key: string]: number } = {};
+    const dayCounts: { [key: string]: number } = {};
 
-    const monthsInInterval = eachMonthOfInterval({
+    const daysInInterval = eachDayOfInterval({
         start: dateRange.from,
         end: dateRange.to
     });
 
-    for (const monthStart of monthsInInterval) {
-        const monthKey = format(monthStart, 'MMM yyyy');
-        monthCounts[monthKey] = 0;
+    for (const day of daysInInterval) {
+        const dayKey = format(day, 'MMM dd');
+        dayCounts[dayKey] = 0;
     }
 
     for (const record of filteredRecords) {
-      const monthKey = format(new Date(record.timestamp), 'MMM yyyy');
-      if (monthKey in monthCounts) {
-        monthCounts[monthKey]++;
+      const dayKey = format(new Date(record.timestamp), 'MMM dd');
+      if (dayKey in dayCounts) {
+        dayCounts[dayKey]++;
       }
     }
     
-    return Object.entries(monthCounts).map(([name, count]) => ({
+    return Object.entries(dayCounts).map(([name, count]) => ({
       name,
       'Late Entries': count,
     }));
@@ -67,7 +66,7 @@ export function MonthWiseChart({ records }: ChartProps) {
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <h3 className="text-lg font-medium">Month-wise Late Entries</h3>
+            <h3 className="text-lg font-medium">Day-wise Late Entries</h3>
             <Popover>
                 <PopoverTrigger asChild>
                   <Button
