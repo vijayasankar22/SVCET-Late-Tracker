@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 import type { Department, Student, Class } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users } from 'lucide-react';
@@ -21,7 +21,10 @@ type ClassStrength = {
 };
 
 type DepartmentStrength = {
-  [departmentName: string]: ClassStrength[];
+  [departmentName: string]: {
+    classes: ClassStrength[];
+    total: number;
+  };
 };
 
 export default function ClassStrengthPage() {
@@ -72,20 +75,24 @@ export default function ClassStrengthPage() {
     const data: DepartmentStrength = {};
 
     departments.forEach(dept => {
-      data[dept.name] = [];
+      data[dept.name] = { classes: [], total: 0 };
       const deptClasses = classes.filter(c => c.departmentId === dept.id).sort((a,b) => a.name.localeCompare(b.name));
+      let departmentTotal = 0;
 
       deptClasses.forEach(cls => {
         const classStudents = students.filter(s => s.classId === cls.id);
         const boys = classStudents.filter(s => s.gender === 'MALE').length;
         const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
-        data[dept.name].push({
+        const total = boys + girls;
+        departmentTotal += total;
+        data[dept.name].classes.push({
           className: cls.name,
           boys,
           girls,
-          total: boys + girls,
+          total,
         });
       });
+      data[dept.name].total = departmentTotal;
     });
 
     return data;
@@ -123,13 +130,14 @@ export default function ClassStrengthPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {Object.entries(strengthData).map(([deptName, classStrengths]) => (
+        {Object.entries(strengthData).map(([deptName, deptData]) => (
           <Card key={deptName}>
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <Users className="h-5 w-5" />
                 {deptName}
               </CardTitle>
+              <CardDescription>Total Strength: {deptData.total}</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
@@ -142,7 +150,7 @@ export default function ClassStrengthPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {classStrengths.map(cs => (
+                  {deptData.classes.map(cs => (
                     <TableRow key={cs.className}>
                       <TableCell className='font-medium'>{cs.className}</TableCell>
                       <TableCell className='text-center'>{cs.boys}</TableCell>
@@ -159,4 +167,3 @@ export default function ClassStrengthPage() {
     </div>
   );
 }
-
