@@ -54,7 +54,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/svcet-logo.png')
+    fetch('/svcet-head.png')
       .then(response => response.blob())
       .then(blob => {
         const reader = new FileReader();
@@ -204,11 +204,11 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
     if (logoBase64) {
       try {
-        const imgWidth = 30;
-        const imgHeight = 30;
+        const imgWidth = 190; // Adjust as needed
+        const imgHeight = 25; // Adjust as needed
         const x = (pageWidth - imgWidth) / 2;
         doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-        contentY += imgHeight + 10;
+        contentY += imgHeight + 2;
       } catch (e) {
         console.error("Error adding image to PDF:", e);
       }
