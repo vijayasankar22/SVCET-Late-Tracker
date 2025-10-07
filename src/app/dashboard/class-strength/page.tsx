@@ -7,10 +7,9 @@ import { db } from '@/lib/firebase';
 import type { Department, Student, Class } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, User, UserCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 
@@ -140,55 +139,42 @@ export default function ClassStrengthPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="space-y-12">
         {Object.entries(strengthData).map(([deptName, deptData]) => (
-          <Card key={deptName} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className='flex items-center gap-2'>
-                <Users className="h-5 w-5" />
-                {deptName}
-              </CardTitle>
-              <CardDescription>Total Strength: {deptData.total}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Class</TableHead>
-                    <TableHead className='text-center'>Boys</TableHead>
-                    <TableHead className='text-center'>Girls</TableHead>
-                    <TableHead className='text-center'>Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {deptData.classes.map(cs => (
-                    <TableRow key={cs.className}>
-                      <TableCell className='font-medium'>{cs.className}</TableCell>
-                      <TableCell className='text-center'>{cs.boys}</TableCell>
-                      <TableCell className='text-center'>{cs.girls}</TableCell>
-                      <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+          <div key={deptName}>
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">{deptName}</h2>
+              <p className="text-muted-foreground">Total Strength: {deptData.total}</p>
+            </div>
+            <div className="rounded-lg border">
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Class</TableHead>
+                        <TableHead className='text-center'>Boys</TableHead>
+                        <TableHead className='text-center'>Girls</TableHead>
+                        <TableHead className='text-center'>Total</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-            <CardFooter className="flex-col items-start gap-2 pt-4">
-                <Separator />
-                <p className="text-sm font-medium text-muted-foreground w-full text-center">Department Totals</p>
-                <div className="grid grid-cols-2 gap-4 w-full">
-                    <div className="flex flex-col items-center justify-center p-2 bg-secondary rounded-lg">
-                        <User className="h-5 w-5 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground mt-1">Boys</p>
-                        <p className="text-2xl font-bold">{deptData.totalBoys}</p>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-2 bg-secondary rounded-lg">
-                        <UserCheck className="h-5 w-5 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground mt-1">Girls</p>
-                        <p className="text-2xl font-bold">{deptData.totalGirls}</p>
-                    </div>
-                </div>
-            </CardFooter>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                    {deptData.classes.map(cs => (
+                        <TableRow key={cs.className}>
+                        <TableCell className='font-medium'>{cs.className}</TableCell>
+                        <TableCell className='text-center'>{cs.boys}</TableCell>
+                        <TableCell className='text-center'>{cs.girls}</TableCell>
+                        <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+                        </TableRow>
+                    ))}
+                    <TableRow className="bg-secondary hover:bg-secondary">
+                        <TableCell className="font-bold">Department Total</TableCell>
+                        <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
+                        <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
+                        <TableCell className="text-center font-bold">{deptData.total}</TableCell>
+                    </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
+          </div>
         ))}
       </div>
     </div>
