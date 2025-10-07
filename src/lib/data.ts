@@ -75,7 +75,7 @@ export const students: Student[] = [
   { id: 'cse-2a-31', name: 'VAISHNAVI N', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0854', gender: 'FEMALE' },
   { id: 'cse-2a-32', name: 'VILASINI R', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0858', gender: 'FEMALE' },
   { id: 'cse-2a-33', name: 'YOGAPRIYA V', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0864', gender: 'FEMALE' },
-  { id: 'cse-2a-34', name: 'YUVAPRASAD S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0868', gender: 'FEMALE' },
+  { id: 'cse-2a-34', name: 'YUVAPRASAD S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0868', gender: 'MALE' },
   { id: 'cse-2a-35', name: 'ZAINUB I', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0869', gender: 'FEMALE' },
   { id: 'cse-2a-36', name: 'MOHAMED IBRAHIM', departmentId: 'cse', classId: 'cse-2-a', registerNo: '23TD0697', gender: 'MALE' },
   { id: 'cse-2a-37', name: 'ABDUL HAFIL A', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0751', gender: 'MALE' },
