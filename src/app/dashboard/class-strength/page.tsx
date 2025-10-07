@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Fragment } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Department, Student, Class } from '@/lib/types';
@@ -12,12 +12,20 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type ClassStrength = {
+  classId: string;
+  className: string;
   boys: number;
   girls: number;
   total: number;
-  className: string;
 };
 
 type DepartmentStrength = {
@@ -35,6 +43,10 @@ export default function ClassStrengthPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  
+  const [selectedClassStudents, setSelectedClassStudents] = useState<Student[]>([]);
+  const [selectedClassInfo, setSelectedClassInfo] = useState<{className: string; deptName: string} | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -94,6 +106,7 @@ export default function ClassStrengthPage() {
         departmentGirls += girls;
 
         data[dept.name].classes.push({
+          classId: cls.id,
           className: cls.name,
           boys,
           girls,
@@ -107,6 +120,13 @@ export default function ClassStrengthPage() {
 
     return data;
   }, [students, classes, departments, loading]);
+
+  const handleClassClick = (classId: string, className: string, deptName: string) => {
+    const classStudents = students.filter(s => s.classId === classId).sort((a, b) => a.name.localeCompare(b.name));
+    setSelectedClassStudents(classStudents);
+    setSelectedClassInfo({ className, deptName });
+    setIsDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -125,64 +145,105 @@ export default function ClassStrengthPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className='flex items-center justify-between'>
-        <div className='space-y-1'>
-            <h1 className="text-2xl font-headline font-bold">Class Strength</h1>
-            <p className="text-muted-foreground">Student count for each class, broken down by gender.</p>
+    <>
+      <div className="space-y-8">
+        <div className='flex items-center justify-between'>
+          <div className='space-y-1'>
+              <h1 className="text-2xl font-headline font-bold">Class Strength</h1>
+              <p className="text-muted-foreground">Student count for each class, broken down by gender.</p>
+          </div>
+          <Link href="/dashboard">
+              <Button variant="outline">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Dashboard
+              </Button>
+          </Link>
         </div>
-        <Link href="/dashboard">
-            <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
-            </Button>
-        </Link>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {Object.entries(strengthData).map(([deptName, deptData]) => (
-          <Card key={deptName}>
-            <CardHeader>
-              <CardTitle>{deptName}</CardTitle>
-              <p className="text-sm text-muted-foreground">Total Strength: {deptData.total}</p>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Class</TableHead>
-                        <TableHead className='text-center'>Boys</TableHead>
-                        <TableHead className='text-center'>Girls</TableHead>
-                        <TableHead className='text-center'>Total</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {deptData.classes.map(cs => (
-                        <TableRow key={cs.className}>
-                        <TableCell className='font-medium'>{cs.className}</TableCell>
-                        <TableCell className='text-center'>{cs.boys}</TableCell>
-                        <TableCell className='text-center'>{cs.girls}</TableCell>
-                        <TableCell className='text-center font-bold'>{cs.total}</TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-            </CardContent>
-            <CardFooter className="bg-secondary/50 p-4">
-                 <Table>
-                    <TableBody>
-                        <TableRow className='border-none'>
-                            <TableCell className="font-bold">Department Total</TableCell>
-                            <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
-                            <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
-                            <TableCell className="text-center font-bold">{deptData.total}</TableCell>
-                        </TableRow>
-                    </TableBody>
-                 </Table>
-            </CardFooter>
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Object.entries(strengthData).map(([deptName, deptData]) => (
+            <Card key={deptName}>
+              <CardHeader>
+                <CardTitle>{deptName}</CardTitle>
+                <p className="text-sm text-muted-foreground">Total Strength: {deptData.total}</p>
+              </CardHeader>
+              <CardContent>
+                  <Table>
+                      <TableHeader>
+                      <TableRow>
+                          <TableHead>Class</TableHead>
+                          <TableHead className='text-center'>Boys</TableHead>
+                          <TableHead className='text-center'>Girls</TableHead>
+                          <TableHead className='text-center'>Total</TableHead>
+                      </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                      {deptData.classes.map(cs => (
+                          <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, deptName)} className="cursor-pointer">
+                            <TableCell className='font-medium'>{cs.className}</TableCell>
+                            <TableCell className='text-center'>{cs.boys}</TableCell>
+                            <TableCell className='text-center'>{cs.girls}</TableCell>
+                            <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+                          </TableRow>
+                      ))}
+                      </TableBody>
+                  </Table>
+              </CardContent>
+              <CardFooter className="bg-secondary/50 p-4">
+                  <Table>
+                      <TableBody>
+                          <TableRow className='border-none'>
+                              <TableCell className="font-bold">Department Total</TableCell>
+                              <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
+                              <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
+                              <TableCell className="text-center font-bold">{deptData.total}</TableCell>
+                          </TableRow>
+                      </TableBody>
+                  </Table>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Student List</DialogTitle>
+            {selectedClassInfo && (
+              <DialogDescription>
+                {selectedClassInfo.deptName} - {selectedClassInfo.className}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>S.No.</TableHead>
+                  <TableHead>Register No.</TableHead>
+                  <TableHead>Student Name</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {selectedClassStudents.length > 0 ? (
+                  selectedClassStudents.map((student, index) => (
+                    <TableRow key={student.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{student.registerNo}</TableCell>
+                      <TableCell>{student.name}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">No students found in this class.</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
