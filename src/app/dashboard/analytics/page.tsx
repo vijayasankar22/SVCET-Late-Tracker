@@ -22,6 +22,21 @@ export default function AnalyticsPage() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/svcet-head.png')
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoBase64(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      }).catch(error => {
+        console.error("Error fetching or converting logo:", error);
+      });
+  }, []);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -110,7 +125,7 @@ export default function AnalyticsPage() {
                {loading ? (
                   <Skeleton className="h-[400px] w-full" />
               ) : (
-                  <TopLatecomersList records={records} students={students} departments={departments} classes={classes} />
+                  <TopLatecomersList records={records} students={students} departments={departments} classes={classes} logoBase64={logoBase64} />
               )}
           </CardContent>
       </Card>

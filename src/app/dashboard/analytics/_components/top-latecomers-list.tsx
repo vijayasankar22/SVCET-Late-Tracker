@@ -1,25 +1,44 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { LateRecord, Student, Department, Class } from '@/lib/types';
-import { User } from 'lucide-react';
+import { Download, User } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type TopLatecomersListProps = {
   records: LateRecord[];
   students: Student[];
   departments: Department[];
   classes: Class[];
+  logoBase64: string | null;
 };
 
-export function TopLatecomersList({ records, students, departments, classes }: TopLatecomersListProps) {
+export function TopLatecomersList({ records, students, departments, classes, logoBase64 }: TopLatecomersListProps) {
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+
   const topLatecomers = useMemo(() => {
+    const filteredRecords = departmentFilter === 'all'
+      ? records
+      : records.filter(record => {
+          const student = students.find(s => s.id === record.studentId);
+          if (student) {
+              const department = departments.find(d => d.id === student.departmentId);
+              return department?.name === departmentFilter;
+          }
+          // Fallback for older records without studentId link
+          return record.departmentName === departmentFilter;
+      });
+
     const studentLateCounts: { [key: string]: { count: number, record: LateRecord } } = {};
     const studentMapByName = new Map(students.map(s => [s.name.toLowerCase(), s]));
 
-    for (const record of records) {
+    for (const record of filteredRecords) {
       let student: Student | undefined;
       if (record.studentId) {
         student = students.find(s => s.id === record.studentId);
@@ -46,7 +65,6 @@ export function TopLatecomersList({ records, students, departments, classes }: T
         }
 
         if (!studentDetails) {
-            // Fallback to record data if student not found in master list
             const department = departments.find(d => d.name === record.departmentName);
             const studentClass = classes.find(c => c.name === record.className && c.departmentId === department?.id);
             return {
@@ -73,11 +91,93 @@ export function TopLatecomersList({ records, students, departments, classes }: T
       .slice(0, 10);
 
     return studentsWithDetails;
-  }, [records, students, departments, classes]);
+  }, [records, students, departments, classes, departmentFilter]);
+
+  const handleExportPdf = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let contentY = 10;
+
+    const drawContent = () => {
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Top 10 Latecomers", pageWidth / 2, contentY, { align: "center" });
+      contentY += 8;
+
+      doc.setFontSize(12);
+      const subTitle = departmentFilter === 'all' ? 'All Departments' : departmentFilter;
+      doc.text(subTitle, pageWidth / 2, contentY, { align: 'center' });
+      contentY += 10;
+  
+      autoTable(doc, {
+        startY: contentY,
+        head: [['Rank', 'Student Name', 'Register No.', 'Department', 'Class', 'Total Late Entries']],
+        body: topLatecomers.map((student, index) => [
+          index + 1,
+          student.name,
+          student.registerNo,
+          student.departmentName,
+          student.className,
+          student.count,
+        ]),
+        headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+        styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
+      });
+  
+      doc.save(`top-10-latecomers_${departmentFilter}.pdf`);
+    };
+
+    if (logoBase64) {
+      try {
+        const img = new window.Image();
+        img.src = logoBase64;
+        img.onload = () => {
+            const originalWidth = 190;
+            const scalingFactor = 0.7;
+            const imgWidth = originalWidth * scalingFactor;
+            const ratio = img.width / img.height;
+            const imgHeight = imgWidth / ratio;
+            const x = (pageWidth - imgWidth) / 2;
+            doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+            contentY += imgHeight + 5;
+            drawContent();
+        };
+        img.onerror = () => {
+            console.error("Error loading image for PDF.");
+            drawContent();
+        };
+      } catch (e) {
+        console.error("Error adding image to PDF:", e);
+        drawContent();
+      }
+    } else {
+        drawContent();
+    }
+  };
+
 
   return (
     <div className="space-y-4">
-        <h3 className="text-lg font-medium">Top 10 Latecomers (All Time)</h3>
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <h3 className="text-lg font-medium">Top 10 Latecomers (All Time)</h3>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                        <SelectValue placeholder="Filter by Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                        {departments.map(dept => (
+                            <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                 <Button onClick={handleExportPdf} size="sm" variant="outline" disabled={topLatecomers.length === 0}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download PDF
+                </Button>
+            </div>
+        </div>
         <div className="rounded-lg border">
             <Table>
                 <TableHeader>
@@ -105,7 +205,7 @@ export function TopLatecomersList({ records, students, departments, classes }: T
                     ) : (
                         <TableRow>
                             <TableCell colSpan={6} className="text-center">
-                                No late entry data available.
+                                No late entry data available for the selected filter.
                             </TableCell>
                         </TableRow>
                     )}
