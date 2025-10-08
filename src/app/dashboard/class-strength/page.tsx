@@ -282,7 +282,7 @@ export default function ClassStrengthPage() {
                       </TableBody>
                   </Table>
               </CardContent>
-              <CardFooter className="bg-accent/20 text-foreground p-4">
+              <CardFooter className="bg-accent/10 text-foreground p-4">
                   <Table>
                       <TableBody>
                           <TableRow className='border-none hover:bg-transparent'>
