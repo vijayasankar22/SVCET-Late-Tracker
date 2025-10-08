@@ -282,10 +282,10 @@ export default function ClassStrengthPage() {
                       </TableBody>
                   </Table>
               </CardContent>
-              <CardFooter className="bg-secondary/50 p-4">
+              <CardFooter className="bg-accent text-accent-foreground p-4">
                   <Table>
                       <TableBody>
-                          <TableRow className='border-none'>
+                          <TableRow className='border-none hover:bg-transparent'>
                               <TableCell className="font-bold">Department Total</TableCell>
                               <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
                               <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
