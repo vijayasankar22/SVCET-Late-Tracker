@@ -5,11 +5,16 @@ import { useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { LateRecord, Student, Department, Class } from '@/lib/types';
-import { Download, User } from 'lucide-react';
+import { Download, User, Calendar as CalendarIcon, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { DateRange } from 'react-day-picker';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 type TopLatecomersListProps = {
   records: LateRecord[];
@@ -21,19 +26,43 @@ type TopLatecomersListProps = {
 
 export function TopLatecomersList({ records, students, departments, classes, logoBase64 }: TopLatecomersListProps) {
   const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const topLatecomers = useMemo(() => {
-    const filteredRecords = departmentFilter === 'all'
-      ? records
-      : records.filter(record => {
-          const student = students.find(s => s.id === record.studentId);
-          if (student) {
-              const department = departments.find(d => d.id === student.departmentId);
-              return department?.name === departmentFilter;
-          }
-          // Fallback for older records without studentId link
-          return record.departmentName === departmentFilter;
-      });
+    let filteredRecords = records;
+
+    if (departmentFilter !== 'all') {
+        filteredRecords = filteredRecords.filter(record => {
+            const student = students.find(s => s.id === record.studentId);
+            if (student) {
+                const department = departments.find(d => d.id === student.departmentId);
+                return department?.name === departmentFilter;
+            }
+            return record.departmentName === departmentFilter;
+        });
+    }
+
+    if (dateRange?.from) {
+        filteredRecords = filteredRecords.filter(record => {
+            try {
+                const recordDate = new Date(record.timestamp);
+                const fromDate = new Date(dateRange.from!);
+                fromDate.setHours(0, 0, 0, 0);
+
+                if (recordDate < fromDate) return false;
+
+                const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from!);
+                toDate.setHours(23, 59, 59, 999);
+                if (recordDate > toDate) return false;
+
+                return true;
+            } catch (e) {
+                return true;
+            }
+        });
+    }
+
 
     const studentLateCounts: { [key: string]: { count: number, record: LateRecord } } = {};
     const studentMapByName = new Map(students.map(s => [s.name.toLowerCase(), s]));
@@ -91,7 +120,7 @@ export function TopLatecomersList({ records, students, departments, classes, log
       .slice(0, 10);
 
     return studentsWithDetails;
-  }, [records, students, departments, classes, departmentFilter]);
+  }, [records, students, departments, classes, departmentFilter, dateRange]);
 
   const handleExportPdf = () => {
     const doc = new jsPDF();
@@ -104,9 +133,13 @@ export function TopLatecomersList({ records, students, departments, classes, log
       doc.text("Top 10 Latecomers", pageWidth / 2, contentY, { align: "center" });
       contentY += 8;
 
-      doc.setFontSize(12);
-      const subTitle = departmentFilter === 'all' ? 'All Departments' : departmentFilter;
-      doc.text(subTitle, pageWidth / 2, contentY, { align: 'center' });
+      doc.setFontSize(10);
+      const deptSubTitle = departmentFilter === 'all' ? 'All Departments' : departmentFilter;
+      const dateSubTitle = dateRange?.from 
+        ? `From: ${format(dateRange.from, 'dd/MM/yyyy')} To: ${dateRange.to ? format(dateRange.to, 'dd/MM/yyyy') : format(dateRange.from, 'dd/MM/yyyy')}`
+        : 'All Time';
+
+      doc.text(`${deptSubTitle} | ${dateSubTitle}`, pageWidth / 2, contentY, { align: 'center' });
       contentY += 10;
   
       autoTable(doc, {
@@ -159,8 +192,77 @@ export function TopLatecomersList({ records, students, departments, classes, log
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-            <h3 className="text-lg font-medium">Top 10 Latecomers (All Time)</h3>
+            <h3 className="text-lg font-medium">Top 10 Latecomers {dateRange ? `(Filtered)`: `(All Time)`}</h3>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full sm:w-[260px] justify-start text-left font-normal relative",
+                          !dateRange && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date range</span>
+                        )}
+                         {dateRange && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 absolute right-1"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDateRange(undefined);
+                                }}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                       <div className="flex flex-col space-y-2 p-2">
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: now, to: now });
+                                    setIsDatePickerOpen(false);
+                                }}>Today</Button>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: startOfWeek(now), to: endOfWeek(now) });
+                                    setIsDatePickerOpen(false);
+                                }}>This Week</Button>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    const now = new Date();
+                                    setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
+                                    setIsDatePickerOpen(false);
+                                }}>This Month</Button>
+                            </div>
+                            <div className="rounded-md border">
+                              <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={dateRange?.from}
+                                selected={dateRange}
+                                onSelect={setDateRange}
+                                numberOfMonths={2}
+                              />
+                            </div>
+                          </div>
+                    </PopoverContent>
+                  </Popover>
                 <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                     <SelectTrigger className="w-full sm:w-[200px]">
                         <SelectValue placeholder="Filter by Department" />
