@@ -196,6 +196,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                         dataKey={dept.name} 
                         stackId="a" 
                         fill={departmentColors[dept.name]} 
+                        radius={[4, 4, 0, 0]}
                       />
                     ))}
                 </BarChart>

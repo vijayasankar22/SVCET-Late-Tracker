@@ -142,8 +142,8 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
                         }}
                     />
                     <Legend />
-                    <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" />
-                    <Bar dataKey="Girls" stackId="a" fill="hsl(var(--accent))" />
+                    <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Girls" stackId="a" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
                 </BarChart>
             </ResponsiveContainer>
         </div>
