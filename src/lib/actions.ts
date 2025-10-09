@@ -1,46 +1,26 @@
-
 'use server';
 
 import { collection, writeBatch, getDocs, query, doc, where, Timestamp, orderBy, limit, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { departments, classes, students } from '@/lib/data';
 
-async function clearCollection(collectionName: string, batch: any) {
-    const collectionRef = collection(db, collectionName);
-    const querySnapshot = await getDocs(collectionRef);
-    querySnapshot.forEach(doc => {
-        batch.delete(doc.ref);
-    });
-    console.log(`Cleared all documents from ${collectionName} collection.`);
-}
-
-
 export async function seedDatabase() {
   try {
     const batch = writeBatch(db);
 
-    // Clear existing data first
-    await clearCollection('students', batch);
-    await clearCollection('classes', batch);
-    await clearCollection('departments', batch);
-
     const departmentsCollection = collection(db, 'departments');
-    const classesCollection = collection(db, 'classes');
-    const studentsCollection = collection(db, 'students');
-
-    console.log('Seeding departments...');
     for (const dept of departments) {
       const docRef = doc(departmentsCollection, dept.id);
       batch.set(docRef, dept);
     }
 
-    console.log('Seeding classes...');
+    const classesCollection = collection(db, 'classes');
     for (const cls of classes) {
       const docRef = doc(classesCollection, cls.id);
       batch.set(docRef, cls);
     }
 
-    console.log('Seeding students...');
+    const studentsCollection = collection(db, 'students');
     for (const student of students) {
         const docRef = doc(studentsCollection, student.id);
         batch.set(docRef, student);
@@ -48,7 +28,7 @@ export async function seedDatabase() {
 
     await batch.commit();
 
-    return { success: true, message: 'Database cleared and re-seeded successfully.' };
+    return { success: true, message: 'Database seeded successfully!' };
 
   } catch (error) {
     console.error('Error seeding database:', error);

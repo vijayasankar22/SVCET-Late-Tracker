@@ -36,13 +36,13 @@ export default function SeedPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Seed Database</CardTitle>
           <CardDescription>
-            Click the button to populate your database with initial data.
+            Click the button to populate your database with initial data. This will add or overwrite existing entries.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
-            <p className="font-bold">Warning: This is a destructive action.</p>
-            <p>This action will first <span className="font-bold">delete all</span> existing students, classes, and departments from your database. It will then repopulate them with the data from the local `src/lib/data.ts` file.</p>
+            <p className="font-bold">Warning: This is a potentially destructive action.</p>
+            <p>Running this will overwrite any existing departments, classes, or students in your database that have the same ID as the data in `src/lib/data.ts`. Use with caution.</p>
           </div>
           <Button onClick={handleSeed} disabled={isLoading} variant="destructive" className="w-full">
             {isLoading ? (
@@ -51,7 +51,7 @@ export default function SeedPage() {
                 Seeding...
               </>
             ) : (
-              'Clear and Seed Database'
+              'Seed Data into Firestore'
             )}
           </Button>
         </CardContent>

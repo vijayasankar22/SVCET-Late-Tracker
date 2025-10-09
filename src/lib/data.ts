@@ -699,6 +699,10 @@ export const students: Student[] = [
   { id: 'mech-4-6', name: 'ABDUL BASITH. A', departmentId: 'mech', classId: 'mech-4', registerNo: '22TBL075', gender: 'MALE' },
   { id: 'mech-4-7', name: 'MOHAMAD AHAMAED. J', departmentId: 'mech', classId: 'mech-4', registerNo: '22TBL076', gender: 'MALE' },
   { id: 'mech-4-8', name: 'JAGAN. K', departmentId: 'mech', classId: 'mech-4', registerNo: '22TC0469', gender: 'MALE' },
+  // MBA I
+  { id: 'mba-1-1', name: 'Anjali Sharma', departmentId: 'mba', classId: 'mba-1', registerNo: '25MBA001', gender: 'FEMALE' },
+  { id: 'mba-1-2', name: 'Rohan Gupta', departmentId: 'mba', classId: 'mba-1', registerNo: '25MBA002', gender: 'MALE' },
+  { id: 'mba-1-3', name: 'Priya Patel', departmentId: 'mba', classId: 'mba-1', registerNo: '25MBA003', gender: 'FEMALE' },
   // MBA II-A
   { id: 'mba-2a-1', name: 'ANISH JESTINE.M', departmentId: 'mba', classId: 'mba-2-a', registerNo: '24810802', gender: 'MALE' },
   { id: 'mba-2a-2', name: 'ASHA.R', departmentId: 'mba', classId: 'mba-2-a', registerNo: '24810805', gender: 'FEMALE' },
@@ -817,6 +821,7 @@ export const students: Student[] = [
 
 
     
+
 
 
 
