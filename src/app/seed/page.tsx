@@ -36,21 +36,22 @@ export default function SeedPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Seed Database</CardTitle>
           <CardDescription>
-            Click the button below to populate your Firestore database with the initial set of departments, classes, and students. You only need to do this once.
+            Click the button to populate your database with initial data.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="mb-4 text-sm text-muted-foreground">
-            This action will add the data from the local `src/lib/data.ts` file into the `departments`, `classes`, and `students` collections in Firestore. If the collections already contain data, this action will not add duplicates.
-          </p>
-          <Button onClick={handleSeed} disabled={isLoading} className="w-full bg-accent hover:bg-accent/90">
+          <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+            <p className="font-bold">Warning: This is a destructive action.</p>
+            <p>This action will first <span className="font-bold">delete all</span> existing students, classes, and departments from your database. It will then repopulate them with the data from the local `src/lib/data.ts` file.</p>
+          </div>
+          <Button onClick={handleSeed} disabled={isLoading} variant="destructive" className="w-full">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Seeding...
               </>
             ) : (
-              'Seed Data into Firestore'
+              'Clear and Seed Database'
             )}
           </Button>
         </CardContent>

@@ -5,10 +5,25 @@ import { collection, writeBatch, getDocs, query, doc, where, Timestamp, orderBy,
 import { db } from '@/lib/firebase';
 import { departments, classes, students } from '@/lib/data';
 
+async function clearCollection(collectionName: string, batch: any) {
+    const collectionRef = collection(db, collectionName);
+    const querySnapshot = await getDocs(collectionRef);
+    querySnapshot.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+    console.log(`Cleared all documents from ${collectionName} collection.`);
+}
+
+
 export async function seedDatabase() {
   try {
     const batch = writeBatch(db);
-    
+
+    // Clear existing data first
+    await clearCollection('students', batch);
+    await clearCollection('classes', batch);
+    await clearCollection('departments', batch);
+
     const departmentsCollection = collection(db, 'departments');
     const classesCollection = collection(db, 'classes');
     const studentsCollection = collection(db, 'students');
@@ -33,7 +48,7 @@ export async function seedDatabase() {
 
     await batch.commit();
 
-    return { success: true, message: 'Database seeded successfully.' };
+    return { success: true, message: 'Database cleared and re-seeded successfully.' };
 
   } catch (error) {
     console.error('Error seeding database:', error);
