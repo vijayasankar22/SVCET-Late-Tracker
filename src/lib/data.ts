@@ -489,14 +489,14 @@ export const students: Student[] = [
   { id: 'ece-2-18', name: 'JOHNSON.S', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0568', gender: 'MALE', mentor: 'Dr. Marco Diaz' },
   { id: 'ece-2-19', name: 'KADHIR.S', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0569', gender: 'MALE', mentor: 'Dr. Marco Diaz' },
   { id: 'ece-2-20', name: 'KALAIVANAN. D', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0570', gender: 'MALE', mentor: 'Dr. Marco Diaz' },
-  { id: 'ece-2-21', name: 'KARTHIKEYAN .A.P', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0571', gender: 'MALE', mentor: 'Prof. Alan Grant' },
+  
   { id: 'ece-2-22', name: 'KAVIYA.K', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0572', gender: 'FEMALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-23', name: 'KISHORE.S', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0573', gender: 'MALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-24', name: 'LAKSITHA.A', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0574', gender: 'FEMALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-25', name: 'LOKESH.M', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0575', gender: 'MALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-57', name: 'LOKESH.M.S', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0576', gender: 'MALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-26', name: 'MANIKANDAN .A', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0577', gender: 'MALE', mentor: 'Prof. Alan Grant' },
-  { id: 'ece-2-27', name: 'MANIKANDAN. S', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0578', gender: 'MALE', mentor: 'Prof. Alan Grant' },
+ 
   { id: 'ece-2-28', name: 'MOSHIKA.U', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0579', gender: 'FEMALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-29', name: 'MOHAMED MOOSA .M', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0580', gender: 'MALE', mentor: 'Prof. Alan Grant' },
   { id: 'ece-2-30', name: 'NIVEDHA.R', departmentId: 'ece', classId: 'ece-2', registerNo: '24TC0581', gender: 'FEMALE', mentor: 'Dr. Ken Miles' },
