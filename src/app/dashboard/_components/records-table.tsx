@@ -276,6 +276,20 @@ export function RecordsTable({ records, loading, departments, classes, students 
   };
 
 
+  const getStatusClass = (status: LateRecord['status']) => {
+    switch (status) {
+      case 'Informed':
+        return 'bg-green-100 text-green-800';
+      case 'Not Informed':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Letter Given':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+
   return (
     <>
       <Card>
@@ -457,7 +471,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                               <TableCell>{record.date}</TableCell>
                               <TableCell>{record.time}</TableCell>
                                <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${record.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(record.status)}`}>
                                       {record.status}
                                   </span>
                               </TableCell>
@@ -514,7 +528,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                         <TableCell>{entry.date}</TableCell>
                         <TableCell>{entry.time}</TableCell>
                         <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.status === 'Informed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(entry.status)}`}>
                             {entry.status}
                             </span>
                         </TableCell>
@@ -537,6 +551,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+
 
 
 

@@ -36,6 +36,6 @@ export interface LateRecord {
   date: string;
   time: string;
   markedBy: string;
-  status: 'Informed' | 'Not Informed';
+  status: 'Informed' | 'Not Informed' | 'Letter Given';
   timestamp: any;
 }
