@@ -10,9 +10,11 @@ import { Stats } from './_components/stats';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/context/auth-context';
 
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [records, setRecords] = useState<LateRecord[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
@@ -156,12 +158,14 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <EntryForm 
-        onAddRecord={handleAddRecord}
-        departments={departments}
-        classes={classes}
-        students={students}
-       />
+      {user?.role === 'admin' && (
+        <EntryForm 
+          onAddRecord={handleAddRecord}
+          departments={departments}
+          classes={classes}
+          students={students}
+        />
+      )}
       <Stats records={records} />
       <RecordsTable 
         records={records} 
