@@ -134,6 +134,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
+  const studentMap = useMemo(() => new Map(students.map(s => [s.id, s])), [students]);
+
   const filteredRecords = useMemo(() => {
     return records
       .filter((record) =>
@@ -182,19 +184,22 @@ export function RecordsTable({ records, loading, departments, classes, students 
   }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
   
   const handleExportCsv = () => {
-    const recordsToExport = filteredRecords.map((record, index) => ({
-      "S.No.": index + 1,
-      registerNo: record.registerNo,
-      studentName: record.studentName,
-      gender: record.gender,
-      departmentName: record.departmentName,
-      className: record.className,
-      date: record.date,
-      time: record.time,
-      status: record.status,
-      markedBy: record.markedBy,
-      "Total Late Entries": studentLateCounts[record.studentId] || 0,
-    }));
+    const recordsToExport = filteredRecords.map((record, index) => {
+      const student = studentMap.get(record.studentId);
+      return {
+        "S.No.": index + 1,
+        registerNo: record.registerNo,
+        studentName: record.studentName,
+        gender: record.gender,
+        departmentName: record.departmentName,
+        className: record.className,
+        date: record.date,
+        time: record.time,
+        status: record.status,
+        mentor: student?.mentor || "N/A",
+        "Total Late Entries": studentLateCounts[record.studentId] || 0,
+      }
+    });
     exportToCsv("late-records.csv", recordsToExport);
   };
   
@@ -226,20 +231,23 @@ export function RecordsTable({ records, loading, departments, classes, students 
     
         autoTable(doc, {
           startY: contentY,
-          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Marked By', 'Total Late Entries']],
-          body: filteredRecords.map((record, index) => [
-            index + 1,
-            record.registerNo,
-            record.studentName,
-            record.gender,
-            record.departmentName,
-            record.className,
-            record.date,
-            record.time,
-            record.status,
-            record.markedBy,
-            (studentLateCounts[record.studentId] || 0).toString(),
-          ]),
+          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Date', 'Time', 'Status', 'Mentor', 'Total Late Entries']],
+          body: filteredRecords.map((record, index) => {
+            const student = studentMap.get(record.studentId);
+            return [
+                index + 1,
+                record.registerNo,
+                record.studentName,
+                record.gender,
+                record.departmentName,
+                record.className,
+                record.date,
+                record.time,
+                record.status,
+                student?.mentor || "N/A",
+                (studentLateCounts[record.studentId] || 0).toString(),
+            ];
+          }),
           headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
           styles: { cellPadding: 2, fontSize: 8, lineColor: [44, 62, 80], lineWidth: 0.1 },
         });
@@ -448,7 +456,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                   <TableHead>Date</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Marked By</TableHead>
+                  <TableHead>Mentor</TableHead>
                   <TableHead>Total Late Entries</TableHead>
                 </TableRow>
               </TableHeader>
@@ -460,27 +468,30 @@ export function RecordsTable({ records, loading, departments, classes, students 
                           </TableRow>
                       ))
                   ) : filteredRecords.length > 0 ? (
-                      filteredRecords.map((record, index) => (
-                          <TableRow key={record.id} onClick={() => handleRowClick(record)} className="cursor-pointer">
-                              <TableCell>{index + 1}</TableCell>
-                              <TableCell>{record.registerNo || "N/A"}</TableCell>
-                              <TableCell className="font-medium">{record.studentName}</TableCell>
-                              <TableCell>{record.gender}</TableCell>
-                              <TableCell>{record.departmentName}</TableCell>
-                              <TableCell>{record.className}</TableCell>
-                              <TableCell>{record.date}</TableCell>
-                              <TableCell>{record.time}</TableCell>
-                               <TableCell>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(record.status)}`}>
-                                      {record.status}
-                                  </span>
-                              </TableCell>
-                              <TableCell>{record.markedBy}</TableCell>
-                              <TableCell>
-                                  <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
-                              </TableCell>
-                          </TableRow>
-                      ))
+                      filteredRecords.map((record, index) => {
+                          const student = studentMap.get(record.studentId);
+                          return (
+                            <TableRow key={record.id} onClick={() => handleRowClick(record)} className="cursor-pointer">
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{record.registerNo || "N/A"}</TableCell>
+                                <TableCell className="font-medium">{record.studentName}</TableCell>
+                                <TableCell>{record.gender}</TableCell>
+                                <TableCell>{record.departmentName}</TableCell>
+                                <TableCell>{record.className}</TableCell>
+                                <TableCell>{record.date}</TableCell>
+                                <TableCell>{record.time}</TableCell>
+                                 <TableCell>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(record.status)}`}>
+                                        {record.status}
+                                    </span>
+                                </TableCell>
+                                <TableCell>{student?.mentor || "N/A"}</TableCell>
+                                <TableCell>
+                                    <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
+                                </TableCell>
+                            </TableRow>
+                          )
+                        })
                   ) : (
                        <TableRow>
                           <TableCell colSpan={11} className="text-center">
@@ -549,11 +560,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
-
-
-
-
-
-
