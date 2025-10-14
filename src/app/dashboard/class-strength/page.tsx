@@ -167,11 +167,12 @@ export default function ClassStrengthPage() {
     
         autoTable(doc, {
           startY: contentY,
-          head: [['S.No.', 'Register No.', 'Student Name']],
+          head: [['S.No.', 'Register No.', 'Student Name', 'Mentor']],
           body: selectedClassStudents.map((student, index) => [
             index + 1,
             student.registerNo,
             student.name,
+            student.mentor || 'N/A',
           ]),
           headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
           styles: { cellPadding: 2, fontSize: 10, lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -215,6 +216,7 @@ export default function ClassStrengthPage() {
       "S.No.": index + 1,
       "Register No.": student.registerNo,
       "Student Name": student.name,
+      "Mentor": student.mentor || 'N/A',
     }));
 
     exportToCsv(`${selectedClassInfo.deptName}_${selectedClassInfo.className}_students.csv`, rows);
@@ -315,6 +317,7 @@ export default function ClassStrengthPage() {
                   <TableHead>S.No.</TableHead>
                   <TableHead>Register No.</TableHead>
                   <TableHead>Student Name</TableHead>
+                  <TableHead>Mentor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -324,11 +327,12 @@ export default function ClassStrengthPage() {
                       <TableCell>{index + 1}</TableCell>
                       <TableCell>{student.registerNo}</TableCell>
                       <TableCell>{student.name}</TableCell>
+                      <TableCell>{student.mentor || 'N/A'}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">No students found in this class.</TableCell>
+                    <TableCell colSpan={4} className="text-center">No students found in this class.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

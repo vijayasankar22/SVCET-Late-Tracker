@@ -17,6 +17,7 @@ export interface Student {
   registerNo: string;
   gender: 'MALE' | 'FEMALE';
   parentPhoneNumber?: string;
+  mentor?: string;
 }
 
 export interface Staff {
