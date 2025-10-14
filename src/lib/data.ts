@@ -14,6 +14,8 @@ export const departments: Department[] = [
 
 export const classes: Class[] = [
   // CSE
+  { id: 'cse-1-a', departmentId: 'cse', name: 'I-A' },
+  { id: 'cse-1-b', departmentId: 'cse', name: 'I-B' },
   { id: 'cse-2-a', departmentId: 'cse', name: 'II-A' },
   { id: 'cse-2-b', departmentId: 'cse', name: 'II-B' },
   { id: 'cse-3-a', departmentId: 'cse', name: 'III-A' },
@@ -21,25 +23,32 @@ export const classes: Class[] = [
   { id: 'cse-4-a', departmentId: 'cse', name: 'IV-A' },
   { id: 'cse-4-b', departmentId: 'cse', name: 'IV-B' },
   // ECE
+  { id: 'ece-1', departmentId: 'ece', name: 'I' },
   { id: 'ece-2', departmentId: 'ece', name: 'II' },
   { id: 'ece-3', departmentId: 'ece', name: 'III' },
   { id: 'ece-4', departmentId: 'ece', name: 'IV' },
   // BME
+  { id: 'bme-1', departmentId: 'bme', name: 'I' },
   { id: 'bme-2', departmentId: 'bme', name: 'II' },
   { id: 'bme-3', departmentId: 'bme', name: 'III' },
   { id: 'bme-4', departmentId: 'bme', name: 'IV' },
   // EEE
+  { id: 'eee-1', departmentId: 'eee', name: 'I' },
   { id: 'eee-2', departmentId: 'eee', name: 'II' },
   { id: 'eee-3', departmentId: 'eee', name: 'III' },
   { id: 'eee-4', departmentId: 'eee', name: 'IV' },
   // MECH
+  { id: 'mech-1', departmentId: 'mech', name: 'I' },
   { id: 'mech-2', departmentId: 'mech', name: 'II' },
   { id: 'mech-3', departmentId: 'mech', name: 'III' },
   { id: 'mech-4', departmentId: 'mech', name: 'IV' },
   // MBA
-  { id: 'mba-1', departmentId: 'mba', name: 'I' },
+  { id: 'mba-1-a', departmentId: 'mba', name: 'I-A' },
+  { id: 'mba-1-b', departmentId: 'mba', name: 'I-B' },
   { id: 'mba-2-a', departmentId: 'mba', name: 'II-A' },
   { id: 'mba-2-b', departmentId: 'mba', name: 'II-B' },
+  { id: 'aids-1', departmentId: 'aids', name: 'I' },
+  { id: 'cse-iot-1', departmentId: 'cse-iot', name: 'I' },
 ];
 
 export const students: Student[] = [
