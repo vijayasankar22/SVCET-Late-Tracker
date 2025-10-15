@@ -9,7 +9,7 @@ buildConfig:
   build:
     - npm install
     - npm run build
-  outputDirectory: dist
+  outputDirectory: .next
 
 runConfig:
   maxInstances: 1
