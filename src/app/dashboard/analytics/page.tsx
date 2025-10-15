@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -90,6 +91,7 @@ export default function AnalyticsPage() {
       <div className='flex items-center justify-between'>
         <div className='space-y-1'>
             <h1 className="text-2xl font-headline font-bold">Late Entry Analytics</h1>
+            <CardDescription>View statistics about late entries.</CardDescription>
         </div>
         <Link href="/dashboard">
             <Button variant="outline">
