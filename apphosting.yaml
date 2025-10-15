@@ -2,11 +2,9 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 build:
-  - fetch:
+  - fetch: .   # <— this tells Firebase to fetch code from the current directory
   - install: npm install
   - build: npm run build
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
   maxInstances: 1
