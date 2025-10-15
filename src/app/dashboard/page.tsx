@@ -117,19 +117,10 @@ export default function DashboardPage() {
       
       const timestamp = new Date();
       
-      const student = students.find(s => s.id === newRecord.studentId);
-      if (!student) {
-        throw new Error("Student not found for the new record.");
-      }
-
       const recordWithTimestamp = {
         ...newRecord,
         timestamp: timestamp,
         date: timestamp.toLocaleDateString(),
-        // Ensure canonical student data is saved
-        studentName: student.name,
-        registerNo: student.registerNo,
-        gender: student.gender,
       };
 
       const docRef = await addDoc(collection(db, 'lateRecords'), recordWithTimestamp);
@@ -158,14 +149,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {user?.role === 'admin' && (
-        <EntryForm 
-          onAddRecord={handleAddRecord}
-          departments={departments}
-          classes={classes}
-          students={students}
-        />
-      )}
+      <EntryForm 
+        onAddRecord={handleAddRecord}
+        departments={departments}
+        classes={classes}
+        students={students}
+      />
       <Stats records={records} />
       <RecordsTable 
         records={records} 

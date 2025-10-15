@@ -2,14 +2,5 @@
 # Firebase App Hosting build configuration
 # Reference: https://firebase.google.com/docs/app-hosting/configure
 
-build:
-  steps:
-    - name: fetch
-      args: ['.']
-    - name: install
-      args: ['npm', 'install']
-    - name: build
-      args: ['npm', 'run', 'build']
-
 runConfig:
   maxInstances: 1

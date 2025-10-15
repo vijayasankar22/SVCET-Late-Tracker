@@ -9,18 +9,24 @@ export async function seedDatabase() {
     const batch = writeBatch(db);
 
     const departmentsCollection = collection(db, 'departments');
+    const existingDepts = await getDocs(departmentsCollection);
+    existingDepts.forEach(doc => batch.delete(doc.ref));
     for (const dept of departments) {
       const docRef = doc(departmentsCollection, dept.id);
       batch.set(docRef, dept);
     }
 
     const classesCollection = collection(db, 'classes');
+    const existingClasses = await getDocs(classesCollection);
+    existingClasses.forEach(doc => batch.delete(doc.ref));
     for (const cls of classes) {
       const docRef = doc(classesCollection, cls.id);
       batch.set(docRef, cls);
     }
 
     const studentsCollection = collection(db, 'students');
+    const existingStudents = await getDocs(studentsCollection);
+    existingStudents.forEach(doc => batch.delete(doc.ref));
     for (const student of students) {
         const docRef = doc(studentsCollection, student.id);
         batch.set(docRef, student);
@@ -28,7 +34,7 @@ export async function seedDatabase() {
 
     await batch.commit();
 
-    return { success: true, message: 'Database seeded successfully!' };
+    return { success: true, message: 'Database seeded successfully! All old data has been replaced.' };
 
   } catch (error) {
     console.error('Error seeding database:', error);

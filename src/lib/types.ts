@@ -17,14 +17,12 @@ export interface Student {
   registerNo: string;
   gender: 'MALE' | 'FEMALE';
   parentPhoneNumber?: string;
-  mentor?: string;
 }
 
 export interface Staff {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'viewer';
 }
 
 export interface LateRecord {
@@ -38,6 +36,6 @@ export interface LateRecord {
   date: string;
   time: string;
   markedBy: string;
-  status: 'Informed' | 'Not Informed' | 'Letter Given';
+  status: 'Informed' | 'Not Informed';
   timestamp: any;
 }
