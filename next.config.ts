@@ -2,13 +2,6 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    pwa: {
-      dest: 'public',
-      register: true,
-      skipWaiting: true,
-    },
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
