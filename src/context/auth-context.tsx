@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const validUsers = [
     { email: 'admin@svcet.com', password: 'Admin@789', name: 'Admin Staff', id: 'admin', role: 'admin' as const },
     { email: 'dean@svcet.com', password: 'Dean@789', name: 'Dean', id: 'dean', role: 'admin' as const },
-    { email: 'viewer@svcet.com', password: 'Viewer@789', name: 'Viewer Staff', id: 'viewer', role: 'viewer' as const }
+    { email: 'viewer@svcet.com', password: 'Viewer@123', name: 'Viewer Staff', id: 'viewer', role: 'viewer' as const }
 ];
 
 
