@@ -2,10 +2,9 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 build:
-  # This command is run on the server to install dependencies.
-  install: npm install
-  # This command is run on the server to build the app.
-  command: npm run build
+  - fetch:
+  - install: npm install
+  - build: npm run build
 
 runConfig:
   # Increase this value if you'd like to automatically spin up
