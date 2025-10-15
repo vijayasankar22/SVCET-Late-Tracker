@@ -2,5 +2,12 @@
 # Firebase App Hosting build configuration
 # Reference: https://firebase.google.com/docs/app-hosting/configure
 
+buildConfig:
+  runtime: nodejs20
+  build:
+    - npm install
+    - npm run build
+  outputDirectory: dist
+
 runConfig:
   maxInstances: 1
