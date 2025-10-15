@@ -19,7 +19,7 @@ const formSchema = z.object({
   departmentId: z.string().min(1, 'Please select a department.'),
   classId: z.string().min(1, 'Please select a class.'),
   studentId: z.string().min(1, 'Please select a student.'),
-  status: z.enum(['Informed', 'Not Informed'], {
+  status: z.enum(['Informed', 'Not Informed', 'Letter Given'], {
     required_error: 'You need to select a notification status.',
   }),
 });
@@ -203,6 +203,12 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                           <RadioGroupItem value="Informed" />
                         </FormControl>
                         <FormLabel className="font-normal">Already Informed</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Letter Given" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Letter Given</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
