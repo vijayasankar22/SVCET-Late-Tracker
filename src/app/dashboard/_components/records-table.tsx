@@ -42,6 +42,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
   const [mentorFilter, setMentorFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
     return { from: today, to: today };
@@ -162,6 +163,9 @@ export function RecordsTable({ records, loading, departments, classes, students 
         const student = students.find(s => s.id === record.studentId);
         return student?.mentor === mentorFilter;
       })
+      .filter((record) =>
+        statusFilter === "all" || record.status === statusFilter
+      )
       .filter((record) => {
         if (!dateRange || !dateRange.from) {
           return true;
@@ -195,7 +199,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         return dateB - dateA;
       });
       
-  }, [records, searchTerm, departmentFilter, classFilter, mentorFilter, dateRange, departments, classes, students]);
+  }, [records, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, dateRange, departments, classes, students]);
   
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => {
@@ -362,7 +366,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
             <Separator />
             <p className="text-sm text-center text-muted-foreground">Or, filter the late entry records table:</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div className="relative lg:col-span-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -460,6 +464,17 @@ export function RecordsTable({ records, loading, departments, classes, students 
                           {mentors.map(mentor => (
                               <SelectItem key={mentor} value={mentor}>{mentor}</SelectItem>
                           ))}
+                      </SelectContent>
+                  </Select>
+                   <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Statuses</SelectItem>
+                          <SelectItem value="Informed">Informed</SelectItem>
+                          <SelectItem value="Not Informed">Not Informed</SelectItem>
+                          <SelectItem value="Letter Given">Letter Given</SelectItem>
                       </SelectContent>
                   </Select>
               </div>
