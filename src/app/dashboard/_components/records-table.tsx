@@ -41,6 +41,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
+  const [mentorFilter, setMentorFilter] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
     return { from: today, to: today };
@@ -134,6 +135,16 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
+  const mentors = useMemo(() => {
+    const mentorSet = new Set<string>();
+    students.forEach(student => {
+      if (student.mentor) {
+        mentorSet.add(student.mentor);
+      }
+    });
+    return Array.from(mentorSet).sort();
+  }, [students]);
+
   const filteredRecords = useMemo(() => {
     return records
       .filter((record) =>
@@ -146,6 +157,11 @@ export function RecordsTable({ records, loading, departments, classes, students 
       .filter((record) =>
         classFilter === "all" || record.className === classes.find(c => c.id === classFilter)?.name
       )
+      .filter((record) => {
+        if (mentorFilter === 'all') return true;
+        const student = students.find(s => s.id === record.studentId);
+        return student?.mentor === mentorFilter;
+      })
       .filter((record) => {
         if (!dateRange || !dateRange.from) {
           return true;
@@ -179,7 +195,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         return dateB - dateA;
       });
       
-  }, [records, searchTerm, departmentFilter, classFilter, dateRange, departments, classes]);
+  }, [records, searchTerm, departmentFilter, classFilter, mentorFilter, dateRange, departments, classes, students]);
   
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => {
@@ -346,8 +362,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
             <Separator />
             <p className="text-sm text-center text-muted-foreground">Or, filter the late entry records table:</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="relative lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="relative lg:col-span-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
@@ -413,30 +429,39 @@ export function RecordsTable({ records, loading, departments, classes, students 
                       </div>
                     </PopoverContent>
                   </Popover>
-                  <div className="flex gap-4">
-                    <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                      <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Departments</SelectItem>
+                          {departments.map(dept => (
+                              <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                  <Select value={classFilter} onValueChange={setClassFilter}>
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Departments</SelectItem>
-                            {departments.map(dept => (
-                                <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Select value={classFilter} onValueChange={setClassFilter}>
-                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Class" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Classes</SelectItem>
-                            {availableClasses.map(c => (
-                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                  </div>
+                          <SelectValue placeholder="Class" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Classes</SelectItem>
+                          {availableClasses.map(c => (
+                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+                  <Select value={mentorFilter} onValueChange={setMentorFilter}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Mentor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">All Mentors</SelectItem>
+                          {mentors.map(mentor => (
+                              <SelectItem key={mentor} value={mentor}>{mentor}</SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
               </div>
           </div>
 
@@ -557,3 +582,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
