@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo, Fragment } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Department, Student, Class } from '@/lib/types';
@@ -27,18 +27,41 @@ import { exportToCsv } from '@/lib/utils';
 type ClassStrength = {
   classId: string;
   className: string;
+  departmentName: string;
   boys: number;
   girls: number;
   total: number;
 };
 
-type DepartmentStrength = {
-  [departmentName: string]: {
+type BatchStrength = {
+  [batch: string]: {
     classes: ClassStrength[];
     total: number;
     totalBoys: number;
     totalGirls: number;
   };
+};
+
+const getYearFromClassName = (className: string): number | null => {
+  if (className.startsWith('I-') || className === 'I') return 1;
+  if (className.startsWith('II-') || className === 'II') return 2;
+  if (className.startsWith('III-') || className === 'III') return 3;
+  if (className.startsWith('IV-') || className === 'IV') return 4;
+  return null;
+};
+
+const BATCH_MAP: { [key: number]: string } = {
+  1: '2025-29',
+  2: '2024-28',
+  3: '2023-27',
+  4: '2022-26',
+};
+
+const YEAR_NAME_MAP: { [key: number]: string } = {
+  1: 'I Year',
+  2: 'II Year',
+  3: 'III Year',
+  4: 'IV Year',
 };
 
 export default function ClassStrengthPage() {
@@ -105,40 +128,53 @@ export default function ClassStrengthPage() {
       return {};
     }
 
-    const data: DepartmentStrength = {};
+    const data: BatchStrength = {
+      '2025-29': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+      '2024-28': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+      '2023-27': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+      '2022-26': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+    };
 
-    departments.forEach(dept => {
-      data[dept.name] = { classes: [], total: 0, totalBoys: 0, totalGirls: 0 };
-      const deptClasses = classes.filter(c => c.departmentId === dept.id).sort((a,b) => a.name.localeCompare(b.name));
-      let departmentTotal = 0;
-      let departmentBoys = 0;
-      let departmentGirls = 0;
+    const departmentMap = new Map(departments.map(d => [d.id, d.name]));
 
-      deptClasses.forEach(cls => {
-        const classStudents = students.filter(s => s.classId === cls.id);
-        const boys = classStudents.filter(s => s.gender === 'MALE').length;
-        const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
-        const total = boys + girls;
-        
-        departmentTotal += total;
-        departmentBoys += boys;
-        departmentGirls += girls;
+    classes.forEach(cls => {
+      const year = getYearFromClassName(cls.name);
+      if (!year) return;
 
-        data[dept.name].classes.push({
-          classId: cls.id,
-          className: cls.name,
-          boys,
-          girls,
-          total,
-        });
+      const batch = BATCH_MAP[year];
+      if (!batch || !data[batch]) return;
+
+      const classStudents = students.filter(s => s.classId === cls.id);
+      const boys = classStudents.filter(s => s.gender === 'MALE').length;
+      const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
+      const total = boys + girls;
+
+      data[batch].total += total;
+      data[batch].totalBoys += boys;
+      data[batch].totalGirls += girls;
+
+      data[batch].classes.push({
+        classId: cls.id,
+        className: cls.name,
+        departmentName: departmentMap.get(cls.departmentId) || 'N/A',
+        boys,
+        girls,
+        total,
       });
-      data[dept.name].total = departmentTotal;
-      data[dept.name].totalBoys = departmentBoys;
-      data[dept.name].totalGirls = departmentGirls;
     });
+
+    // Sort classes within each batch
+    for (const batch in data) {
+      data[batch].classes.sort((a, b) => {
+        if (a.departmentName < b.departmentName) return -1;
+        if (a.departmentName > b.departmentName) return 1;
+        return a.className.localeCompare(b.className);
+      });
+    }
 
     return data;
   }, [students, classes, departments, loading]);
+
 
   const handleClassClick = (classId: string, className: string, deptName: string) => {
     const classStudents = students.filter(s => s.classId === classId).sort((a, b) => (a.registerNo || '').localeCompare(b.registerNo || ''));
@@ -230,9 +266,9 @@ export default function ClassStrengthPage() {
                  <Skeleton className="h-8 w-64" />
                  <Skeleton className="h-10 w-40" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {Array.from({length: 6}).map((_, i) => (
-                     <Skeleton key={i} className="h-64 w-full" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {Array.from({length: 4}).map((_, i) => (
+                     <Skeleton key={i} className="h-80 w-full" />
                 ))}
             </div>
         </div>
@@ -254,17 +290,18 @@ export default function ClassStrengthPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Object.entries(strengthData).map(([deptName, deptData]) => (
-            <Card key={deptName}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {Object.entries(strengthData).map(([batch, batchData]) => (
+            <Card key={batch}>
               <CardHeader>
-                <CardTitle>{deptName}</CardTitle>
-                <p className="text-sm text-muted-foreground">Total Strength: {deptData.total}</p>
+                <CardTitle>Batch {batch} ({YEAR_NAME_MAP[Object.keys(BATCH_MAP).find(key => BATCH_MAP[parseInt(key)] === batch) as any]})</CardTitle>
+                <p className="text-sm text-muted-foreground">Total Strength: {batchData.total}</p>
               </CardHeader>
               <CardContent>
                   <Table>
                       <TableHeader>
                       <TableRow>
+                          <TableHead>Department</TableHead>
                           <TableHead>Class</TableHead>
                           <TableHead className='text-center'>Boys</TableHead>
                           <TableHead className='text-center'>Girls</TableHead>
@@ -272,8 +309,9 @@ export default function ClassStrengthPage() {
                       </TableRow>
                       </TableHeader>
                       <TableBody>
-                      {deptData.classes.map(cs => (
-                          <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, deptName)} className="cursor-pointer">
+                      {batchData.classes.map(cs => (
+                          <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, cs.departmentName)} className="cursor-pointer">
+                            <TableCell>{cs.departmentName}</TableCell>
                             <TableCell className='font-medium'>{cs.className}</TableCell>
                             <TableCell className='text-center'>{cs.boys}</TableCell>
                             <TableCell className='text-center'>{cs.girls}</TableCell>
@@ -287,10 +325,10 @@ export default function ClassStrengthPage() {
                   <Table>
                       <TableBody>
                           <TableRow className='border-none hover:bg-transparent'>
-                              <TableCell className="font-bold">Department Total</TableCell>
-                              <TableCell className="text-center font-bold">{deptData.totalBoys}</TableCell>
-                              <TableCell className="text-center font-bold">{deptData.totalGirls}</TableCell>
-                              <TableCell className="text-center font-bold">{deptData.total}</TableCell>
+                              <TableCell className="font-bold" colSpan={2}>Batch Total</TableCell>
+                              <TableCell className="text-center font-bold">{batchData.totalBoys}</TableCell>
+                              <TableCell className="text-center font-bold">{batchData.totalGirls}</TableCell>
+                              <TableCell className="text-center font-bold">{batchData.total}</TableCell>
                           </TableRow>
                       </TableBody>
                   </Table>
