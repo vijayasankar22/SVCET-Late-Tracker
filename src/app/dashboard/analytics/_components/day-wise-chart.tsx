@@ -157,20 +157,10 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                                     setIsDatePickerOpen(false);
                                 }}>This Week</Button>
                                 <Button variant="outline" size="sm" onClick={() => {
-                                    const lastWeek = subWeeks(new Date(), 1);
-                                    setDateRange({ from: startOfWeek(lastWeek), to: endOfWeek(lastWeek) });
-                                    setIsDatePickerOpen(false);
-                                }}>Last Week</Button>
-                                <Button variant="outline" size="sm" onClick={() => {
                                     const now = new Date();
                                     setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
                                     setIsDatePickerOpen(false);
                                 }}>This Month</Button>
-                                <Button variant="outline" size="sm" onClick={() => {
-                                    const lastMonth = subMonths(new Date(), 1);
-                                    setDateRange({ from: startOfMonth(lastMonth), to: endOfMonth(lastMonth) });
-                                    setIsDatePickerOpen(false);
-                                }}>Last Month</Button>
                             </div>
                             <div className="rounded-md border">
                               <Calendar
