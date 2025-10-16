@@ -13,7 +13,7 @@ import autoTable from "jspdf-autotable";
 import { DateRange } from 'react-day-picker';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'fns';
 import { cn } from '@/lib/utils';
 
 type TopLatecomersListProps = {
@@ -103,6 +103,7 @@ export function TopLatecomersList({ records, students, departments, classes, log
               count,
               departmentName: record.departmentName,
               className: record.className,
+              mentor: 'N/A'
             };
         }
 
@@ -114,6 +115,7 @@ export function TopLatecomersList({ records, students, departments, classes, log
           count,
           departmentName: department?.name || 'N/A',
           className: studentClass?.name || 'N/A',
+          mentor: studentDetails.mentor || 'N/A'
         };
       })
       .sort((a, b) => b.count - a.count)
@@ -144,13 +146,14 @@ export function TopLatecomersList({ records, students, departments, classes, log
   
       autoTable(doc, {
         startY: contentY,
-        head: [['Rank', 'Student Name', 'Register No.', 'Department', 'Class', 'Total Late Entries']],
+        head: [['Rank', 'Student Name', 'Register No.', 'Department', 'Class', 'Mentor', 'Total Late Entries']],
         body: topLatecomers.map((student, index) => [
           index + 1,
           student.name,
           student.registerNo,
           student.departmentName,
           student.className,
+          student.mentor,
           student.count,
         ]),
         headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
@@ -289,6 +292,7 @@ export function TopLatecomersList({ records, students, departments, classes, log
                         <TableHead>Register No.</TableHead>
                         <TableHead>Department</TableHead>
                         <TableHead>Class</TableHead>
+                        <TableHead>Mentor</TableHead>
                         <TableHead className="text-right">Total Late Entries</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -301,12 +305,13 @@ export function TopLatecomersList({ records, students, departments, classes, log
                                 <TableCell>{student.registerNo}</TableCell>
                                 <TableCell>{student.departmentName}</TableCell>
                                 <TableCell>{student.className}</TableCell>
+                                <TableCell>{student.mentor}</TableCell>
                                 <TableCell className="text-right font-bold">{student.count}</TableCell>
                             </TableRow>
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={6} className="text-center">
+                            <TableCell colSpan={7} className="text-center">
                                 No late entry data available for the selected filter.
                             </TableCell>
                         </TableRow>
