@@ -33,7 +33,7 @@ export function Header() {
       </Link>
       <div className="ml-auto flex items-center gap-2 md:gap-4">
         {user?.role !== 'viewer' && (
-          <>
+          <div className="hidden md:flex items-center gap-2 md:gap-4">
             {pathname.startsWith('/dashboard') && (
                 <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
                     <Users className="h-4 w-4 md:mr-2" />
@@ -52,7 +52,7 @@ export function Header() {
                 <span className="hidden md:inline">View Analytics</span>
               </Button>
             )}
-          </>
+          </div>
         )}
         {user && (
           <DropdownMenu>

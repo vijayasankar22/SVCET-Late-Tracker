@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect } from 'react';
@@ -5,6 +6,7 @@ import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BottomNavBar } from '@/components/bottom-nav-bar';
 
 export default function DashboardLayout({
   children,
@@ -35,9 +37,10 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 pb-20 md:pb-8">
         {children}
       </main>
+      <BottomNavBar />
     </div>
   );
 }
