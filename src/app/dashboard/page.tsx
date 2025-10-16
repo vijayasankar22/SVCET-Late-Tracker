@@ -97,6 +97,15 @@ export default function DashboardPage() {
 
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
+    if (user?.role === 'viewer') {
+        toast({
+            variant: "destructive",
+            title: "Permission Denied",
+            description: "Viewers are not allowed to mark students late.",
+        });
+        return false;
+    }
+      
     try {
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -149,12 +158,14 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <EntryForm 
-        onAddRecord={handleAddRecord}
-        departments={departments}
-        classes={classes}
-        students={students}
-      />
+      {user?.role === 'admin' && (
+        <EntryForm 
+          onAddRecord={handleAddRecord}
+          departments={departments}
+          classes={classes}
+          students={students}
+        />
+      )}
       <Stats records={records} />
       <RecordsTable 
         records={records} 

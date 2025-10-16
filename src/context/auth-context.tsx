@@ -15,8 +15,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const validUsers = [
-    { email: 'admin@svcet.com', password: 'Admin@789', name: 'Admin Staff', id: 'admin' },
-    { email: 'dean@svcet.com', password: 'Dean@789', name: 'Dean', id: 'dean' },
+    { email: 'admin@svcet.com', password: 'Admin@789', name: 'Admin Staff', id: 'admin', role: 'admin' as const },
+    { email: 'dean@svcet.com', password: 'Dean@789', name: 'Dean', id: 'dean', role: 'admin' as const },
+    { email: 'viewer@svcet.com', password: 'Viewer@789', name: 'Viewer', id: 'viewer', role: 'viewer' as const },
 ];
 
 
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: foundUser.id,
         name: foundUser.name,
         email: foundUser.email,
+        role: foundUser.role,
       };
       setUser(staffUser);
       localStorage.setItem('svcet_late_tracker_user', JSON.stringify(staffUser));

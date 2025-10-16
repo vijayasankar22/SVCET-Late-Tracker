@@ -5,6 +5,7 @@ import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Info } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { LateRecord, Department, Class, Student } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   departmentId: z.string().min(1, 'Please select a department.'),
@@ -35,6 +37,8 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isViewer = user?.role === 'viewer';
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,6 +64,11 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
   }, [selectedClassId, students]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isViewer) {
+        toast({ variant: "destructive", title: "Permission Denied", description: "You do not have permission to perform this action." });
+        return;
+    }
+    
     const student = students.find((s) => s.id === values.studentId);
     const department = departments.find((d) => d.id === values.departmentId);
     const cls = classes.find((c) => c.id === values.classId);
@@ -107,6 +116,15 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
         <CardDescription>Select department and class to find a student.</CardDescription>
       </CardHeader>
       <CardContent>
+        {isViewer && (
+            <Alert variant="default" className="mb-6 bg-secondary/50">
+              <Info className="h-4 w-4" />
+              <AlertTitle>Read-only Access</AlertTitle>
+              <AlertDescription>
+                You are logged in as a viewer. You can see all records, but you cannot mark students late.
+              </AlertDescription>
+            </Alert>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -120,7 +138,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                       field.onChange(value);
                       form.resetField("classId");
                       form.resetField("studentId");
-                    }} value={field.value} disabled={isSubmitting}>
+                    }} value={field.value} disabled={isSubmitting || isViewer}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Department" /></SelectTrigger>
                       </FormControl>
@@ -143,7 +161,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                      <Select onValueChange={(value) => {
                        field.onChange(value);
                        form.resetField("studentId");
-                     }} value={field.value} disabled={!selectedDepartmentId || isSubmitting}>
+                     }} value={field.value} disabled={!selectedDepartmentId || isSubmitting || isViewer}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
                       </FormControl>
@@ -163,7 +181,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Student Name</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId || isSubmitting}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!selectedClassId || isSubmitting || isViewer}>
                       <FormControl>
                         <SelectTrigger><SelectValue placeholder="Select Student" /></SelectTrigger>
                       </FormControl>
@@ -190,7 +208,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       className="flex flex-col space-y-1"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isViewer}
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
@@ -218,7 +236,7 @@ export function EntryForm({ onAddRecord, departments, classes, students }: Entry
             />
 
             <div className="flex justify-end">
-              <Button type="submit" className="bg-accent hover:bg-accent/90 w-full md:w-auto" disabled={isSubmitting || !form.formState.isValid}>
+              <Button type="submit" className="bg-accent hover:bg-accent/90 w-full md:w-auto" disabled={isSubmitting || !form.formState.isValid || isViewer}>
                 {isSubmitting ? 'Submitting...' : 'Mark Late'}
               </Button>
             </div>
