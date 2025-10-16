@@ -123,3 +123,33 @@ export async function cleanupRecordsBeforeDate() {
     return { success: false, message: 'An unknown error occurred during cleanup.' };
   }
 }
+
+export async function cleanupLastRecord() {
+  try {
+    const recordsCollection = collection(db, 'lateRecords');
+    
+    const q = query(
+        recordsCollection, 
+        orderBy('timestamp', 'desc'), 
+        limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return { success: true, message: 'No records found to delete.' };
+    }
+
+    const lastRecord = querySnapshot.docs[0];
+    await deleteDoc(lastRecord.ref);
+    
+    return { success: true, message: `Successfully deleted the last late record.` };
+
+  } catch (error) {
+    console.error('Error cleaning up last record:', error);
+    if (error instanceof Error) {
+        return { success: false, message: `Error cleaning up record: ${error.message}` };
+    }
+    return { success: false, message: 'An unknown error occurred during cleanup.' };
+  }
+}

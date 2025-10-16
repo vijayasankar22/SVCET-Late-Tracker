@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, LogOut, BarChart3, Users, Warehouse } from 'lucide-react';
+import { ClipboardCheck, LogOut, BarChart3, Users, Warehouse, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -12,6 +12,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { usePathname, useRouter } from 'next/navigation';
@@ -73,6 +77,27 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+               {user?.role === 'admin' && (
+                 <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Cleanup Records</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => router.push('/cleanup-last')}>
+                        Delete Last Record
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push('/cleanup')}>
+                        Delete Today's Records
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push('/cleanup-old')}>
+                        Delete Old Records
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
