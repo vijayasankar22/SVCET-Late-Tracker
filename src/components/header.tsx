@@ -3,7 +3,7 @@
 
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, LogOut, BarChart3, Users } from 'lucide-react';
+import { ClipboardCheck, LogOut, BarChart3, Users, Warehouse } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -31,18 +31,28 @@ export function Header() {
             SVCET<span className="hidden sm:inline"> - Late Tracker</span>
         </h1>
       </Link>
-      <div className="ml-auto flex items-center gap-4">
-        {pathname.startsWith('/dashboard') && (
-            <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
-                <Users className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">Class Strength</span>
-            </Button>
-        )}
-        {pathname.startsWith('/dashboard') && !pathname.endsWith('analytics') && (
-          <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
-            <BarChart3 className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">View Analytics</span>
-          </Button>
+      <div className="ml-auto flex items-center gap-2 md:gap-4">
+        {user?.role !== 'viewer' && (
+          <>
+            {pathname.startsWith('/dashboard') && (
+                <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
+                    <Users className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Class Strength</span>
+                </Button>
+            )}
+             {pathname.startsWith('/dashboard') && (
+                <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/batch-strength')}>
+                    <Warehouse className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Batch Strength</span>
+                </Button>
+            )}
+            {pathname.startsWith('/dashboard') && !pathname.endsWith('analytics') && (
+              <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
+                <BarChart3 className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">View Analytics</span>
+              </Button>
+            )}
+          </>
         )}
         {user && (
           <DropdownMenu>
