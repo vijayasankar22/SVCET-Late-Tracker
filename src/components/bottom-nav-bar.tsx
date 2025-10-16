@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -30,9 +29,9 @@ export function BottomNavBar() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 p-2 rounded-md text-sm font-medium',
+              'flex flex-col items-center justify-center gap-1 p-2 rounded-md text-sm font-medium w-16 h-16',
               pathname === item.href
-                ? 'text-primary'
+                ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-accent/50'
             )}
           >
