@@ -47,7 +47,6 @@ export default function LoginPage() {
              <Image src="/svcet-logo.png" alt="Logo" width={150} height={150} />
           </div>
           <CardTitle className="text-3xl font-headline">SVCET - Late Tracker</CardTitle>
-          <CardDescription>Staff Login</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

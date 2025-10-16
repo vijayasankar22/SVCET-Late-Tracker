@@ -253,7 +253,6 @@ export default function ClassStrengthPage() {
         <div className='flex items-center justify-between'>
           <div className='space-y-1'>
               <h1 className="text-2xl font-headline font-bold">Class Strength</h1>
-              <p className="text-muted-foreground">View student counts for each class by department.</p>
           </div>
           <Link href="/dashboard">
               <Button variant="outline">
