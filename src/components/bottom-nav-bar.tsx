@@ -30,10 +30,10 @@ export function BottomNavBar() {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex flex-col items-center justify-center gap-1 p-2 rounded-md text-sm font-medium w-16 h-16',
+              'flex flex-col items-center justify-center gap-1 p-2 rounded-md text-sm font-medium w-16 h-16 transition-colors',
               pathname === item.href
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-accent/50'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-primary'
             )}
           >
             <item.icon className="h-5 w-5" />
