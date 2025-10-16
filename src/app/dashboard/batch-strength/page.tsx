@@ -303,8 +303,9 @@ export default function BatchStrengthPage() {
                 <Table>
                     <TableHeader>
                     <TableRow>
-                        <TableHead>Department</TableHead>
-                        <TableHead>Class</TableHead>
+                        <TableHead className='hidden md:table-cell'>Department</TableHead>
+                        <TableHead className='md:hidden'>Class</TableHead>
+                        <TableHead className='hidden md:table-cell'>Class</TableHead>
                         <TableHead className='text-center'>Boys</TableHead>
                         <TableHead className='text-center'>Girls</TableHead>
                         <TableHead className='text-center'>Total</TableHead>
@@ -313,11 +314,12 @@ export default function BatchStrengthPage() {
                     <TableBody>
                     {batchData.classes.map((cs: ClassStrength) => (
                         <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, cs.departmentName)} className="cursor-pointer">
-                        <TableCell>{cs.departmentName}</TableCell>
-                        <TableCell className='font-medium'>{cs.className}</TableCell>
-                        <TableCell className='text-center'>{cs.boys}</TableCell>
-                        <TableCell className='text-center'>{cs.girls}</TableCell>
-                        <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+                            <TableCell className='hidden md:table-cell'>{cs.departmentName}</TableCell>
+                            <TableCell className='font-medium md:hidden'>{cs.departmentName} - {cs.className}</TableCell>
+                            <TableCell className='font-medium hidden md:table-cell'>{cs.className}</TableCell>
+                            <TableCell className='text-center'>{cs.boys}</TableCell>
+                            <TableCell className='text-center'>{cs.girls}</TableCell>
+                            <TableCell className='text-center font-bold'>{cs.total}</TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
