@@ -205,7 +205,7 @@ export default function BatchStrengthPage() {
       mbaData[batch].classes.sort((a, b) => a.className.localeCompare(b.className));
     }
 
-    return { engineeringStrength: engineeringData, mbaStrength };
+    return { engineeringStrength: engineeringData, mbaStrength: mbaData };
   }, [students, classes, departments, loading]);
 
 
