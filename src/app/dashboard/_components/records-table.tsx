@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -403,7 +403,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <div className="flex flex-col space-y-2 p-2">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: now, to: now });
@@ -415,10 +415,20 @@ export function RecordsTable({ records, loading, departments, classes, students 
                                 setIsDatePickerOpen(false);
                             }}>This Week</Button>
                             <Button variant="outline" size="sm" onClick={() => {
+                                const lastWeek = subWeeks(new Date(), 1);
+                                setDateRange({ from: startOfWeek(lastWeek), to: endOfWeek(lastWeek) });
+                                setIsDatePickerOpen(false);
+                            }}>Last Week</Button>
+                            <Button variant="outline" size="sm" onClick={() => {
                                 const now = new Date();
                                 setDateRange({ from: startOfMonth(now), to: endOfMonth(now) });
                                 setIsDatePickerOpen(false);
                             }}>This Month</Button>
+                            <Button variant="outline" size="sm" onClick={() => {
+                                const lastMonth = subMonths(new Date(), 1);
+                                setDateRange({ from: startOfMonth(lastMonth), to: endOfMonth(lastMonth) });
+                                setIsDatePickerOpen(false);
+                            }}>Last Month</Button>
                         </div>
                         <div className="rounded-md border">
                            <Calendar
@@ -597,5 +607,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
