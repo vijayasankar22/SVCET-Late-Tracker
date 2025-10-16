@@ -437,7 +437,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                             defaultMonth={dateRange?.from}
                             selected={dateRange}
                             onSelect={setDateRange}
-                            numberOfMonths={2}
+                            numberOfMonths={1}
                           />
                         </div>
                       </div>
