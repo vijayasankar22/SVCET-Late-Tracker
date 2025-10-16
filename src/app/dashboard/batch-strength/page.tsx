@@ -64,6 +64,11 @@ const YEAR_NAME_MAP: { [key: number]: string } = {
   4: 'IV Year',
 };
 
+const MBA_BATCH_MAP: { [key: number]: string } = {
+    1: '2026-27',
+    2: '2025-26',
+};
+
 export default function BatchStrengthPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -123,59 +128,84 @@ export default function BatchStrengthPage() {
     fetchInitialData();
   }, [toast]);
 
-  const strengthData = useMemo(() => {
+  const { engineeringStrength, mbaStrength } = useMemo(() => {
     if (loading || !students.length || !classes.length || !departments.length) {
-      return {};
+      return { engineeringStrength: {}, mbaStrength: {} };
     }
 
-    const data: BatchStrength = {
+    const departmentMap = new Map(departments.map(d => [d.id, d.name]));
+
+    const engineeringData: BatchStrength = {
       '2025-29': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
       '2024-28': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
       '2023-27': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
       '2022-26': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
     };
 
-    const departmentMap = new Map(departments.map(d => [d.id, d.name]));
-    const nonMbaStudents = students.filter(s => s.departmentId !== 'mba');
+    const mbaData: BatchStrength = {
+        '2025-26': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+        '2026-27': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
+    };
+
 
     classes.forEach(cls => {
-      if (cls.departmentId === 'mba') return;
-
       const year = getYearFromClassName(cls.name);
       if (!year) return;
 
-      const batch = BATCH_MAP[year];
-      if (!batch || !data[batch]) return;
-
-      const classStudents = nonMbaStudents.filter(s => s.classId === cls.id);
+      const classStudents = students.filter(s => s.classId === cls.id);
       const boys = classStudents.filter(s => s.gender === 'MALE').length;
       const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
       const total = boys + girls;
+      
+      if (cls.departmentId === 'mba') {
+        const batch = MBA_BATCH_MAP[year];
+        if (!batch || !mbaData[batch]) return;
 
-      data[batch].total += total;
-      data[batch].totalBoys += boys;
-      data[batch].totalGirls += girls;
+        mbaData[batch].total += total;
+        mbaData[batch].totalBoys += boys;
+        mbaData[batch].totalGirls += girls;
 
-      data[batch].classes.push({
-        classId: cls.id,
-        className: cls.name,
-        departmentName: departmentMap.get(cls.departmentId) || 'N/A',
-        boys,
-        girls,
-        total,
-      });
+        mbaData[batch].classes.push({
+            classId: cls.id,
+            className: cls.name,
+            departmentName: 'MBA',
+            boys,
+            girls,
+            total,
+        });
+
+      } else {
+         const batch = BATCH_MAP[year];
+        if (!batch || !engineeringData[batch]) return;
+
+        engineeringData[batch].total += total;
+        engineeringData[batch].totalBoys += boys;
+        engineeringData[batch].totalGirls += girls;
+
+        engineeringData[batch].classes.push({
+          classId: cls.id,
+          className: cls.name,
+          departmentName: departmentMap.get(cls.departmentId) || 'N/A',
+          boys,
+          girls,
+          total,
+        });
+      }
     });
 
     // Sort classes within each batch
-    for (const batch in data) {
-      data[batch].classes.sort((a, b) => {
+    for (const batch in engineeringData) {
+      engineeringData[batch].classes.sort((a, b) => {
         if (a.departmentName < b.departmentName) return -1;
         if (a.departmentName > b.departmentName) return 1;
         return a.className.localeCompare(b.className);
       });
     }
+     for (const batch in mbaData) {
+      mbaData[batch].classes.sort((a, b) => a.className.localeCompare(b.className));
+    }
 
-    return data;
+    return { engineeringStrength: engineeringData, mbaStrength };
   }, [students, classes, departments, loading]);
 
 
@@ -261,6 +291,54 @@ export default function BatchStrengthPage() {
     exportToCsv(`${selectedClassInfo.deptName}_${selectedClassInfo.className}_students.csv`, rows);
   };
 
+  const renderBatchCard = (batch: string, batchData: any, titlePrefix = "Batch") => {
+    const yearName = YEAR_NAME_MAP[Object.keys(BATCH_MAP).find(key => BATCH_MAP[parseInt(key)] === batch) as any] || (batch === '2025-26' ? 'II Year' : 'I Year');
+    return (
+        <Card key={batch}>
+            <CardHeader>
+            <CardTitle>{titlePrefix} {batch} ({yearName})</CardTitle>
+            <p className="text-sm text-muted-foreground">Total Strength: {batchData.total}</p>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Department</TableHead>
+                        <TableHead>Class</TableHead>
+                        <TableHead className='text-center'>Boys</TableHead>
+                        <TableHead className='text-center'>Girls</TableHead>
+                        <TableHead className='text-center'>Total</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {batchData.classes.map((cs: ClassStrength) => (
+                        <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, cs.departmentName)} className="cursor-pointer">
+                        <TableCell>{cs.departmentName}</TableCell>
+                        <TableCell className='font-medium'>{cs.className}</TableCell>
+                        <TableCell className='text-center'>{cs.boys}</TableCell>
+                        <TableCell className='text-center'>{cs.girls}</TableCell>
+                        <TableCell className='text-center font-bold'>{cs.total}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+            <CardFooter className="bg-accent/10 text-foreground p-4">
+                <Table>
+                    <TableBody>
+                        <TableRow className='border-none hover:bg-transparent'>
+                            <TableCell className="font-bold" colSpan={2}>Batch Total</TableCell>
+                            <TableCell className="text-center font-bold">{batchData.totalBoys}</TableCell>
+                            <TableCell className="text-center font-bold">{batchData.totalGirls}</TableCell>
+                            <TableCell className="text-center font-bold">{batchData.total}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </CardFooter>
+        </Card>
+    );
+  };
+
 
   if (loading) {
     return (
@@ -269,8 +347,8 @@ export default function BatchStrengthPage() {
                  <Skeleton className="h-8 w-64" />
                  <Skeleton className="h-10 w-40" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {Array.from({length: 4}).map((_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({length: 6}).map((_, i) => (
                      <Skeleton key={i} className="h-80 w-full" />
                 ))}
             </div>
@@ -294,51 +372,9 @@ export default function BatchStrengthPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {Object.entries(strengthData).map(([batch, batchData]) => (
-            <Card key={batch}>
-              <CardHeader>
-                <CardTitle>Batch {batch} ({YEAR_NAME_MAP[Object.keys(BATCH_MAP).find(key => BATCH_MAP[parseInt(key)] === batch) as any]})</CardTitle>
-                <p className="text-sm text-muted-foreground">Total Strength: {batchData.total}</p>
-              </CardHeader>
-              <CardContent>
-                  <Table>
-                      <TableHeader>
-                      <TableRow>
-                          <TableHead>Department</TableHead>
-                          <TableHead>Class</TableHead>
-                          <TableHead className='text-center'>Boys</TableHead>
-                          <TableHead className='text-center'>Girls</TableHead>
-                          <TableHead className='text-center'>Total</TableHead>
-                      </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                      {batchData.classes.map(cs => (
-                          <TableRow key={cs.classId} onClick={() => handleClassClick(cs.classId, cs.className, cs.departmentName)} className="cursor-pointer">
-                            <TableCell>{cs.departmentName}</TableCell>
-                            <TableCell className='font-medium'>{cs.className}</TableCell>
-                            <TableCell className='text-center'>{cs.boys}</TableCell>
-                            <TableCell className='text-center'>{cs.girls}</TableCell>
-                            <TableCell className='text-center font-bold'>{cs.total}</TableCell>
-                          </TableRow>
-                      ))}
-                      </TableBody>
-                  </Table>
-              </CardContent>
-              <CardFooter className="bg-accent/10 text-foreground p-4">
-                  <Table>
-                      <TableBody>
-                          <TableRow className='border-none hover:bg-transparent'>
-                              <TableCell className="font-bold" colSpan={2}>Batch Total</TableCell>
-                              <TableCell className="text-center font-bold">{batchData.totalBoys}</TableCell>
-                              <TableCell className="text-center font-bold">{batchData.totalGirls}</TableCell>
-                              <TableCell className="text-center font-bold">{batchData.total}</TableCell>
-                          </TableRow>
-                      </TableBody>
-                  </Table>
-              </CardFooter>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Object.entries(engineeringStrength).map(([batch, batchData]) => renderBatchCard(batch, batchData, "B.E."))}
+          {Object.entries(mbaStrength).map(([batch, batchData]) => renderBatchCard(batch, batchData, "MBA"))}
         </div>
       </div>
       
@@ -395,5 +431,3 @@ export default function BatchStrengthPage() {
     </>
   );
 }
-
-    
