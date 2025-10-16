@@ -32,7 +32,7 @@ export function Header() {
       <Link href="/dashboard" className="flex items-center gap-2">
         <Image src="/svcet-logo.png" alt="Logo" width={40} height={40} />
         <h1 className="text-xl font-bold font-headline tracking-tight">
-            SVCET<span className="hidden sm:inline"> - Late Tracker</span>
+            SVCET - Late Tracker
         </h1>
       </Link>
       <div className="ml-auto flex items-center gap-2 md:gap-4">
