@@ -27,7 +27,9 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
       <Link href="/dashboard" className="flex items-center gap-2">
         <Image src="/svcet-logo.png" alt="Logo" width={40} height={40} />
-        <h1 className="text-xl font-bold font-headline tracking-tight">SVCET - Late Tracker</h1>
+        <h1 className="text-xl font-bold font-headline tracking-tight">
+            SVCET<span className="hidden sm:inline"> - Late Tracker</span>
+        </h1>
       </Link>
       <div className="ml-auto flex items-center gap-4">
         {pathname.startsWith('/dashboard') && (
