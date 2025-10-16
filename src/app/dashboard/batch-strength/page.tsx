@@ -136,15 +136,18 @@ export default function BatchStrengthPage() {
     };
 
     const departmentMap = new Map(departments.map(d => [d.id, d.name]));
+    const nonMbaStudents = students.filter(s => s.departmentId !== 'mba');
 
     classes.forEach(cls => {
+      if (cls.departmentId === 'mba') return;
+
       const year = getYearFromClassName(cls.name);
       if (!year) return;
 
       const batch = BATCH_MAP[year];
       if (!batch || !data[batch]) return;
 
-      const classStudents = students.filter(s => s.classId === cls.id);
+      const classStudents = nonMbaStudents.filter(s => s.classId === cls.id);
       const boys = classStudents.filter(s => s.gender === 'MALE').length;
       const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
       const total = boys + girls;
@@ -392,3 +395,5 @@ export default function BatchStrengthPage() {
     </>
   );
 }
+
+    
