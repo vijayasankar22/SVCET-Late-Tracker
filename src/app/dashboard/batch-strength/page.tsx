@@ -43,7 +43,7 @@ type BatchStrength = {
 };
 
 const getYearFromClassName = (className: string): number | null => {
-  if (className.startsWith('I-') || className === 'I') return 1;
+  if (className.startsWith('I-') || className.startsWith('I (')) return 1;
   if (className.startsWith('II-') || className === 'II') return 2;
   if (className.startsWith('III-') || className === 'III') return 3;
   if (className.startsWith('IV-') || className === 'IV') return 4;
@@ -157,6 +157,8 @@ export default function BatchStrengthPage() {
       const girls = classStudents.filter(s => s.gender === 'FEMALE').length;
       const total = boys + girls;
       
+      const departmentName = departmentMap.get(cls.departmentId) || 'N/A';
+
       if (cls.departmentId === 'mba') {
         const batch = MBA_BATCH_MAP[year];
         if (!batch || !mbaData[batch]) return;
@@ -185,7 +187,7 @@ export default function BatchStrengthPage() {
         engineeringData[batch].classes.push({
           classId: cls.id,
           className: cls.name,
-          departmentName: departmentMap.get(cls.departmentId) || 'N/A',
+          departmentName: departmentName,
           boys,
           girls,
           total,
@@ -432,3 +434,5 @@ export default function BatchStrengthPage() {
     </>
   );
 }
+
+    
