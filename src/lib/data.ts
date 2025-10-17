@@ -200,7 +200,6 @@ export const students: Student[] = [
   { id: 'cse-2a-43', name: 'GOWTHAM M', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0780', gender: 'MALE', mentor: '' },
   { id: 'cse-2a-44', name: 'HARIPRASATH S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0783', gender: 'MALE', mentor: '' },
   { id: 'cse-2a-45', name: 'INIYAN S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0787', gender: 'MALE', mentor: '' },
-  { id: 'cse-2a-46', name: 'JAMES DARWIN A', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0788', gender: 'MALE', mentor: '' },
   { id: 'cse-2a-47', name: 'KABILAN S', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0791', gender: 'MALE', mentor: '' },
   { id: 'cse-2a-48', name: 'KARTHIVASAN D', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0793', gender: 'MALE', mentor: '' },
   { id: 'cse-2a-49', name: 'KISHORE C', departmentId: 'cse', classId: 'cse-2-a', registerNo: '24TD0795', gender: 'MALE', mentor: '' },
@@ -342,7 +341,6 @@ export const students: Student[] = [
   { id: 'cse-3b-15', name: 'SIVARANJANI K', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0723', gender: 'FEMALE', mentor: '' },
   { id: 'cse-3b-16', name: 'SWETHA . R', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0728', gender: 'FEMALE', mentor: '' },
   { id: 'cse-3b-17', name: 'YUVASREE . G', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0735', gender: 'FEMALE', mentor: '' },
-  { id: 'cse-3b-18', name: 'ABDUL RAHMAN . A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0653', gender: 'MALE', mentor: '' },
   { id: 'cse-3b-19', name: 'BHUVANESHWARAN A', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0662', gender: 'MALE', mentor: '' },
   { id: 'cse-3b-20', name: 'DHANUSH . V', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0667', gender: 'MALE', mentor: '' },
   { id: 'cse-3b-21', name: 'DULASI KRISHNA . P', departmentId: 'cse', classId: 'cse-3-b', registerNo: '23TD0670', gender: 'MALE', mentor: '' },
@@ -459,7 +457,8 @@ export const students: Student[] = [
   { id: 'cse-4b-42', name: 'THIRUKUMARAN. S', departmentId: 'cse', classId: 'cse-4-b', registerNo: '22TD0727', gender: 'MALE', mentor: '' },
   { id: 'cse-4b-43', name: 'VASANTHAN.E', departmentId: 'cse', classId: 'cse-4-b', registerNo: '22TD0728', gender: 'MALE', mentor: '' },
   { id: 'cse-4b-44', name: 'YOGESH.H', departmentId: 'cse', classId: 'cse-4-b', registerNo: '22TH0389', gender: 'MALE', mentor: '' },
-//BME I
+  { id: 'cse-4a-44', name: 'ROHITH.V.S', departmentId: 'cse', classId: 'cse-4-a', registerNo: '20TD0833', gender: 'MALE', mentor: '' },
+  //BME I
 { id: 'bme-1-1', name: 'BAVANI V', departmentId: 'bme', classId: 'bme-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. K.NEELADEVI' },
 { id: 'bme-1-2', name: 'EUNICA JEMIMA B', departmentId: 'bme', classId: 'bme-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. K.NEELADEVI' },
 { id: 'bme-1-3', name: 'JAYASHREE S', departmentId: 'bme', classId: 'bme-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. K.NEELADEVI' },
