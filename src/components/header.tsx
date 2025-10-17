@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useAuth } from '@/context/auth-context';
@@ -28,7 +27,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground shadow-md sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground sm:px-6">
       <Link href="/dashboard" className="flex items-center gap-2">
         <Image src="/svcet-logo.png" alt="Logo" width={40} height={40} />
         <h1 className="text-xl font-bold font-headline tracking-tight">
