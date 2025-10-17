@@ -4,8 +4,6 @@ import type { Department, Class, Student, Staff } from './types';
 export const departments: Department[] = [
   { id: 's&h', name: 'S&H' },
   { id: 'cse', name: 'CSE' },
-  { id: 'aids', name: 'AIDS' },
-  { id: 'cse-iot', name: 'CSE-IOT' },
   { id: 'ece', name: 'ECE' },
   { id: 'bme', name: 'BME' },
   { id: 'eee', name: 'EEE' },
