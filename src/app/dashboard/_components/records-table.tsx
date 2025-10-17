@@ -249,13 +249,14 @@ export function RecordsTable({ records, loading, departments, classes, students 
     
         autoTable(doc, {
           startY: contentY,
-          head: [['S.No.', 'Register No.', 'Student Name', 'Department', 'Class', 'Mentor', 'Date', 'Time', 'Status', 'Total Late Entries']],
+          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Mentor', 'Date', 'Time', 'Status', 'Total Late Entries']],
           body: filteredRecords.map((record, index) => {
               const student = students.find(s => s.id === record.studentId);
               return [
                 index + 1,
                 record.registerNo,
                 record.studentName,
+                record.gender,
                 record.departmentName,
                 record.className,
                 student?.mentor || 'N/A',
@@ -597,4 +598,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
   );
 }
 
+    
     
