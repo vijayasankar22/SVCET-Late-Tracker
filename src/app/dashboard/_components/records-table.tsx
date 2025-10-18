@@ -136,6 +136,10 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return classes.filter(c => c.departmentId === dept.id);
   }, [departmentFilter, departments, classes]);
 
+  useEffect(() => {
+    setClassFilter('all');
+  }, [departmentFilter]);
+
   const mentors = useMemo(() => {
     const mentorSet = new Set<string>();
     students.forEach(student => {
@@ -444,7 +448,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                           ))}
                       </SelectContent>
                   </Select>
-                  <Select value={classFilter} onValueChange={setClassFilter}>
+                  <Select value={classFilter} onValueChange={setClassFilter} disabled={departmentFilter === 'all'}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Class" />
                       </SelectTrigger>
@@ -599,4 +603,6 @@ export function RecordsTable({ records, loading, departments, classes, students 
 }
 
     
+    
+
     
