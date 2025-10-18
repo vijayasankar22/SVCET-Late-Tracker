@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, LogOut, BarChart3, Users, Warehouse, Trash2 } from 'lucide-react';
+import { ClipboardCheck, LogOut, BarChart3, Users, Warehouse, Trash2, Home } from 'lucide-react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -37,6 +38,10 @@ export function Header() {
       <div className="ml-auto flex items-center gap-2 md:gap-4">
         {user?.role !== 'viewer' && (
           <div className="hidden md:flex items-center gap-2 md:gap-4">
+              <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard')}>
+                    <Home className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Home</span>
+                </Button>
             {pathname.startsWith('/dashboard') && (
                 <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
                     <Users className="h-4 w-4 md:mr-2" />
