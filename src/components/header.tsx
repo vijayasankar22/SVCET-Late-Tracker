@@ -54,7 +54,7 @@ export function Header() {
                     <span className="hidden md:inline">Batch Strength</span>
                 </Button>
             )}
-            {pathname.startsWith('/dashboard') && !pathname.endsWith('analytics') && (
+            {pathname.startsWith('/dashboard') && (
               <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
                 <BarChart3 className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">View Analytics</span>
