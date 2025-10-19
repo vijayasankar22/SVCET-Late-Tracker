@@ -412,7 +412,7 @@ export const students: Student[] = [
   { id: 'cse-4a-39', name: 'THAMIZHARASU.J', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0726', gender: 'MALE', mentor: '' },
   { id: 'cse-4a-40', name: 'VIGNESHWARAN.R', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TB0100', gender: 'MALE', mentor: '' },
   { id: 'cse-4a-41', name: 'VIJAYARAGAVAN.V', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0731', gender: 'MALE', mentor: '' },
-  { id: 'cse-4a-42', name: 'VIJAYASANKAR. P', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0732', gender: 'MALE', mentor: '' },
+  { id: 'cse-4a-42', name: 'VIJAYASANKAR. P', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0732', gender: 'MALE',parentPhoneNumber: '+919342898476', mentor: '' },
   { id: 'cse-4a-43', name: 'VISWANATHAN.V', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0734', gender: 'MALE', mentor: '' },
 
   // CSE IV-B
