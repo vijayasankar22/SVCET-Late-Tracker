@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BottomNavBar } from '@/components/bottom-nav-bar';
+import { RealtimeNotificationListener } from '@/components/notification-listener';
 
 export default function DashboardLayout({
   children,
@@ -41,6 +42,7 @@ export default function DashboardLayout({
         {children}
       </main>
       <BottomNavBar />
+      {user?.role === 'viewer' && <RealtimeNotificationListener />}
     </div>
   );
 }
