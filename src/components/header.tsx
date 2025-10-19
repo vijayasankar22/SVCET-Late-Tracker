@@ -36,7 +36,7 @@ export function Header() {
         </h1>
       </Link>
       <div className="ml-auto flex items-center gap-2 md:gap-4">
-        {user?.role !== 'viewer' && (
+        
           <div className="hidden md:flex items-center gap-2 md:gap-4">
               <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard')}>
                     <Home className="h-4 w-4 md:mr-2" />
@@ -54,14 +54,12 @@ export function Header() {
                     <span className="hidden md:inline">Batch Strength</span>
                 </Button>
             )}
-            {pathname.startsWith('/dashboard') && (
-              <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
+            <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
                 <BarChart3 className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">View Analytics</span>
               </Button>
-            )}
           </div>
-        )}
+        
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

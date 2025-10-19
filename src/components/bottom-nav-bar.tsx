@@ -11,10 +11,6 @@ export function BottomNavBar() {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  if (user?.role === 'viewer') {
-    return null;
-  }
-
   const navItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/dashboard/class-strength', label: 'Class', icon: Users },
