@@ -159,12 +159,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       
-      <EntryForm 
-        onAddRecord={handleAddRecord}
-        departments={departments}
-        classes={classes}
-        students={students}
-      />
+      {user?.role !== 'viewer' && (
+        <EntryForm 
+          onAddRecord={handleAddRecord}
+          departments={departments}
+          classes={classes}
+          students={students}
+        />
+      )}
       
       <Stats records={records} />
       <RecordsTable 
