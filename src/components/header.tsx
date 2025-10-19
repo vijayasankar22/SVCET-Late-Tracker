@@ -28,7 +28,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground sm:px-6">
+    <header className="flex h-16 items-center gap-4 border-b bg-primary px-4 text-primary-foreground sm:px-6">
       <Link href="/dashboard" className="flex items-center gap-2">
         <Image src="/svcet-logo.png" alt="Logo" width={40} height={40} />
         <h1 className="text-xl font-bold font-headline tracking-tight">
@@ -42,18 +42,18 @@ export function Header() {
                     <Home className="h-4 w-4 md:mr-2" />
                     <span className="hidden md:inline">Home</span>
                 </Button>
-            {pathname.startsWith('/dashboard') && (
+            
                 <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/class-strength')}>
                     <Users className="h-4 w-4 md:mr-2" />
                     <span className="hidden md:inline">Class Strength</span>
                 </Button>
-            )}
-            {pathname.startsWith('/dashboard') && (
+            
+            
                 <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/batch-strength')}>
                     <Warehouse className="h-4 w-4 md:mr-2" />
                     <span className="hidden md:inline">Batch Strength</span>
                 </Button>
-            )}
+            
             <Button variant="ghost" className="hover:bg-primary-foreground/10" onClick={() => router.push('/dashboard/analytics')}>
                 <BarChart3 className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline">View Analytics</span>
