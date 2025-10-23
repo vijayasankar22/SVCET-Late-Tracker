@@ -181,7 +181,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={chartData.length > 31 ? Math.floor(chartData.length / 31) : 0} />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={chartData.length > 7 ? 3 : 0} />
                     <YAxis allowDecimals={false} />
                     <Tooltip
                         contentStyle={{
