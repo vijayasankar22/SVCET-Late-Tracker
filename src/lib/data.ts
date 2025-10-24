@@ -877,14 +877,15 @@ export const students: Student[] = [
   { id: 'mech-1-11', name: 'SIVANESH KUMAR.M', departmentId: 's&h', classId: 'mech-1', registerNo: '', gender: 'MALE', mentor: 'Dr. M.THIRUMARRAN' },
   { id: 'mech-1-12', name: 'SUPRITH JAVLA.K', departmentId: 's&h', classId: 'mech-1', registerNo: '', gender: 'MALE', mentor: 'Dr. M.THIRUMARRAN' },
   // MECH II
-  { id: 'mech-2-1', name: 'GOKUL KRISHNAN. B', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2901', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-2', name: 'VINSENT ARNOLD. V', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2902', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-3', name: 'RAMANA. T', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2903', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-4', name: 'ABINESH. A', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2904', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-5', name: 'HARISH. I', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2905', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-6', name: 'MEEMNATCHI. K', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2906', gender: 'FEMALE', mentor: '' },
-  { id: 'mech-2-7', name: 'DHARANIDHARAN. J', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2907', gender: 'MALE', mentor: '' },
-  { id: 'mech-2-8', name: 'SATHIAMURTHI. S', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2908', gender: 'MALE', mentor: '' },
+  { id: 'mech-2-1', name: 'GOKUL KRISHNAN. B', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2901', gender: 'MALE', mentor: 'Mr. S.RAVINDRAN' },
+  { id: 'mech-2-2', name: 'VINSENT ARNOLD. V', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2902', gender: 'MALE', mentor: 'Mr. S.RAVINDRAN' },
+  { id: 'mech-2-3', name: 'RAMANA. T', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2903', gender: 'MALE', mentor: 'Mr. S.RAVINDRAN' },
+  { id: 'mech-2-4', name: 'ABINESH. A', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2904', gender: 'MALE', mentor: 'Mr. S.RAVINDRAN' },
+  { id: 'mech-2-5', name: 'RAMU MANIKANDAN', departmentId: 'mech', classId: 'mech-2', registerNo: 'LATERAL4', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
+  { id: 'mech-2-6', name: 'MEENATCHI. K', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2906', gender: 'FEMALE', mentor: 'Mr. G.PALANIVEL' },
+  { id: 'mech-2-7', name: 'DHARANIDHARAN. J', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2907', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
+  { id: 'mech-2-8', name: 'SATHIAMURTHI. S', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2908', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
+  { id: 'mech-2-9', name: 'KRISHNA DIWAKAR. P', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2909', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
   
   // MECH III
   { id: 'mech-3-1', name: 'AJITH KUMAR .G', departmentId: 'mech', classId: 'mech-3', registerNo: '23TB0201', gender: 'MALE', mentor: 'Mr.C.MANIKANDAN' },
