@@ -7,14 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileDown, History, X } from "lucide-react";
+import { Download, Search, FileDown, History, X, ArrowUpDown } from "lucide-react";
 import type { LateRecord, Department, Class, Student } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
@@ -30,6 +30,9 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 
 type LateRecordWithPeriodCount = LateRecord & { lateInPeriod: number };
+type SortableKeys = keyof LateRecordWithPeriodCount | 'mentor' | 'totalLate';
+type SortConfig = { key: SortableKeys; direction: 'ascending' | 'descending' };
+
 
 type RecordsTableProps = {
   records: LateRecord[];
@@ -58,6 +61,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'descending' });
 
   useEffect(() => {
     fetch('/svcet-head.png')
@@ -124,7 +128,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
       });
   }, [records, dateRange]);
 
-  const recordsWithCumulativeCounts = useMemo(() => {
+   const recordsWithCumulativeCounts = useMemo(() => {
     const sortedRecords = [...recordsInDateRange].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     const studentCounts: { [studentId: string]: number } = {};
     return sortedRecords.map(record => {
@@ -195,7 +199,36 @@ export function RecordsTable({ records, loading, departments, classes, students 
   }, [students]);
 
   const filteredRecords: LateRecordWithPeriodCount[] = useMemo(() => {
-    return recordsWithCumulativeCounts
+    let sortableRecords = [...recordsWithCumulativeCounts];
+
+    if (sortConfig.key) {
+        sortableRecords.sort((a, b) => {
+            let aValue: any;
+            let bValue: any;
+
+            if (sortConfig.key === 'mentor') {
+                aValue = students.find(s => s.id === a.studentId)?.mentor || 'N/A';
+                bValue = students.find(s => s.id === b.studentId)?.mentor || 'N/A';
+            } else if (sortConfig.key === 'totalLate') {
+                aValue = studentLateCounts[a.studentId] || 0;
+                bValue = studentLateCounts[b.studentId] || 0;
+            } else {
+                aValue = a[sortConfig.key as keyof LateRecordWithPeriodCount];
+                bValue = b[sortConfig.key as keyof LateRecordWithPeriodCount];
+            }
+
+            if (aValue < bValue) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+
+    return sortableRecords
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (record.registerNo && record.registerNo.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -216,14 +249,9 @@ export function RecordsTable({ records, loading, departments, classes, students 
       )
       .filter((record) =>
         genderFilter === 'all' || record.gender === genderFilter
-      )
-      .sort((a, b) => {
-        const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-        const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-        return dateB - dateA;
-      });
+      );
       
-  }, [recordsWithCumulativeCounts, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, departments, classes, students]);
+  }, [recordsWithCumulativeCounts, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, departments, classes, students, sortConfig, studentLateCounts]);
   
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => {
@@ -339,6 +367,28 @@ export function RecordsTable({ records, loading, departments, classes, students 
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const requestSort = (key: SortableKeys) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+        direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const SortableHeader = ({ sortKey, children }: { sortKey: SortableKeys; children: React.ReactNode }) => {
+    const isSorted = sortConfig.key === sortKey;
+    const isAsc = sortConfig.direction === 'ascending';
+    
+    return (
+        <TableHead onClick={() => requestSort(sortKey)} className="cursor-pointer hover:bg-accent/50">
+            <div className="flex items-center gap-2">
+                {children}
+                {isSorted ? (isAsc ? <ArrowUpDown className="h-4 w-4" /> : <ArrowUpDown className="h-4 w-4" />) : <ArrowUpDown className="h-4 w-4 text-muted-foreground" />}
+            </div>
+        </TableHead>
+    );
   };
 
 
@@ -521,18 +571,18 @@ export function RecordsTable({ records, loading, departments, classes, students 
             <Table className="table-alternating-rows">
               <TableHeader>
                 <TableRow>
-                  <TableHead>S.No.</TableHead>
-                  <TableHead>Register No.</TableHead>
-                  <TableHead>Student Name</TableHead>
-                  <TableHead>Gender</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Class</TableHead>
-                  <TableHead>Mentor</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Late in Period</TableHead>
-                  <TableHead>Total Late</TableHead>
+                  <SortableHeader sortKey="id">S.No.</SortableHeader>
+                  <SortableHeader sortKey="registerNo">Register No.</SortableHeader>
+                  <SortableHeader sortKey="studentName">Student Name</SortableHeader>
+                  <SortableHeader sortKey="gender">Gender</SortableHeader>
+                  <SortableHeader sortKey="departmentName">Department</SortableHeader>
+                  <SortableHeader sortKey="className">Class</SortableHeader>
+                  <SortableHeader sortKey="mentor">Mentor</SortableHeader>
+                  <SortableHeader sortKey="date">Date</SortableHeader>
+                  <SortableHeader sortKey="time">Time</SortableHeader>
+                  <SortableHeader sortKey="status">Status</SortableHeader>
+                  <SortableHeader sortKey="lateInPeriod">Late in Period</SortableHeader>
+                  <SortableHeader sortKey="totalLate">Total Late</SortableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -637,3 +687,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
