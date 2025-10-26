@@ -125,13 +125,23 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of records) { // Changed from recordsInDateRange
+    for (const record of records) {
         if (record.studentId) {
             counts[record.studentId] = (counts[record.studentId] || 0) + 1;
         }
     }
     return counts;
-  }, [records]); // Changed from recordsInDateRange
+  }, [records]);
+
+  const studentLateCountsInDateRange = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    for (const record of recordsInDateRange) {
+        if (record.studentId) {
+            counts[record.studentId] = (counts[record.studentId] || 0) + 1;
+        }
+    }
+    return counts;
+  }, [recordsInDateRange]);
 
   const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGlobalSearchTerm(e.target.value);
@@ -145,7 +155,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const handleStudentSelect = (student: Student) => {
     setGlobalSearchTerm('');
     setShowSearchResults(false);
-    const history = records.filter( // Changed from recordsInDateRange
+    const history = records.filter(
       (record) => record.studentId === student.id
     ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     setSelectedStudentForHistory(student);
@@ -227,6 +237,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         date: record.date,
         time: record.time,
         status: record.status,
+        "Late in Period": studentLateCountsInDateRange[record.studentId] || 0,
         "Total Late Entries": studentLateCounts[record.studentId] || 0,
       }
     });
@@ -261,7 +272,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
     
         autoTable(doc, {
           startY: contentY,
-          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Mentor', 'Date', 'Time', 'Status', 'Total Late Entries']],
+          head: [['S.No.', 'Register No.', 'Student Name', 'Gender', 'Department', 'Class', 'Mentor', 'Date', 'Time', 'Status', 'Late in Period', 'Total Late']],
           body: filteredRecords.map((record, index) => {
               const student = students.find(s => s.id === record.studentId);
               return [
@@ -275,6 +286,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 record.date,
                 record.time,
                 record.status,
+                (studentLateCountsInDateRange[record.studentId] || 0).toString(),
                 (studentLateCounts[record.studentId] || 0).toString(),
               ]
           }),
@@ -517,14 +529,15 @@ export function RecordsTable({ records, loading, departments, classes, students 
                   <TableHead>Date</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Total Late Entries</TableHead>
+                  <TableHead>Late in Period</TableHead>
+                  <TableHead>Total Late</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                   {loading ? (
                       Array.from({ length: 5 }).map((_, i) => (
                           <TableRow key={i}>
-                              <TableCell colSpan={11}><Skeleton className="h-6" /></TableCell>
+                              <TableCell colSpan={12}><Skeleton className="h-6" /></TableCell>
                           </TableRow>
                       ))
                   ) : filteredRecords.length > 0 ? (
@@ -546,6 +559,9 @@ export function RecordsTable({ records, loading, departments, classes, students 
                                     {record.status}
                                 </span>
                             </TableCell>
+                             <TableCell>
+                                <span className={`font-bold ${ (studentLateCountsInDateRange[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCountsInDateRange[record.studentId] || 0}</span>
+                            </TableCell>
                             <TableCell>
                                 <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
@@ -553,7 +569,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                       )})
                   ) : (
                        <TableRow>
-                          <TableCell colSpan={11} className="text-center">
+                          <TableCell colSpan={12} className="text-center">
                               No records found for the selected filters.
                           </TableCell>
                       </TableRow>
