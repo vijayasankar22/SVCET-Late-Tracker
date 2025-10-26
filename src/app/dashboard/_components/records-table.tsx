@@ -15,7 +15,6 @@ import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
@@ -92,15 +91,46 @@ export function RecordsTable({ records, loading, departments, classes, students 
     ).slice(0, 10);
   }, [globalSearchTerm, students]);
 
+  const recordsInDateRange = useMemo(() => {
+     return records.filter((record) => {
+        if (!dateRange || !dateRange.from) {
+          return true; // if no date range, include all records for all-time counts
+        }
+        try {
+          const recordDate = new Date(record.timestamp);
+          
+          const fromDate = new Date(dateRange.from);
+          fromDate.setHours(0, 0, 0, 0);
+
+          if (recordDate < fromDate) {
+            return false;
+          }
+
+          const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+          toDate.setHours(23, 59, 59, 999);
+
+          if (recordDate > toDate) {
+            return false;
+          }
+
+          return true;
+        } catch (e) {
+          console.error("Error filtering by date:", e);
+          return true;
+        }
+      });
+  }, [records, dateRange]);
+
+
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of records) { 
+    for (const record of recordsInDateRange) { 
         if (record.studentId) {
             counts[record.studentId] = (counts[record.studentId] || 0) + 1;
         }
     }
     return counts;
-  }, [records]);
+  }, [recordsInDateRange]);
 
   const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGlobalSearchTerm(e.target.value);
@@ -114,7 +144,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const handleStudentSelect = (student: Student) => {
     setGlobalSearchTerm('');
     setShowSearchResults(false);
-    const history = records.filter(
+    const history = recordsInDateRange.filter(
       (record) => record.studentId === student.id
     ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     setSelectedStudentForHistory(student);
@@ -152,7 +182,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   }, [students]);
 
   const filteredRecords = useMemo(() => {
-    return records
+    return recordsInDateRange
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (record.registerNo && record.registerNo.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -174,40 +204,13 @@ export function RecordsTable({ records, loading, departments, classes, students 
       .filter((record) =>
         genderFilter === 'all' || record.gender === genderFilter
       )
-      .filter((record) => {
-        if (!dateRange || !dateRange.from) {
-          return true;
-        }
-        try {
-          const recordDate = new Date(record.timestamp);
-          
-          const fromDate = new Date(dateRange.from);
-          fromDate.setHours(0, 0, 0, 0);
-
-          if (recordDate < fromDate) {
-            return false;
-          }
-
-          const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
-          toDate.setHours(23, 59, 59, 999);
-
-          if (recordDate > toDate) {
-            return false;
-          }
-
-          return true;
-        } catch (e) {
-          console.error("Error filtering by date:", e);
-          return true;
-        }
-      })
       .sort((a, b) => {
         const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
         const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         return dateB - dateA;
       });
       
-  }, [records, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, dateRange, departments, classes, students]);
+  }, [recordsInDateRange, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, departments, classes, students]);
   
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => {
@@ -574,7 +577,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 Late Entry History for {selectedStudentForHistory.name}
               </DialogTitle>
               <DialogDescription>
-                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {studentLateCounts[selectedStudentForHistory.id] || 0}
+                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries (in period): {studentLateCounts[selectedStudentForHistory.id] || 0}
               </DialogDescription>
             </DialogHeader>
              {selectedStudentHistory.length > 0 ? (
@@ -606,7 +609,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 </div>
             ) : (
                 <div className="text-center p-8">
-                    <p>No late entries found for this student.</p>
+                    <p>No late entries found for this student in the selected date range.</p>
                 </div>
              )}
           </DialogContent>
@@ -620,3 +623,4 @@ export function RecordsTable({ records, loading, departments, classes, students 
     
 
     
+
