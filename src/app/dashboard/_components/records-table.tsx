@@ -125,13 +125,13 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    for (const record of recordsInDateRange) { 
+    for (const record of records) { // Changed from recordsInDateRange
         if (record.studentId) {
             counts[record.studentId] = (counts[record.studentId] || 0) + 1;
         }
     }
     return counts;
-  }, [recordsInDateRange]);
+  }, [records]); // Changed from recordsInDateRange
 
   const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGlobalSearchTerm(e.target.value);
@@ -145,7 +145,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const handleStudentSelect = (student: Student) => {
     setGlobalSearchTerm('');
     setShowSearchResults(false);
-    const history = recordsInDateRange.filter(
+    const history = records.filter( // Changed from recordsInDateRange
       (record) => record.studentId === student.id
     ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     setSelectedStudentForHistory(student);
@@ -578,7 +578,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 Late Entry History for {selectedStudentForHistory.name}
               </DialogTitle>
               <DialogDescription>
-                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries (in period): {studentLateCounts[selectedStudentForHistory.id] || 0}
+                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {studentLateCounts[selectedStudentForHistory.id] || 0}
               </DialogDescription>
             </DialogHeader>
              {selectedStudentHistory.length > 0 ? (
@@ -610,7 +610,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 </div>
             ) : (
                 <div className="text-center p-8">
-                    <p>No late entries found for this student in the selected date range.</p>
+                    <p>No late entries found for this student.</p>
                 </div>
              )}
           </DialogContent>
