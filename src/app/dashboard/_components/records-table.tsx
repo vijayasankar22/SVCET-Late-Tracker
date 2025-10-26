@@ -29,6 +29,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 
+type LateRecordWithPeriodCount = LateRecord & { lateInPeriod: number };
+
 type RecordsTableProps = {
   records: LateRecord[];
   loading: boolean;
@@ -95,7 +97,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const recordsInDateRange = useMemo(() => {
      return records.filter((record) => {
         if (!dateRange || !dateRange.from) {
-          return true; // if no date range, include all records for all-time counts
+          return true;
         }
         try {
           const recordDate = new Date(record.timestamp);
@@ -122,6 +124,15 @@ export function RecordsTable({ records, loading, departments, classes, students 
       });
   }, [records, dateRange]);
 
+  const recordsWithCumulativeCounts = useMemo(() => {
+    const sortedRecords = [...recordsInDateRange].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    const studentCounts: { [studentId: string]: number } = {};
+    return sortedRecords.map(record => {
+      const studentId = record.studentId;
+      studentCounts[studentId] = (studentCounts[studentId] || 0) + 1;
+      return { ...record, lateInPeriod: studentCounts[studentId] };
+    });
+  }, [recordsInDateRange]);
 
   const studentLateCounts = useMemo(() => {
     const counts: { [key: string]: number } = {};
@@ -133,15 +144,6 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return counts;
   }, [records]);
 
-  const studentLateCountsInDateRange = useMemo(() => {
-    const counts: { [key: string]: number } = {};
-    for (const record of recordsInDateRange) {
-        if (record.studentId) {
-            counts[record.studentId] = (counts[record.studentId] || 0) + 1;
-        }
-    }
-    return counts;
-  }, [recordsInDateRange]);
 
   const handleGlobalSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGlobalSearchTerm(e.target.value);
@@ -192,8 +194,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return Array.from(mentorSet).sort();
   }, [students]);
 
-  const filteredRecords = useMemo(() => {
-    return recordsInDateRange
+  const filteredRecords: LateRecordWithPeriodCount[] = useMemo(() => {
+    return recordsWithCumulativeCounts
       .filter((record) =>
         record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (record.registerNo && record.registerNo.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -221,7 +223,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         return dateB - dateA;
       });
       
-  }, [recordsInDateRange, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, departments, classes, students]);
+  }, [recordsWithCumulativeCounts, searchTerm, departmentFilter, classFilter, mentorFilter, statusFilter, genderFilter, departments, classes, students]);
   
   const handleExportCsv = () => {
     const recordsToExport = filteredRecords.map((record, index) => {
@@ -237,7 +239,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         date: record.date,
         time: record.time,
         status: record.status,
-        "Late in Period": studentLateCountsInDateRange[record.studentId] || 0,
+        "Late in Period": record.lateInPeriod,
         "Total Late Entries": studentLateCounts[record.studentId] || 0,
       }
     });
@@ -286,7 +288,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 record.date,
                 record.time,
                 record.status,
-                (studentLateCountsInDateRange[record.studentId] || 0).toString(),
+                record.lateInPeriod,
                 (studentLateCounts[record.studentId] || 0).toString(),
               ]
           }),
@@ -560,7 +562,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                                 </span>
                             </TableCell>
                              <TableCell>
-                                <span className={`font-bold ${ (studentLateCountsInDateRange[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCountsInDateRange[record.studentId] || 0}</span>
+                                <span className={`font-bold ${ record.lateInPeriod >= 3 ? 'text-destructive' : 'text-primary'}`}>{record.lateInPeriod}</span>
                             </TableCell>
                             <TableCell>
                                 <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
@@ -635,15 +637,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
-    
-
-    
-
-
-
-
-    
-
-    
