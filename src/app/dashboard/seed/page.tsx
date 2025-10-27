@@ -1,15 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { seedDatabase } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/auth-context';
 
 export default function SeedPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user?.role !== 'admin') {
+      toast({
+        variant: 'destructive',
+        title: 'Permission Denied',
+        description: 'You do not have permission to access this page.',
+      });
+      router.push('/dashboard');
+    }
+  }, [user, router, toast]);
 
   const handleSeed = async () => {
     setIsLoading(true);
@@ -29,9 +44,13 @@ export default function SeedPage() {
       });
     }
   };
+  
+  if (user?.role !== 'admin') {
+    return null;
+  }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-primary p-4">
+    <div className="flex w-full items-center justify-center p-4">
       <Card className="w-full max-w-lg shadow-2xl">
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Seed Database</CardTitle>
