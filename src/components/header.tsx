@@ -79,27 +79,6 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {user?.role === 'admin' && (
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>Cleanup Records</span>
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem onClick={() => router.push('/cleanup-last')}>
-                        Delete Last Record
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push('/cleanup')}>
-                        Delete Today's Records
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push('/cleanup-old')}>
-                        Delete Old Records
-                      </DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
-              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
