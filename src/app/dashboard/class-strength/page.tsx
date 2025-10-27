@@ -155,7 +155,7 @@ export default function ClassStrengthPage() {
     setIsDialogOpen(true);
   };
   
-  const handleExportPdf = () => {
+  const handleStudentListExportPdf = () => {
     if (!selectedClassInfo || !selectedClassStudents.length) return;
 
     const doc = new jsPDF();
@@ -217,7 +217,7 @@ export default function ClassStrengthPage() {
     }
   };
 
-  const handleExportCsv = () => {
+  const handleStudentListExportCsv = () => {
     if (!selectedClassInfo || !selectedClassStudents.length) return;
 
     const rows = selectedClassStudents.map((student, index) => ({
@@ -228,6 +228,64 @@ export default function ClassStrengthPage() {
     }));
 
     exportToCsv(`${selectedClassInfo.deptName}_${selectedClassInfo.className}_students.csv`, rows);
+  };
+  
+  const handleStrengthExportPdf = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let contentY = 10;
+
+    const drawContent = () => {
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.text("Class Strength Report", pageWidth / 2, contentY, { align: "center" });
+        contentY += 15;
+
+        Object.values(strengthData).forEach(deptData => {
+            if (deptData.classes.length === 0) return;
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text(deptData.name, 14, contentY);
+            contentY += 8;
+
+            autoTable(doc, {
+                startY: contentY,
+                head: [['Class', 'Boys', 'Girls', 'Total']],
+                body: deptData.classes.map(cs => [cs.className, cs.boys, cs.girls, cs.total]),
+                foot: [['Department Total', deptData.totalBoys, deptData.totalGirls, deptData.total]],
+                headStyles: { fillColor: [30, 58, 138] },
+                footStyles: { fillColor: [23, 37, 84], fontStyle: 'bold' },
+                didDrawPage: (data) => {
+                    contentY = data.cursor?.y ?? 0;
+                }
+            });
+            contentY = (doc as any).lastAutoTable.finalY + 10;
+        });
+
+        doc.save("class_strength_report.pdf");
+    };
+
+    if (logoBase64) {
+      const img = new window.Image();
+      img.src = logoBase64;
+      img.onload = () => {
+        const originalWidth = 190;
+        const scalingFactor = 0.7;
+        const imgWidth = originalWidth * scalingFactor;
+        const ratio = img.width / img.height;
+        const imgHeight = imgWidth / ratio;
+        const x = (pageWidth - imgWidth) / 2;
+        doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+        contentY += imgHeight + 5;
+        drawContent();
+      };
+      img.onerror = () => {
+        drawContent();
+      };
+    } else {
+      drawContent();
+    }
   };
 
 
@@ -250,16 +308,22 @@ export default function ClassStrengthPage() {
   return (
     <>
       <div className="space-y-8">
-        <div className='flex items-center justify-between'>
+        <div className='flex flex-col md:flex-row items-start md:items-center justify-between gap-4'>
           <div className='space-y-1'>
               <h1 className="text-2xl font-headline font-bold">Class Strength</h1>
           </div>
-          <Link href="/dashboard">
-              <Button variant="outline">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Dashboard
-              </Button>
-          </Link>
+           <div className="flex gap-2">
+            <Button variant="outline" onClick={handleStrengthExportPdf}>
+                <Download className="mr-2 h-4 w-4" />
+                Export PDF
+            </Button>
+            <Link href="/dashboard">
+                <Button variant="outline">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Dashboard
+                </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -347,11 +411,11 @@ export default function ClassStrengthPage() {
             </Table>
           </div>
           <DialogFooter className="gap-2">
-            <Button onClick={handleExportCsv} variant="outline" disabled={!selectedClassStudents.length}>
+            <Button onClick={handleStudentListExportCsv} variant="outline" disabled={!selectedClassStudents.length}>
               <FileDown className="mr-2 h-4 w-4" />
               Download CSV
             </Button>
-            <Button onClick={handleExportPdf} disabled={!selectedClassStudents.length}>
+            <Button onClick={handleStudentListExportPdf} disabled={!selectedClassStudents.length}>
               <Download className="mr-2 h-4 w-4" />
               Download PDF
             </Button>
@@ -361,5 +425,3 @@ export default function ClassStrengthPage() {
     </>
   );
 }
-
-    
