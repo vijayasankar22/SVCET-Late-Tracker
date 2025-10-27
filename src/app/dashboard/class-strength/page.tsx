@@ -256,6 +256,7 @@ export default function ClassStrengthPage() {
                 foot: [['Department Total', deptData.totalBoys, deptData.totalGirls, deptData.total]],
                 headStyles: { fillColor: [30, 58, 138] },
                 footStyles: { fillColor: [23, 37, 84], fontStyle: 'bold' },
+                styles: { lineColor: [44, 62, 80], lineWidth: 0.1 },
                 didDrawPage: (data) => {
                     contentY = data.cursor?.y ?? 0;
                 }
