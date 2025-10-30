@@ -19,12 +19,24 @@ type ChartProps = {
   departments: Department[];
 };
 
+type HiddenKeys = 'Boys' | 'Girls';
+
 export function LateEntriesChart({ records, departments }: ChartProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
     return { from: today, to: today };
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [hiddenKeys, setHiddenKeys] = useState<HiddenKeys[]>([]);
+
+  const handleLegendClick = (data: any) => {
+    const { dataKey } = data as { dataKey: HiddenKeys };
+    setHiddenKeys(prev => 
+        prev.includes(dataKey) 
+        ? prev.filter(key => key !== dataKey)
+        : [...prev, dataKey]
+    );
+  };
 
   const chartData = useMemo(() => {
     const filteredRecords = records.filter(record => {
@@ -141,9 +153,9 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
                             borderColor: 'hsl(var(--border))'
                         }}
                     />
-                    <Legend />
-                    <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" />
-                    <Bar dataKey="Girls" stackId="a" fill="hsl(var(--accent))" />
+                    <Legend onClick={handleLegendClick} wrapperStyle={{ cursor: 'pointer' }} />
+                    <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" hide={hiddenKeys.includes('Boys')} />
+                    <Bar dataKey="Girls" stackId="a" fill="hsl(var(--accent))" hide={hiddenKeys.includes('Girls')} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

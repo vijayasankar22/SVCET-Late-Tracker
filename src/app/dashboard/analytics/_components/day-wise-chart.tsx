@@ -25,6 +25,7 @@ export function DayWiseChart({ records, departments }: ChartProps) {
   });
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [hiddenDepts, setHiddenDepts] = useState<string[]>([]);
 
   const departmentColors = useMemo(() => {
     const colors = [
@@ -42,6 +43,15 @@ export function DayWiseChart({ records, departments }: ChartProps) {
     return colorMap;
   }, [departments]);
 
+  const handleLegendClick = (data: any) => {
+    const { dataKey } = data;
+    setHiddenDepts(prev => 
+        prev.includes(dataKey) 
+        ? prev.filter(key => key !== dataKey)
+        : [...prev, dataKey]
+    );
+  };
+  
   const chartData = useMemo(() => {
     if (!dateRange || !dateRange.from || !dateRange.to) {
         return [];
@@ -189,13 +199,14 @@ export function DayWiseChart({ records, departments }: ChartProps) {
                             borderColor: 'hsl(var(--border))'
                         }}
                     />
-                    <Legend />
+                    <Legend onClick={handleLegendClick} wrapperStyle={{ cursor: 'pointer' }} />
                     {activeDepartments.map(dept => (
                       <Bar 
                         key={dept.id} 
                         dataKey={dept.name} 
                         stackId="a" 
                         fill={departmentColors[dept.name]} 
+                        hide={hiddenDepts.includes(dept.name)}
                       />
                     ))}
                 </BarChart>
