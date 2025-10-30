@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, TooltipProps } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { LateRecord, Department } from '@/lib/types';
 import { DateRange } from "react-day-picker";
@@ -80,6 +80,28 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
 
   }, [records, departments, dateRange]);
 
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const total = payload.reduce((sum, item) => sum + (item.value || 0), 0);
+
+      return (
+        <div className="p-3 bg-background/90 border border-border rounded-lg shadow-lg backdrop-blur-sm">
+          <p className="font-bold text-foreground mb-2">{label}</p>
+          {payload.map((entry) => (
+            <p key={entry.name} style={{ color: entry.color }} className="text-sm">
+              {`${entry.name}: ${entry.value}`}
+            </p>
+          ))}
+          <div className="border-t border-border mt-2 pt-2">
+            <p className="font-bold text-foreground">{`Total: ${total}`}</p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
@@ -148,10 +170,8 @@ export function LateEntriesChart({ records, departments }: ChartProps) {
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
                     <YAxis allowDecimals={false} />
                     <Tooltip
-                        contentStyle={{
-                            backgroundColor: 'hsl(var(--background))',
-                            borderColor: 'hsl(var(--border))'
-                        }}
+                        cursor={{ fill: 'hsla(var(--accent) / 0.1)' }}
+                        content={<CustomTooltip />}
                     />
                     <Legend onClick={handleLegendClick} wrapperStyle={{ cursor: 'pointer' }} />
                     <Bar dataKey="Boys" stackId="a" fill="hsl(var(--primary))" hide={hiddenKeys.includes('Boys')} />
