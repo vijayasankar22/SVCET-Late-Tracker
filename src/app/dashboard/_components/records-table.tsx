@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileDown, History, X, ArrowUpDown } from "lucide-react";
+import { Download, Search, FileDown, History, X, ArrowUp, ArrowDown } from "lucide-react";
 import type { LateRecord, Department, Class, Student } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -385,7 +385,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
         <TableHead onClick={() => requestSort(sortKey)} className="cursor-pointer hover:bg-accent/50">
             <div className="flex items-center gap-2">
                 {children}
-                {isSorted ? (isAsc ? <ArrowUpDown className="h-4 w-4" /> : <ArrowUpDown className="h-4 w-4" />) : <ArrowUpDown className="h-4 w-4 text-muted-foreground" />}
+                {isSorted ? (isAsc ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />) : <ArrowUp className="h-4 w-4 text-muted-foreground/50" />}
             </div>
         </TableHead>
     );
@@ -612,10 +612,10 @@ export function RecordsTable({ records, loading, departments, classes, students 
                                 </span>
                             </TableCell>
                              <TableCell>
-                                <span className={`font-bold ${ record.lateInPeriod >= 3 ? 'text-destructive' : 'text-primary'}`}>{record.lateInPeriod}</span>
+                                <span className={`font-bold ${ record.lateInPeriod > 3 ? 'text-destructive' : 'text-primary'}`}>{record.lateInPeriod}</span>
                             </TableCell>
                             <TableCell>
-                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) >= 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
+                                <span className={`font-bold ${ (studentLateCounts[record.studentId] || 0) > 3 ? 'text-destructive' : 'text-primary'}`}>{studentLateCounts[record.studentId] || 0}</span>
                             </TableCell>
                         </TableRow>
                       )})
