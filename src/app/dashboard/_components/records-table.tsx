@@ -48,7 +48,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
   const [mentorFilter, setMentorFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter]useState("all");
   const [genderFilter, setGenderFilter] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
@@ -369,9 +369,16 @@ export function RecordsTable({ records, loading, departments, classes, students 
       doc.text("Late Entry History Report", pageWidth / 2, contentY, { align: "center" });
       contentY += 8;
   
+      const studentDept = departments.find(d => d.id === selectedStudentForHistory!.departmentId)?.name || 'N/A';
+      const studentClass = classes.find(c => c.id === selectedStudentForHistory!.classId)?.name || 'N/A';
+
       doc.setFontSize(12);
       const studentInfo = `${selectedStudentForHistory!.name} | ${selectedStudentForHistory!.registerNo || 'N/A'}`;
       doc.text(studentInfo, pageWidth / 2, contentY, { align: 'center' });
+      contentY += 6;
+      doc.setFontSize(10);
+      const studentClassInfo = `${studentDept} - ${studentClass}`;
+      doc.text(studentClassInfo, pageWidth / 2, contentY, { align: 'center' });
       contentY += 10;
   
       autoTable(doc, {
@@ -713,7 +720,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
                 Late Entry History for {selectedStudentForHistory.name}
               </DialogTitle>
               <DialogDescription>
-                Register No: {selectedStudentForHistory.registerNo || "N/A"} | Total late entries: {studentLateCounts[selectedStudentForHistory.id] || 0}
+                Reg No: {selectedStudentForHistory.registerNo || "N/A"} | Dept: {departments.find(d => d.id === selectedStudentForHistory!.departmentId)?.name || 'N/A'} - {classes.find(c => c.id === selectedStudentForHistory!.classId)?.name || 'N/A'} | Total: {studentLateCounts[selectedStudentForHistory.id] || 0}
               </DialogDescription>
             </DialogHeader>
              {selectedStudentHistory.length > 0 ? (
