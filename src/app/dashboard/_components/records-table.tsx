@@ -48,7 +48,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
   const [mentorFilter, setMentorFilter] = useState("all");
-  const [statusFilter, setStatusFilter]useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [genderFilter, setGenderFilter] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
@@ -297,7 +297,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
     
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
-        const dateRangeText = `From: ${dateRange?.from ? format(dateRange.from, 'dd/MM/yyyy') : 'N/A'}  To: ${dateRange?.to ? format(dateRange.to, 'dd/MM/yyyy') : 'N/A'}`;
+        const { from, to } = dateRange || {};
+        const dateRangeText = `From: ${from ? format(from, 'dd/MM/yyyy') : 'N/A'}  To: ${to ? format(to, 'dd/MM/yyyy') : 'N/A'}`;
         doc.text(dateRangeText, pageWidth / 2, contentY, { align: 'center' });
         contentY += 10;
     
@@ -384,7 +385,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
       autoTable(doc, {
         startY: contentY,
         head: [['S.No.', 'Date', 'Time', 'Status', 'Mentor']],
-        body: selectedStudentHistory!.map((record, index) => {
+        body: selectedStudentHistory.map((record, index) => {
             const student = students.find(s => s.id === record.studentId);
             return [
               index + 1,
@@ -769,5 +770,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
 
     
