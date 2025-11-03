@@ -358,64 +358,67 @@ export function RecordsTable({ records, loading, departments, classes, students 
 
   const handleHistoryExportPdf = () => {
     if (!selectedStudentHistory || !selectedStudentForHistory) return;
-
+  
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let contentY = 10;
   
     const drawContent = () => {
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("Late Entry History Report", pageWidth / 2, contentY, { align: "center" });
-        contentY += 8;
-    
-        doc.setFontSize(12);
-        const studentInfo = `${selectedStudentForHistory!.name} | ${selectedStudentForHistory!.registerNo || 'N/A'}`;
-        doc.text(studentInfo, pageWidth / 2, contentY, { align: 'center' });
-        contentY += 10;
-    
-        autoTable(doc, {
-          startY: contentY,
-          head: [['S.No.', 'Date', 'Time', 'Status', 'Marked By']],
-          body: selectedStudentHistory!.map((record, index) => [
-            index + 1,
-            record.date,
-            record.time,
-            record.status,
-            record.markedBy,
-          ]),
-          headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
-          styles: { cellPadding: 2, fontSize: 10, lineColor: [44, 62, 80], lineWidth: 0.1 },
-        });
-    
-        doc.save(`${selectedStudentForHistory!.name}_late_history.pdf`);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Late Entry History Report", pageWidth / 2, contentY, { align: "center" });
+      contentY += 8;
+  
+      doc.setFontSize(12);
+      const studentInfo = `${selectedStudentForHistory!.name} | ${selectedStudentForHistory!.registerNo || 'N/A'}`;
+      doc.text(studentInfo, pageWidth / 2, contentY, { align: 'center' });
+      contentY += 10;
+  
+      autoTable(doc, {
+        startY: contentY,
+        head: [['S.No.', 'Date', 'Time', 'Status', 'Mentor']],
+        body: selectedStudentHistory!.map((record, index) => {
+            const student = students.find(s => s.id === record.studentId);
+            return [
+              index + 1,
+              record.date,
+              record.time,
+              record.status,
+              student?.mentor || 'N/A',
+            ]
+        }),
+        headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
+        styles: { cellPadding: 2, fontSize: 10, lineColor: [44, 62, 80], lineWidth: 0.1 },
+      });
+  
+      doc.save(`${selectedStudentForHistory!.name}_late_history.pdf`);
     };
-
+  
     if (logoBase64) {
       try {
         const img = new window.Image();
         img.src = logoBase64;
         img.onload = () => {
-            const originalWidth = 190;
-            const scalingFactor = 0.7;
-            const imgWidth = originalWidth * scalingFactor;
-            const ratio = img.width / img.height;
-            const imgHeight = imgWidth / ratio;
-            const x = (pageWidth - imgWidth) / 2;
-            doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 5;
-            drawContent();
+          const originalWidth = 190;
+          const scalingFactor = 0.7;
+          const imgWidth = originalWidth * scalingFactor;
+          const ratio = img.width / img.height;
+          const imgHeight = imgWidth / ratio;
+          const x = (pageWidth - imgWidth) / 2;
+          doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+          contentY += imgHeight + 5;
+          drawContent();
         };
         img.onerror = () => {
-            console.error("Error loading image for PDF.");
-            drawContent();
+          console.error("Error loading image for PDF.");
+          drawContent();
         };
       } catch (e) {
         console.error("Error adding image to PDF:", e);
         drawContent();
       }
     } else {
-        drawContent();
+      drawContent();
     }
   };
 
@@ -721,11 +724,13 @@ export function RecordsTable({ records, loading, departments, classes, students 
                         <TableHead>Date</TableHead>
                         <TableHead>Time</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Marked By</TableHead>
+                        <TableHead>Mentor</TableHead>
                     </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {selectedStudentHistory.map((entry) => (
+                    {selectedStudentHistory.map((entry) => {
+                        const student = students.find(s => s.id === entry.studentId);
+                        return (
                         <TableRow key={entry.id}>
                         <TableCell>{entry.date}</TableCell>
                         <TableCell>{entry.time}</TableCell>
@@ -734,9 +739,9 @@ export function RecordsTable({ records, loading, departments, classes, students 
                             {entry.status}
                             </span>
                         </TableCell>
-                        <TableCell>{entry.markedBy}</TableCell>
+                        <TableCell>{student?.mentor || 'N/A'}</TableCell>
                         </TableRow>
-                    ))}
+                    )})}
                     </TableBody>
                 </Table>
                 </div>
@@ -757,3 +762,5 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
+
+    
