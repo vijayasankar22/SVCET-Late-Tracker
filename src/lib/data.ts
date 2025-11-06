@@ -105,7 +105,7 @@ export const students: Student[] = [
 { id: 'cse-1-a-46', name: 'VIMALATHITHAN', departmentId: 's&h', classId: 'cse-1-a', registerNo: '', gender: 'MALE', mentor: 'Mrs. P.GANDHIMATHI' },
 { id: 'cse-1-a-47', name: 'VISHNU PRIYAN M', departmentId: 's&h', classId: 'cse-1-a', registerNo: '', gender: 'MALE', mentor: 'Mrs. P.GANDHIMATHI' },
 { id: 'cse-1-a-48', name: 'YAAGESH PRIYAN', departmentId: 's&h', classId: 'cse-1-a', registerNo: '', gender: 'MALE', mentor: 'Mrs. P.GANDHIMATHI' },
-
+{ id: 'cse-1-a-49', name: 'RAGHAVI K', departmentId: 's&h', classId: 'cse-1-a', registerNo: '', gender: 'FEMALE', mentor: 'Mrs. P.GANDHIMATHI' },
 //S&H I-B (CSE)
 { id: 'cse-1-b-1', name: 'ABISHEK P', departmentId: 's&h', classId: 'cse-1-b', registerNo: '', gender: 'MALE', mentor: 'Ms. A.KAVITHA' },
 { id: 'cse-1-b-2', name: 'AJAY S', departmentId: 's&h', classId: 'cse-1-b', registerNo: '', gender: 'MALE', mentor: 'Ms. A.KAVITHA' },
@@ -1168,7 +1168,7 @@ export const students: Student[] = [
 { id: 'aids-1-44', name: 'TARSHINI.G.S', departmentId: 's&h', classId: 'aids-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. N.ARULMOZHI' },
 { id: 'aids-1-45', name: 'VISHALINI .D', departmentId: 's&h', classId: 'aids-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. N.ARULMOZHI' },
 { id: 'aids-1-46', name: 'YUVASHREE.D', departmentId: 's&h', classId: 'aids-1', registerNo: '', gender: 'FEMALE', mentor: 'Dr. N.ARULMOZHI' },
-
+{ id: 'aids-1-47', name: 'NAVIN.A', departmentId: 's&h', classId: 'aids-1', registerNo: '', gender: 'MALE', mentor: 'Dr. N.ARULMOZHI' },
 //CSE-IOT I
 
 { id: 'cse-iot-1-1', name: 'ANBUSEL VAN A', departmentId: 's&h', classId: 'cse-iot-1', registerNo: '', gender: 'MALE', mentor: 'Dr. C.JOHN SUNDAR' },
