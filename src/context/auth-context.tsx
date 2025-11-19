@@ -4,6 +4,7 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import { useRouter } from 'next/navigation';
 import type { Staff } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 interface AuthContextType {
   user: Staff | null;
@@ -74,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
+      <FirebaseErrorListener />
     </AuthContext.Provider>
   );
 }
