@@ -420,7 +420,7 @@ export const students: Student[] = [
 { id: 'cse-4a-42', name: 'VIJAYASANKAR. P', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0732', gender: 'MALE', parentPhoneNumber: '+919342898476', mentor: 'Ms. S.PAVITHRA' },
 { id: 'cse-4a-43', name: 'VISWANATHAN.V', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0734', gender: 'MALE', mentor: 'Ms. S.PAVITHRA' },
 { id: 'cse-4a-44', name: 'ROHITH.V.S', departmentId: 'cse', classId: 'cse-4-a', registerNo: '20TD0833', gender: 'MALE', mentor: 'Ms. S.PAVITHRA' },
-
+{ id: 'cse-4a-45', name: 'VISWAA.S', departmentId: 'cse', classId: 'cse-4-a', registerNo: '22TD0733', gender: 'MALE', mentor: 'Ms. S.PAVITHRA' },
 // CSE IV-B
 { id: 'cse-4b-1', name: 'KAVIYA.P', departmentId: 'cse', classId: 'cse-4-b', registerNo: '22TD0688', gender: 'FEMALE', mentor: 'Ms. S.PAVITHRA' },
 { id: 'cse-4b-2', name: 'MANOJA.T', departmentId: 'cse', classId: 'cse-4-b', registerNo: '22TD0697', gender: 'FEMALE', mentor: 'Ms. S.PAVITHRA' },
@@ -887,7 +887,7 @@ export const students: Student[] = [
   { id: 'mech-2-7', name: 'DHARANIDHARAN. J', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2907', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
   { id: 'mech-2-8', name: 'SATHIAMURTHI. S', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2908', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
   { id: 'mech-2-9', name: 'KRISHNA DIWAKAR. P', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB2909', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
-  
+  { id: 'mech-2-10', name: 'HARISH. I', departmentId: 'mech', classId: 'mech-2', registerNo: '24TB0204', gender: 'MALE', mentor: 'Mr. G.PALANIVEL' },
   // MECH III
   { id: 'mech-3-1', name: 'AJITH KUMAR .G', departmentId: 'mech', classId: 'mech-3', registerNo: '23TB0201', gender: 'MALE', mentor: 'Mr.C.MANIKANDAN' },
   { id: 'mech-3-2', name: 'GOKULAN . G', departmentId: 'mech', classId: 'mech-3', registerNo: '23TB0202', gender: 'MALE', mentor: 'Mr.C.MANIKANDAN' },
@@ -1199,7 +1199,6 @@ export const students: Student[] = [
 
 
 ];
-
 
 
     
