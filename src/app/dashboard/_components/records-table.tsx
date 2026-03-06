@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileDown, History, X, ArrowUp, ArrowDown } from "lucide-react";
+import { Download, Search, FileDown, History, X, ArrowUp, ArrowDown, Check, ChevronsUpDown } from "lucide-react";
 import type { LateRecord, Department, Class, Student } from "@/lib/types";
 import { exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 type LateRecordWithPeriodCount = LateRecord & { lateInPeriod: number };
 type SortableKeys = keyof LateRecordWithPeriodCount | 'mentor' | 'totalLate';
@@ -55,6 +56,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
     return { from: today, to: today };
   });
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isMentorPickerOpen, setIsMentorPickerOpen] = useState(false);
   const [selectedStudentHistory, setSelectedStudentHistory] = useState<LateRecord[] | null>(null);
   const [selectedStudentForHistory, setSelectedStudentForHistory] = useState<Student | null>(null);
 
@@ -606,17 +608,64 @@ export function RecordsTable({ records, loading, departments, classes, students 
                           ))}
                       </SelectContent>
                   </Select>
-                  <Select value={mentorFilter} onValueChange={setMentorFilter}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Mentor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="all">All Mentors</SelectItem>
-                          {mentors.map(mentor => (
-                              <SelectItem key={mentor} value={mentor}>{mentor}</SelectItem>
-                          ))}
-                      </SelectContent>
-                  </Select>
+                  
+                  <Popover open={isMentorPickerOpen} onOpenChange={setIsMentorPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isMentorPickerOpen}
+                        className="w-full justify-between font-normal"
+                      >
+                        {mentorFilter === "all" ? "All Mentors" : mentorFilter}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search mentor..." />
+                        <CommandList>
+                          <CommandEmpty>No mentor found.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="all"
+                              onSelect={() => {
+                                setMentorFilter("all")
+                                setIsMentorPickerOpen(false)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  mentorFilter === "all" ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              All Mentors
+                            </CommandItem>
+                            {mentors.map((mentor) => (
+                              <CommandItem
+                                key={mentor}
+                                value={mentor}
+                                onSelect={(currentValue) => {
+                                  setMentorFilter(currentValue === mentorFilter ? "all" : currentValue)
+                                  setIsMentorPickerOpen(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    mentorFilter === mentor ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {mentor}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+
                    <Select value={statusFilter} onValueChange={setStatusFilter}>
                       <SelectTrigger className="w-full">
                           <SelectValue placeholder="Status" />
@@ -770,7 +819,3 @@ export function RecordsTable({ records, loading, departments, classes, students 
     </>
   );
 }
-
-    
-
-    
