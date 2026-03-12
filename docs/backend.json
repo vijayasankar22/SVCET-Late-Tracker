@@ -1,0 +1,249 @@
+{
+  "entities": {
+    "Department": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Department",
+      "type": "object",
+      "description": "Represents an academic department within the institution.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Department entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the department (e.g., CSE, ECE, MBA)."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Class": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Class",
+      "type": "object",
+      "description": "Represents an academic class or section within a department.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Class entity."
+        },
+        "departmentId": {
+          "type": "string",
+          "description": "Reference to Department. (Relationship: Department 1:N Class)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the class (e.g., II-A, III-B, IV)."
+        }
+      },
+      "required": [
+        "id",
+        "departmentId",
+        "name"
+      ]
+    },
+    "Student": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Student",
+      "type": "object",
+      "description": "Represents a student enrolled in the institution.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Student entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the student."
+        },
+        "departmentId": {
+          "type": "string",
+          "description": "Reference to Department. (Relationship: Department 1:N Student)"
+        },
+        "classId": {
+          "type": "string",
+          "description": "Reference to Class. (Relationship: Class 1:N Student)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "departmentId",
+        "classId"
+      ]
+    },
+    "Staff": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Staff",
+      "type": "object",
+      "description": "Represents a staff member of the institution who can mark late records.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Staff entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the staff member."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the staff member, used for login.",
+          "format": "email"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email"
+      ]
+    },
+    "LateRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LateRecord",
+      "type": "object",
+      "description": "Captures an instance of a student being marked late.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LateRecord entity."
+        },
+        "studentId": {
+          "type": "string",
+          "description": "Reference to Student. (Relationship: Student 1:N LateRecord)"
+        },
+        "recordedDate": {
+          "type": "string",
+          "description": "The date when the student was marked late.",
+          "format": "date"
+        },
+        "recordedTime": {
+          "type": "string",
+          "description": "The time when the student was marked late.",
+          "format": "time"
+        },
+        "staffId": {
+          "type": "string",
+          "description": "Reference to Staff. (Relationship: Staff 1:N LateRecord)"
+        }
+      },
+      "required": [
+        "id",
+        "studentId",
+        "recordedDate",
+        "recordedTime",
+        "staffId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/staffs/{staffId}",
+        "definition": {
+          "entityName": "Staff",
+          "schema": {
+            "$ref": "#/backend/entities/Staff"
+          },
+          "description": "Stores individual staff profiles. The document ID (`staffId`) must match the Firebase Authentication UID. Includes basic staff information. Admins can manage these profiles, and staff can manage their own. Password field from schema is handled by Firebase Auth, not stored here directly in plaintext or hashed for login.",
+          "params": [
+            {
+              "name": "staffId",
+              "description": "The unique identifier for the staff member, corresponding to their Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{staffId}",
+        "definition": {
+          "entityName": "Staff",
+          "schema": {
+            "$ref": "#/backend/entities/Staff"
+          },
+          "description": "A collection used for Database Access Control (DBAC). The mere existence of a document with `staffId` as its ID in this collection grants administrative privileges to that staff member. This allows checking for admin roles using an `exists()` security rule, promoting authorization independence and clarity of intent.",
+          "params": [
+            {
+              "name": "staffId",
+              "description": "The unique identifier of a staff member who has administrative privileges, corresponding to their Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/departments/{departmentId}",
+        "definition": {
+          "entityName": "Department",
+          "schema": {
+            "$ref": "#/backend/entities/Department"
+          },
+          "description": "Contains master data for academic departments. Provides global read access for authenticated staff to populate dropdowns and for denormalization into other documents.",
+          "params": [
+            {
+              "name": "departmentId",
+              "description": "The unique identifier for the department."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/classes/{classId}",
+        "definition": {
+          "entityName": "Class",
+          "schema": {
+            "$ref": "#/backend/entities/Class"
+          },
+          "description": "Contains master data for academic classes. Each document includes `departmentId` as a foreign key for easy filtering and lookup. Provides global read access for authenticated staff.",
+          "params": [
+            {
+              "name": "classId",
+              "description": "The unique identifier for the class."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/students/{studentId}",
+        "definition": {
+          "entityName": "Student",
+          "schema": {
+            "$ref": "#/backend/entities/Student"
+          },
+          "description": "Contains master data for students. Each document includes `departmentId` and `classId` as foreign keys for filtering and suggestions. Provides global read access for authenticated staff for lookup and display.",
+          "params": [
+            {
+              "name": "studentId",
+              "description": "The unique identifier for the student."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/lateRecords/{lateRecordId}",
+        "definition": {
+          "entityName": "LateRecord",
+          "schema": {
+            "$ref": "#/backend/entities/LateRecord"
+          },
+          "description": "Records instances of students being marked late by staff. Includes denormalized fields: `studentName`, `departmentId`, `classId`, `departmentName`, `className`, and `staffName` for authorization independence, efficient querying (QAPs), and display on the Staff Dashboard without requiring additional document reads in security rules or client logic.",
+          "params": [
+            {
+              "name": "lateRecordId",
+              "description": "The unique identifier for the late record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed following the core principles of Authorization Independence, Structural Segregation, and consistent Access Modeling to ensure security, scalability, and debuggability. All entities are represented as top-level collections or subcollections where appropriate, with a strong emphasis on denormalization to eliminate hierarchical authorization dependencies.\n\n**Authorization Independence via Denormalization:**\n\n1.  **Staff Profiles (`/staffs/{staffId}`):** Staff accounts are directly mapped to `request.auth.uid`. A staff member's profile is owned by themselves, making authorization explicit (`request.auth.uid == staffId`). Admin roles are handled via a separate `/roles_admin/{staffId}` collection. This completely decouples administrative privileges from the staff profile document itself, allowing an `exists()` check in security rules for admin actions without needing to fetch the staff profile document, thus achieving authorization independence.\n2.  **Departments, Classes, Students:** These collections contain static lookup data. Their authorization is simple: `allow read: if request.auth.uid != null;`. There are no hierarchical dependencies for their access, as they are not subcollections tied to specific parents for security.\n3.  **LateRecords (`/lateRecords/{lateRecordId}`):** This is the most critical area for denormalization. Each `LateRecord` document will include not only its direct foreign keys (`studentId`, `staffId`, `recordedDate`, `recordedTime`) but also denormalized data required for the Staff Dashboard and potential future authorization rules. This includes `studentName`, `departmentId` (from Student), `classId` (from Student), `departmentName` (from Department), `className` (from Class), and `staffName` (from Staff). This denormalization means that all information needed for displaying, filtering, and potentially authorizing `LateRecord` access is present within the `LateRecord` document itself. Security rules or client-side operations do not need to perform `get()` calls to parent or related documents to resolve authorization or display data, making operations atomic and rule evaluation efficient.\n\n**QAPs (Query/Access Patterns) Support:**\n\n1.  **Staff Dashboard:** The requirement for viewing, filtering, and exporting `LateRecords` by Department, Class, Student Name, Date Range, and Staff is fully supported. Because `departmentId`, `classId`, `studentId`, `staffId`, and their corresponding names are denormalized into each `LateRecord` document, all dashboard filters can be directly applied as Firestore queries (e.g., `where('departmentId', '==', '...')`, `where('staffName', '==', '...')`) on the `/lateRecords` collection. The security rule for `lateRecords` will simply be `allow read: if request.auth.uid != null;` (assuming any authenticated staff can view all records), and the client-side queries will then filter the result set. This adheres to the principle that security rules are not filters, but rather ensure that only authorized data is retrieved, and the extensive filtering is then handled by the application logic using efficient queries on denormalized fields.\n2.  **Lookup Data (Departments, Classes, Students):** These collections are globally readable by any authenticated staff, enabling efficient `list` operations for dropdowns and student lookup tools without complex authorization logic.\n3.  **Structural Segregation:** Each collection maintains a homogeneous security posture (e.g., `/departments` is always readable by authenticated users). This simplifies security rules and makes their intent clear.\n\n**DBAC and Global Roles:** The `/roles_admin/{staffId}` collection serves as a direct, existence-based check for administrative privileges, adhering to the \"Existence over Content\" strategy. Only staff whose `uid` matches a document `id` in this collection are considered admins. This is robust and scalable for role management."
+  }
+}

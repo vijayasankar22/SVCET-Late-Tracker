@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * APP SECURITY CONFIGURATION
+     * 
+     * Core Philosophy: 
+     * This ruleset implements a staff-centric academic tracking system. It distinguishes 
+     * between "Master Data" (Departments, Classes, Students), "Transactional Data" 
+     * (LateRecords), and "Identity Data" (Staff Profiles). 
+     *
+     * Data Structure:
+     * - /roles_admin: A collection for DBAC where the document ID matches the Admin UID.
+     * - /staffs: User profiles keyed by Firebase Auth UID.
+     * - /departments, /classes, /students: Global academic lookup data.
+     * - /lateRecords: Logs of student lateness created by staff.
+     *
+     * Key Security Decisions:
+     * - Administrative access is determined by the existence of a record in /roles_admin.
+     * - Master data (Departments, etc.) is read-only for authenticated staff and writeable only by Admins.
+     * - LateRecords are readable by all authenticated staff to support the shared dashboard but 
+     *   only writeable by the staff member who created the record.
+     * - Relational integrity is enforced by ensuring internal staffId fields match the authenticated user.
+     *
+     * Denormalization for Authorization:
+     * LateRecord documents contain a 'staffId' field. This allows the rules to verify 
+     * ownership directly without performing a cross-document lookup to find who created the record.
+     */
+
+    // --- Helper Functions ---
+
+    /**
+     * @description Checks if the user is authenticated with a valid UID.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user has administrative privileges 
+     * via an existence check in the roles_admin collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * @description Checks if the provided UID matches the authenticated user's UID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Combines ownership check with document existence for updates and deletes.
+     */
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Global Admin collection. Existence of a document here grants admin status.
+     * @path /roles_admin/{staffId}
+     * @allow (get) Any authenticated user can check if a user is an admin.
+     * @deny (create, update, delete) Only existing admins can modify roles.
+     * @principle Administrative DBAC via existence check.
+     */
+    match /roles_admin/{staffId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Staff profiles. Owners can manage their own profile; admins can manage all.
+     * @path /staffs/{staffId}
+     * @allow (create) User matching staffId or an Admin.
+     * @deny (update) If staffId is changed or user is not owner/admin.
+     * @principle Ownership model combined with administrative override.
+     */
+    match /staffs/{staffId} {
+      allow get, list: if isSignedIn();
+      allow create: if (isOwner(staffId) || isAdmin()) 
+                    && request.resource.data.id == staffId;
+      allow update: if (isExistingOwner(staffId) || isAdmin()) 
+                    && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(staffId) || isAdmin();
+    }
+
+    /**
+     * @description Academic departments.
+     * @path /departments/{departmentId}
+     * @allow (get, list) All authenticated staff for dropdowns/lookups.
+     * @deny (write) Non-admin users.
+     * @principle Master data lookup restricted to authenticated users; write restricted to admins.
+     */
+    match /departments/{departmentId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Academic classes.
+     * @path /classes/{classId}
+     * @allow (get, list) All authenticated staff.
+     * @deny (write) Non-admin users.
+     * @principle Master data lookup restricted to authenticated users; write restricted to admins.
+     */
+    match /classes/{classId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Student records.
+     * @path /students/{studentId}
+     * @allow (get, list) All authenticated staff for student lookup.
+     * @deny (write) Non-admin users.
+     * @principle Master data lookup restricted to authenticated users; write restricted to admins.
+     */
+    match /students/{studentId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Records of student lateness.
+     * @path /lateRecords/{lateRecordId}
+     * @allow (create) Authenticated staff member setting themselves as the recorder.
+     * @allow (list) Authenticated staff viewing the shared dashboard.
+     * @deny (update) If the staffId (creator) of the record is changed.
+     * @principle Shared read access for collaboration; owner-only write for accountability.
+     */
+    match /lateRecords/{lateRecordId} {
+      allow get, list: if isSignedIn();
+      
+      allow create: if isSignedIn() 
+                    && request.resource.data.staffId == request.auth.uid;
+      
+      allow update: if resource != null 
+                    && resource.data.staffId == request.auth.uid 
+                    && request.resource.data.staffId == resource.data.staffId;
+      
+      allow delete: if resource != null 
+                    && (resource.data.staffId == request.auth.uid || isAdmin());
+    }
+  }
+}
