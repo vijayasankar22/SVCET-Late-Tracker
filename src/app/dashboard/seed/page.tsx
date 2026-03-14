@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { seedDatabase } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { errorEmitter, FirestorePermissionError } from '@/firebase';
 
 export default function SeedPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -37,11 +39,20 @@ export default function SeedPage() {
         description: result.message,
       });
     } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.message,
-      });
+      if (result.isPermissionError && result.errorContext) {
+        const permissionError = new FirestorePermissionError({
+          path: result.errorContext.path,
+          operation: result.errorContext.operation as any,
+          requestResourceData: result.errorContext.data
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: result.message,
+        });
+      }
     }
   };
   
@@ -61,7 +72,7 @@ export default function SeedPage() {
         <CardContent>
           <div className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
             <p className="font-bold">Warning: This is a potentially destructive action.</p>
-            <p>Running this will overwrite any existing departments, classes, or students in your database that have the same ID as the data in `src/lib/data.ts`. Use with caution.</p>
+            <p>Running this will overwrite any existing departments, classes, or students in your database. Use with caution.</p>
           </div>
           <Button onClick={handleSeed} disabled={isLoading} variant="destructive" className="w-full">
             {isLoading ? (

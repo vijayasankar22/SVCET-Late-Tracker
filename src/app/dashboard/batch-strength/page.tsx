@@ -2,10 +2,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { Department, Student, Class } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -70,12 +69,20 @@ const MBA_BATCH_MAP: { [key: number]: string } = {
 };
 
 export default function BatchStrengthPage() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const db = useFirestore();
   
+  const deptsQuery = useMemoFirebase(() => query(collection(db, 'departments'), orderBy('name')), [db]);
+  const studsQuery = useMemoFirebase(() => query(collection(db, 'students')), [db]);
+  const clssQuery = useMemoFirebase(() => query(collection(db, 'classes')), [db]);
+
+  const { data: departmentsRaw, isLoading: deptsLoading } = useCollection<Department>(deptsQuery);
+  const { data: studentsRaw, isLoading: studsLoading } = useCollection<Student>(studsQuery);
+  const { data: classesRaw, isLoading: clssLoading } = useCollection<Class>(clssQuery);
+
+  const departments = useMemo(() => departmentsRaw || [], [departmentsRaw]);
+  const students = useMemo(() => studentsRaw || [], [studentsRaw]);
+  const classes = useMemo(() => classesRaw || [], [classesRaw]);
+
   const [selectedClassStudents, setSelectedClassStudents] = useState<Student[]>([]);
   const [selectedClassInfo, setSelectedClassInfo] = useState<{className: string; deptName: string} | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -90,46 +97,11 @@ export default function BatchStrengthPage() {
           setLogoBase64(reader.result as string);
         };
         reader.readAsDataURL(blob);
-      }).catch(error => {
-        console.error("Error fetching or converting logo:", error);
-      });
+      }).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        const [depts, studs, clss] = await Promise.all([
-          getDocs(query(collection(db, 'departments'), orderBy('name'))),
-          getDocs(query(collection(db, 'students'))),
-          getDocs(collection(db, 'classes')),
-        ]);
-
-        const deptsData = depts.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
-        const studsData = studs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
-        const clssData = clss.docs.map(doc => ({ id: doc.id, ...doc.data() } as Class));
-
-        setDepartments(deptsData);
-        setStudents(studsData);
-        setClasses(clssData);
-
-      } catch (error) {
-        console.error("Error fetching initial data: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not fetch data for class strength. Please try again.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [toast]);
-
   const { engineeringStrength, mbaStrength } = useMemo(() => {
-    if (loading || !students.length || !classes.length || !departments.length) {
+    if (!students.length || !classes.length || !departments.length) {
       return { engineeringStrength: {}, mbaStrength: {} };
     }
 
@@ -146,7 +118,6 @@ export default function BatchStrengthPage() {
         '2025-26': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
         '2026-27': { classes: [], total: 0, totalBoys: 0, totalGirls: 0 },
     };
-
 
     classes.forEach(cls => {
       const year = getYearFromClassName(cls.name);
@@ -195,7 +166,6 @@ export default function BatchStrengthPage() {
       }
     });
 
-    // Sort classes within each batch
     for (const batch in engineeringData) {
       engineeringData[batch].classes.sort((a, b) => {
         if (a.departmentName < b.departmentName) return -1;
@@ -208,8 +178,7 @@ export default function BatchStrengthPage() {
     }
 
     return { engineeringStrength: engineeringData, mbaStrength: mbaData };
-  }, [students, classes, departments, loading]);
-
+  }, [students, classes, departments]);
 
   const handleClassClick = (classId: string, className: string, deptName: string) => {
     const classStudents = students.filter(s => s.classId === classId).sort((a, b) => (a.registerNo || '').localeCompare(b.registerNo || ''));
@@ -220,7 +189,6 @@ export default function BatchStrengthPage() {
   
   const handleStudentListExportPdf = () => {
     if (!selectedClassInfo || !selectedClassStudents.length) return;
-
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     let contentY = 10;
@@ -230,12 +198,10 @@ export default function BatchStrengthPage() {
         doc.setFont("helvetica", "bold");
         doc.text("STUDENT LIST", pageWidth / 2, contentY, { align: "center" });
         contentY += 8;
-    
         doc.setFontSize(12);
         const subTitle = `${selectedClassInfo?.deptName} - ${selectedClassInfo?.className}`;
         doc.text(subTitle, pageWidth / 2, contentY, { align: 'center' });
         contentY += 10;
-    
         autoTable(doc, {
           startY: contentY,
           head: [['S.No.', 'Register No.', 'Student Name', 'Mentor']],
@@ -248,33 +214,21 @@ export default function BatchStrengthPage() {
           headStyles: { fillColor: [30, 58, 138], lineColor: [44, 62, 80], lineWidth: 0.1 },
           styles: { cellPadding: 2, fontSize: 10, lineColor: [44, 62, 80], lineWidth: 0.1 },
         });
-    
         doc.save(`${selectedClassInfo?.deptName}_${selectedClassInfo?.className}_students.pdf`);
     };
 
     if (logoBase64) {
-      try {
-        const img = new window.Image();
-        img.src = logoBase64;
-        img.onload = () => {
-            const originalWidth = 190;
-            const scalingFactor = 0.7;
-            const imgWidth = originalWidth * scalingFactor;
-            const ratio = img.width / img.height;
-            const imgHeight = imgWidth / ratio;
-            const x = (pageWidth - imgWidth) / 2;
-            doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
-            contentY += imgHeight + 5;
-            drawContent();
-        };
-        img.onerror = () => {
-            console.error("Error loading image for PDF.");
-            drawContent();
-        };
-      } catch (e) {
-        console.error("Error adding image to PDF:", e);
-        drawContent();
-      }
+      const img = new Image();
+      img.src = logoBase64;
+      img.onload = () => {
+          const scalingFactor = 0.7;
+          const imgWidth = 190 * scalingFactor;
+          const ratio = img.width / img.height;
+          const imgHeight = imgWidth / ratio;
+          doc.addImage(logoBase64, 'PNG', (pageWidth - imgWidth) / 2, contentY, imgWidth, imgHeight);
+          contentY += imgHeight + 5;
+          drawContent();
+      };
     } else {
         drawContent();
     }
@@ -282,14 +236,12 @@ export default function BatchStrengthPage() {
 
   const handleStudentListExportCsv = () => {
     if (!selectedClassInfo || !selectedClassStudents.length) return;
-
     const rows = selectedClassStudents.map((student, index) => ({
       "S.No.": index + 1,
       "Register No.": student.registerNo,
       "Student Name": student.name,
       "Mentor": student.mentor || "N/A"
     }));
-
     exportToCsv(`${selectedClassInfo.deptName}_${selectedClassInfo.className}_students.csv`, rows);
   };
   
@@ -307,15 +259,11 @@ export default function BatchStrengthPage() {
         const processBatch = (strengthData: BatchStrength, title: string) => {
             Object.entries(strengthData).forEach(([batch, batchData]) => {
                 if (batchData.classes.length === 0) return;
-                
                 const yearName = YEAR_NAME_MAP[Object.keys(BATCH_MAP).find(key => BATCH_MAP[parseInt(key)] === batch) as any] || (batch === '2025-26' ? 'II Year' : 'I Year');
-
                 doc.setFontSize(14);
                 doc.setFont("helvetica", "bold");
-                const batchTitle = `${title} ${batch} (${yearName})`;
-                doc.text(batchTitle, 14, contentY);
+                doc.text(`${title} ${batch} (${yearName})`, 14, contentY);
                 contentY += 8;
-
                 autoTable(doc, {
                     startY: contentY,
                     head: [['Department', 'Class', 'Boys', 'Girls', 'Total']],
@@ -324,42 +272,31 @@ export default function BatchStrengthPage() {
                     headStyles: { fillColor: [30, 58, 138] },
                     footStyles: { fillColor: [23, 37, 84], fontStyle: 'bold' },
                     styles: { lineColor: [44, 62, 80], lineWidth: 0.1 },
-                    didDrawPage: (data) => {
-                        contentY = data.cursor?.y ?? 0;
-                    }
                 });
                 contentY = (doc as any).lastAutoTable.finalY + 10;
             });
         };
-        
         processBatch(engineeringStrength, "B.Tech");
         processBatch(mbaStrength, "MBA");
-
         doc.save("batch_strength_report.pdf");
     };
 
     if (logoBase64) {
-      const img = new window.Image();
+      const img = new Image();
       img.src = logoBase64;
       img.onload = () => {
-        const originalWidth = 190;
         const scalingFactor = 0.7;
-        const imgWidth = originalWidth * scalingFactor;
+        const imgWidth = 190 * scalingFactor;
         const ratio = img.width / img.height;
         const imgHeight = imgWidth / ratio;
-        const x = (pageWidth - imgWidth) / 2;
-        doc.addImage(logoBase64, 'PNG', x, contentY, imgWidth, imgHeight);
+        doc.addImage(logoBase64, 'PNG', (pageWidth - imgWidth) / 2, contentY, imgWidth, imgHeight);
         contentY += imgHeight + 5;
-        drawContent();
-      };
-      img.onerror = () => {
         drawContent();
       };
     } else {
       drawContent();
     }
   };
-
 
   const renderBatchCard = (batch: string, batchData: any, titlePrefix = "Batch") => {
     const yearName = YEAR_NAME_MAP[Object.keys(BATCH_MAP).find(key => BATCH_MAP[parseInt(key)] === batch) as any] || (batch === '2025-26' ? 'II Year' : 'I Year');
@@ -411,6 +348,7 @@ export default function BatchStrengthPage() {
     );
   };
 
+  const loading = deptsLoading || studsLoading || clssLoading;
 
   if (loading) {
     return (

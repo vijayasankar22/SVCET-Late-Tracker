@@ -1,28 +1,21 @@
 
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useState, useEffect, useMemo } from 'react';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { LateEntriesChart } from './_components/late-entries-chart';
 import { TopLatecomersList } from './_components/top-latecomers-list';
 import type { LateRecord, Department, Student, Class } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { DayWiseChart } from './_components/day-wise-chart';
 
 export default function AnalyticsPage() {
-  const [records, setRecords] = useState<LateRecord[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const db = useFirestore();
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,57 +27,37 @@ export default function AnalyticsPage() {
           setLogoBase64(reader.result as string);
         };
         reader.readAsDataURL(blob);
-      }).catch(error => {
-        console.error("Error fetching or converting logo:", error);
+      }).catch(() => {
+        // Quiet failure for logo
       });
   }, []);
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        const [depts, studs, recs, clss] = await Promise.all([
-          getDocs(query(collection(db, 'departments'), orderBy('name'))),
-          getDocs(query(collection(db, 'students'))),
-          getDocs(query(collection(db, 'lateRecords'), orderBy('timestamp', 'desc'))),
-          getDocs(collection(db, 'classes')),
-        ]);
+  const deptsQuery = useMemoFirebase(() => query(collection(db, 'departments'), orderBy('name')), [db]);
+  const studsQuery = useMemoFirebase(() => query(collection(db, 'students')), [db]);
+  const clssQuery = useMemoFirebase(() => query(collection(db, 'classes')), [db]);
+  const recsQuery = useMemoFirebase(() => query(collection(db, 'lateRecords'), orderBy('timestamp', 'desc')), [db]);
 
-        const deptsData = depts.docs.map(doc => ({ id: doc.id, ...doc.data() } as Department));
-        const studsData = studs.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
-        const clssData = clss.docs.map(doc => ({ id: doc.id, ...doc.data() } as Class));
-        
-        const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
-          const data = doc.data();
-          const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
-          
-          return { 
-            id: doc.id, 
-            ...data,
-            timestamp: timestamp,
-          } as LateRecord;
-        });
+  const { data: rawDepts, isLoading: deptsLoading } = useCollection<Department>(deptsQuery);
+  const { data: rawStuds, isLoading: studsLoading } = useCollection<Student>(studsQuery);
+  const { data: rawClss, isLoading: clssLoading } = useCollection<Class>(clssQuery);
+  const { data: rawRecs, isLoading: recsLoading } = useCollection<LateRecord>(recsQuery);
 
-        setDepartments(deptsData);
-        setRecords(fetchedRecords);
-        setStudents(studsData);
-        setClasses(clssData);
+  const departments = useMemo(() => rawDepts || [], [rawDepts]);
+  const students = useMemo(() => rawStuds || [], [rawStuds]);
+  const classes = useMemo(() => rawClss || [], [rawClss]);
 
-      } catch (error) {
-        console.error("Error fetching initial data: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not fetch data for analytics. Please try again.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const processedRecords = useMemo(() => {
+    if (!rawRecs) return [];
+    return rawRecs.map((doc) => {
+      const timestamp = doc.timestamp instanceof Timestamp ? doc.timestamp.toDate() : new Date(doc.timestamp);
+      return { 
+        ...doc,
+        timestamp: timestamp,
+      } as LateRecord;
+    });
+  }, [rawRecs]);
 
-    fetchInitialData();
-  }, [toast]);
-
+  const loading = deptsLoading || studsLoading || clssLoading || recsLoading;
 
   return (
     <div className="space-y-8">
@@ -106,7 +79,7 @@ export default function AnalyticsPage() {
                 {loading ? (
                     <Skeleton className="h-[400px] w-full" />
                 ) : (
-                    <LateEntriesChart records={records} departments={departments} />
+                    <LateEntriesChart records={processedRecords} departments={departments} />
                 )}
             </CardContent>
         </Card>
@@ -115,7 +88,7 @@ export default function AnalyticsPage() {
                 {loading ? (
                     <Skeleton className="h-[400px] w-full" />
                 ) : (
-                    <DayWiseChart records={records} departments={departments} />
+                    <DayWiseChart records={processedRecords} departments={departments} />
                 )}
             </CardContent>
         </Card>
@@ -126,7 +99,7 @@ export default function AnalyticsPage() {
                {loading ? (
                   <Skeleton className="h-[400px] w-full" />
               ) : (
-                  <TopLatecomersList records={records} students={students} departments={departments} classes={classes} logoBase64={logoBase64} />
+                  <TopLatecomersList records={processedRecords} students={students} departments={departments} classes={classes} logoBase64={logoBase64} />
               )}
           </CardContent>
       </Card>

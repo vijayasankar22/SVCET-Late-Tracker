@@ -2,8 +2,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { collection, addDoc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { 
+  useFirestore, 
+  useCollection, 
+  useMemoFirebase, 
+  addDocumentNonBlocking 
+} from '@/firebase';
 import { EntryForm } from './_components/entry-form';
 import { RecordsTable } from './_components/records-table';
 import { Stats } from './_components/stats';
@@ -12,89 +17,55 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/auth-context';
 
-
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [records, setRecords] = useState<LateRecord[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [initialDataLoading, setInitialDataLoading] = useState(true);
+  const db = useFirestore();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setInitialDataLoading(true);
-        const [depts, clss, studs, recs] = await Promise.all([
-          getDocs(query(collection(db, 'departments'), orderBy('name'))),
-          getDocs(query(collection(db, 'classes'), orderBy('name'))),
-          getDocs(query(collection(db, 'students'), orderBy('name'))),
-          getDocs(query(collection(db, 'lateRecords'), orderBy('timestamp', 'desc')))
-        ]);
+  // Define memoized queries for each collection
+  const deptsQuery = useMemoFirebase(() => query(collection(db, 'departments'), orderBy('name')), [db]);
+  const classesQuery = useMemoFirebase(() => query(collection(db, 'classes'), orderBy('name')), [db]);
+  const studentsQuery = useMemoFirebase(() => query(collection(db, 'students'), orderBy('name')), [db]);
+  const recordsQuery = useMemoFirebase(() => query(collection(db, 'lateRecords'), orderBy('timestamp', 'desc')), [db]);
 
-        const deptsData = depts.docs.map(doc => ({id: doc.id, ...doc.data()} as Department));
-        const clssData = clss.docs.map(doc => ({id: doc.id, ...doc.data()} as Class));
-        const studsData = studs.docs.map(doc => ({id: doc.id, ...doc.data()} as Student));
-        
-        const studentsMap = new Map(studsData.map(s => [s.id, s]));
-        
-        const normalizeName = (name: string) => name.toLowerCase().replace(/\s+/g, ' ').trim();
-        const studentsByNameMap = new Map(studsData.map(s => [normalizeName(s.name), s]));
-        
-        const fetchedRecords: LateRecord[] = recs.docs.map((doc) => {
-          const data = doc.data();
-          const timestamp = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
-          
-          let student = studentsMap.get(data.studentId);
-          if (!student && data.studentName) {
-            student = studentsByNameMap.get(normalizeName(data.studentName));
-          }
+  // Use the useCollection hook for real-time data and automatic error handling
+  const { data: rawDepts, isLoading: deptsLoading } = useCollection<Department>(deptsQuery);
+  const { data: rawClasses, isLoading: classesLoading } = useCollection<Class>(classesQuery);
+  const { data: rawStudents, isLoading: studentsLoading } = useCollection<Student>(studentsQuery);
+  const { data: rawRecords, isLoading: recordsLoading } = useCollection<LateRecord>(recordsQuery);
 
-          return { 
-            id: doc.id, 
-            ...data,
-            timestamp: timestamp,
-            date: timestamp.toLocaleDateString(),
-            status: data.status || 'Not Informed',
-            studentId: student?.id || data.studentId || data.studentName,
-            studentName: student?.name || data.studentName,
-            registerNo: student?.registerNo || data.registerNo || '',
-            gender: student?.gender || data.gender || 'MALE',
-          } as LateRecord;
-        });
+  // Normalize data and handle joins
+  const departments = useMemo(() => rawDepts || [], [rawDepts]);
+  const classes = useMemo(() => rawClasses || [], [rawClasses]);
+  const students = useMemo(() => rawStudents || [], [rawStudents]);
 
+  const processedRecords = useMemo(() => {
+    if (!rawRecords || !students.length) return [];
 
-        setDepartments(deptsData);
-        setClasses(clssData);
-        setStudents(studsData);
-        setRecords(fetchedRecords);
+    const studentsMap = new Map(students.map(s => [s.id, s]));
+    const normalizeName = (name: string) => name?.toLowerCase().replace(/\s+/g, ' ').trim() || '';
+    const studentsByNameMap = new Map(students.map(s => [normalizeName(s.name), s]));
 
-        if (deptsData.length === 0) {
-            toast({
-                variant: "destructive",
-                title: "Data Missing",
-                description: "No departments found. Please seed the database from the /seed page.",
-            });
-        }
-
-      } catch (error) {
-        console.error("Error fetching initial data: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not fetch data from the database. Please ensure Firestore is set up correctly and you have seeded the data.",
-        });
-      } finally {
-        setLoading(false);
-        setInitialDataLoading(false);
+    return rawRecords.map((record) => {
+      const timestamp = record.timestamp instanceof Timestamp ? record.timestamp.toDate() : new Date(record.timestamp);
+      
+      let student = studentsMap.get(record.studentId);
+      if (!student && record.studentName) {
+        student = studentsByNameMap.get(normalizeName(record.studentName));
       }
-    };
 
-    fetchInitialData();
-  }, [toast]);
-
+      return { 
+        ...record,
+        timestamp: timestamp,
+        date: timestamp.toLocaleDateString(),
+        status: record.status || 'Not Informed',
+        studentId: student?.id || record.studentId || record.studentName,
+        studentName: student?.name || record.studentName,
+        registerNo: student?.registerNo || record.registerNo || '',
+        gender: student?.gender || record.gender || 'MALE',
+      } as LateRecord;
+    });
+  }, [rawRecords, students]);
 
   const handleAddRecord = async (newRecord: Omit<LateRecord, 'id' | 'timestamp'>) => {
     if (user?.role === 'viewer') {
@@ -106,46 +77,37 @@ export default function DashboardPage() {
         return false;
     }
       
-    try {
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-      const existingRecord = records.find(record => {
-          const recordDate = new Date(record.timestamp);
-          return record.studentId === newRecord.studentId && recordDate >= todayStart;
-      });
+    const existingRecord = processedRecords.find(record => {
+        const recordDate = new Date(record.timestamp);
+        return record.studentId === newRecord.studentId && recordDate >= todayStart;
+    });
 
-      if (existingRecord) {
-        toast({
-            variant: "destructive",
-            title: "Duplicate Entry",
-            description: `${newRecord.studentName} has already been marked late today.`,
-        });
-        return false;
-      }
-      
-      const timestamp = new Date();
-      
-      const recordWithTimestamp = {
-        ...newRecord,
-        timestamp: timestamp,
-        date: timestamp.toLocaleDateString(),
-      };
-
-      const docRef = await addDoc(collection(db, 'lateRecords'), recordWithTimestamp);
-
-      setRecords((prevRecords) => [{ id: docRef.id, ...recordWithTimestamp, timestamp: timestamp } as LateRecord, ...prevRecords]);
-      return true;
-    } catch (error) {
-      console.error("Error adding document: ", error);
+    if (existingRecord) {
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save the new record.",
+          variant: "destructive",
+          title: "Duplicate Entry",
+          description: `${newRecord.studentName} has already been marked late today.`,
       });
       return false;
     }
+    
+    const timestamp = new Date();
+    const recordWithTimestamp = {
+      ...newRecord,
+      timestamp: timestamp,
+      date: timestamp.toLocaleDateString(),
+    };
+
+    // Use non-blocking utility for automatic error emission
+    addDocumentNonBlocking(collection(db, 'lateRecords'), recordWithTimestamp);
+    
+    return true;
   };
+
+  const initialDataLoading = deptsLoading || classesLoading || studentsLoading;
 
   if (initialDataLoading) {
       return (
@@ -158,7 +120,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      
       {user?.role !== 'viewer' && (
         <EntryForm 
           onAddRecord={handleAddRecord}
@@ -168,10 +129,10 @@ export default function DashboardPage() {
         />
       )}
       
-      <Stats records={records} />
+      <Stats records={processedRecords} />
       <RecordsTable 
-        records={records} 
-        loading={loading}
+        records={processedRecords} 
+        loading={recordsLoading}
         departments={departments}
         classes={classes}
         students={students}
