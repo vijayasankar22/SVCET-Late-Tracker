@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
@@ -5,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { Staff } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 
 interface AuthContextType {
   user: Staff | null;
@@ -28,6 +30,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Ensure the user is at least signed in anonymously to Firebase
+    // to satisfy Firestore security rules for read access.
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (!firebaseUser) {
+        signInAnonymously(auth).catch(err => {
+          // Fail silently or handle if necessary, but don't block app
+        });
+      }
+    });
+
     try {
       const storedUser = localStorage.getItem('svcet_late_tracker_user');
       if (storedUser) {
@@ -39,6 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
+
+    return () => unsubscribe();
   }, []);
 
   const login = (email: string, password: string): boolean => {

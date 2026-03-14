@@ -6,16 +6,18 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { seedDatabase } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
-import { errorEmitter, FirestorePermissionError } from '@/firebase';
+import { errorEmitter, FirestorePermissionError, useFirestore } from '@/firebase';
+import { collection, writeBatch, getDocs, doc } from 'firebase/firestore';
+import { departments, classes, students } from '@/lib/data';
 
 export default function SeedPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const router = useRouter();
+  const db = useFirestore();
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -30,29 +32,55 @@ export default function SeedPage() {
 
   const handleSeed = async () => {
     setIsLoading(true);
-    const result = await seedDatabase();
-    setIsLoading(false);
+    try {
+      const batch = writeBatch(db);
 
-    if (result.success) {
+      // Clear and set departments
+      const deptsRef = collection(db, 'departments');
+      const deptsSnap = await getDocs(deptsRef);
+      deptsSnap.forEach(d => batch.delete(d.ref));
+      departments.forEach(dept => {
+        batch.set(doc(deptsRef, dept.id), dept);
+      });
+
+      // Clear and set classes
+      const classesRef = collection(db, 'classes');
+      const classesSnap = await getDocs(classesRef);
+      classesSnap.forEach(c => batch.delete(c.ref));
+      classes.forEach(cls => {
+        batch.set(doc(classesRef, cls.id), cls);
+      });
+
+      // Clear and set students
+      const studentsRef = collection(db, 'students');
+      const studentsSnap = await getDocs(studentsRef);
+      studentsSnap.forEach(s => batch.delete(s.ref));
+      students.forEach(student => {
+        batch.set(doc(studentsRef, student.id), student);
+      });
+
+      await batch.commit();
+
       toast({
         title: 'Success',
-        description: result.message,
+        description: 'Database seeded successfully!',
       });
-    } else {
-      if (result.isPermissionError && result.errorContext) {
+    } catch (error: any) {
+      if (error.code === 'permission-denied') {
         const permissionError = new FirestorePermissionError({
-          path: result.errorContext.path,
-          operation: result.errorContext.operation as any,
-          requestResourceData: result.errorContext.data
+          path: 'root',
+          operation: 'write',
         });
         errorEmitter.emit('permission-error', permissionError);
       } else {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: result.message,
+          description: error.message || 'Failed to seed database.',
         });
       }
+    } finally {
+      setIsLoading(false);
     }
   };
   
