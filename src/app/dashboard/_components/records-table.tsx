@@ -30,6 +30,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { useAuth } from "@/context/auth-context";
+import { useFirestore, updateDocumentNonBlocking } from "@/firebase";
+import { doc } from "firebase/firestore";
 
 type LateRecordWithPeriodCount = LateRecord & { lateInPeriod: number };
 type SortableKeys = keyof LateRecordWithPeriodCount | 'mentor' | 'totalLate';
@@ -45,6 +48,8 @@ type RecordsTableProps = {
 };
 
 export function RecordsTable({ records, loading, departments, classes, students }: RecordsTableProps) {
+  const { user } = useAuth();
+  const db = useFirestore();
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -65,6 +70,8 @@ export function RecordsTable({ records, loading, departments, classes, students 
   const searchRef = useRef<HTMLDivElement>(null);
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'timestamp', direction: 'descending' });
+
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     fetch('/svcet-head.png')
@@ -172,6 +179,7 @@ export function RecordsTable({ records, loading, departments, classes, students 
   };
 
   const handleRowClick = (record: LateRecord) => {
+    // Prevent dialog if selecting status dropdown
     const student = students.find(s => s.id === record.studentId);
     if (student) {
         handleStudentSelect(student);
@@ -444,6 +452,12 @@ export function RecordsTable({ records, loading, departments, classes, students 
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleStatusChange = (recordId: string, newStatus: LateRecord['status']) => {
+    if (!isAdmin) return;
+    const recordRef = doc(db, 'lateRecords', recordId);
+    updateDocumentNonBlocking(recordRef, { status: newStatus });
   };
 
   const requestSort = (key: SortableKeys) => {
@@ -730,10 +744,26 @@ export function RecordsTable({ records, loading, departments, classes, students 
                             <TableCell>{student?.mentor || 'N/A'}</TableCell>
                             <TableCell>{record.date}</TableCell>
                             <TableCell>{record.time}</TableCell>
-                             <TableCell>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(record.status)}`}>
-                                    {record.status}
-                                </span>
+                             <TableCell onClick={(e) => isAdmin && e.stopPropagation()}>
+                                {isAdmin ? (
+                                  <Select 
+                                    defaultValue={record.status} 
+                                    onValueChange={(val) => handleStatusChange(record.id, val as LateRecord['status'])}
+                                  >
+                                    <SelectTrigger className={cn("h-8 w-[140px] text-xs font-medium", getStatusClass(record.status))}>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Not Informed">Not Informed</SelectItem>
+                                      <SelectItem value="Informed">Informed</SelectItem>
+                                      <SelectItem value="Letter Given">Letter Given</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(record.status)}`}>
+                                      {record.status}
+                                  </span>
+                                )}
                             </TableCell>
                              <TableCell>
                                 <span className={`font-bold ${ record.lateInPeriod > 3 ? 'text-destructive' : 'text-primary'}`}>{record.lateInPeriod}</span>
